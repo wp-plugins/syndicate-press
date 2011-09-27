@@ -6,7 +6,7 @@ Requires at least: 2.8
 Tested up to: 3.2.1
 Stable tag: trunk
 
-Syndicate Press lets you include RSS, RDF or Atom feeds directly in your Wordpress posts or pages. It provides detailed configuration and managementvia an easy to use admin page. 
+Syndicate Press lets you include RSS, RDF or Atom feeds directly in your Wordpress posts or pages. It provides detailed configuration and management via an easy to use admin page. 
 
 == Description ==
 
