@@ -6,13 +6,15 @@ Requires at least: 2.8
 Tested up to: 3.2.1
 Stable tag: trunk
 
-Syndicate Press lets you include RSS, RDF or Atom feeds directly in your Wordpress posts or pages. It provides detailed configuration and management via an easy to use admin page. 
+Syndicate Press lets you include RSS, RDF or Atom feeds directly in your Wordpress posts, pages, widgets or theme. 
 
 == Description ==
 
-Syndicate Press lets you include RSS feeds directly in your Wordpress Posts or Pages. This plugin provides a very easy to use administration page and includes great features such as feed caching, filters and numerous display options.
+Syndicate Press lets you include RSS, RDF or Atom feeds directly in your Wordpress Posts, Pages, Widgets or anywhere in your theme. Syndicate Press features an easy to use admin page and includes great features such as feed caching, filters and numerous display options.
 
-Unlike a number of the news syndication plugins for Wordpress, Syndicate Press is actively maintained and regularly updated with new features and enhancements. The Syndicate Press development team at henryranch.net has focused on ease of use, performance, stability and functionality to bring you a great plugin that will help keep your Wordpress site up to date with the latest in news feeds from every corner of the world.
+Unlike a number of the news syndication plugins for Wordpress, Syndicate Press does not force arbitrary formatting or CSS styling on the feed contents.  This allows the feed items to be displayed in your site like they are a fully integrated part of your content.
+
+Syndicate Press is actively maintained and regularly updated with new features and enhancements. The Syndicate Press development team at <a href="http://henryranch.net/software/syndicate-press/">henryranch.net</a> has focused on ease of use, performance, stability and functionality to bring you a great plugin that will help keep your Wordpress site up to date with the latest in news feeds from every corner of the world.
 
 == Installation ==
 
