@@ -61,7 +61,7 @@ YOU MAY REQUEST A LICENSE TO DO SO FROM THE AUTHOR.
 */
 if (!class_exists("SyndicatePressPlugin")) {
 	class SyndicatePressPlugin {
-        var $version = "1.0";
+        var $version = "1.1";
         var $homepageURL = "http://henryranch.net/software/syndicate-press/";
         
         var $cacheDir = "/cache";
@@ -183,7 +183,7 @@ if (!class_exists("SyndicatePressPlugin")) {
                         $availableFeedUrl = trim($availableFeedNameArray[1]);
                         if($availableFeedUrl == $url)
                         {
-                            return $availableFeedNameArray[0];
+                            return trim($availableFeedNameArray[0]);
                         }
                     }
                 }
@@ -230,7 +230,7 @@ if (!class_exists("SyndicatePressPlugin")) {
                     foreach($availableFeeds as $availableFeed)
                     {
                         $availableFeed = trim($availableFeed);
-                        //split the reference string on ',' (comma).  this is the feed reference list prvided in the bbcode: [sp# feed1,feed2,feed3,etc...]
+                        //split the reference string on ',' (comma).  this is the feed reference list provided in the bbcode: [sp# feed1,feed2,feed3,etc...]
                         $feedNameList = explode(',', $feedNameReference);
                         foreach($feedNameList as $feedName)
                         {
@@ -241,7 +241,7 @@ if (!class_exists("SyndicatePressPlugin")) {
                                 if(strpos($availableFeed, $this->feedListCustomNameDelimiter) !== false)
                                 {
                                     $availableFeedName = explode($this->feedListCustomNameDelimiter, $availableFeed);
-                                    $availableFeed = $availableFeedName[1];
+                                    $availableFeed = trim($availableFeedName[1]);
                                     //print "feed URL: $availableFeed <br>"; 
                                 }
                                 $content .= $this->sp_getFormattedRssContent($availableFeed);
@@ -519,6 +519,9 @@ if (!class_exists("SyndicatePressPlugin")) {
         function sp_getFormattedRssContent($url)
         {
             include_once "php/TinyFeedParser.php";
+            
+            //make sure there are no whitespaces leading or trailing the URL string
+            $url = trim($url);
             
             try
             {
@@ -834,6 +837,9 @@ if (!class_exists("SyndicatePressPlugin")) {
 <form method="post" action="<?php echo $_SERVER["REQUEST_URI"]; ?>">
 
 <div id="formDiv">
+
+<input type="submit" name="update_SyndicatePressPluginSettings" value="<?php _e('Update Settings', 'SyndicatePressPlugin') ?>" />
+
 <h3>Output aggregated feed content?</h3>
 <div style="padding-left: 20px;">
 <label for="syndicatePressEnable_yes"><input type="radio" id="syndicatePressEnable_yes" name="syndicatePressEnable" value="true" <?php if ($configOptions['enable'] == "true") { _e('checked="checked"', "SyndicatePressPlugin"); }?> /> Enable - show content</label><br>
@@ -850,7 +856,7 @@ Feeds with custom names (can be shown as the feed title).<br>
 Enter 1 name/feed pair per line.  Separate the name and URL by a pipe character: |.<br>
 </div>
 You may mix and match feeds with names or without names.<br>
-<textarea name="syndicatePressFeedUrlList" style="width: 95%; height: 100px;"><?php _e(apply_filters('format_to_edit',$configOptions['feedUrlList']), 'SyndicatePressPlugin') ?></textarea>
+<textarea name="syndicatePressFeedUrlList" style="width: 95%; height: 200px;"><?php _e(apply_filters('format_to_edit',$configOptions['feedUrlList']), 'SyndicatePressPlugin') ?></textarea>
 </div>
 
 <br>&nbsp<br>
@@ -1011,7 +1017,6 @@ To insert feed contents into a Page or Post, use the following syntax:<br>
 <h3 style="text-align:center">Help support this plugin!</h3>
 <p>
 A donation is a great way to show your support for this plugin.  Donations help offset the cost of maintenance, development and hosting.<br><br>
-Everyone who donates will get a link back to their website, posted prominently on the main site for this plugin.<br><br>
 There is no minimum donation amount.  If you like this plugin and find that it has saved you time or effort, you can be the judge of how much that is worth to you.<br><br>
 Thank you!
 </p>
