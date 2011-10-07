@@ -1,8 +1,8 @@
 <?php
 /*
 File: TinyFeedParser.php
-Date: 5/2/2010 
-Version 1.9.2
+Date: 10/6/2011 
+Version 1.9.3
 Author: Shaun Henry, HenryRanch LLC
 
 LICENSE:
@@ -385,7 +385,7 @@ class TinyFeedParser
             if($this->allowMarkupInDescription == 'false')
             {
                 $article->content = $this->removeAllHtmlMarkup($article->content);
-                $article->content = $this->truncateToLength($article->content, $this->maxDescriptionLength);
+                $article->content = $this->truncateToLength($article->content, $this->maxDescriptionLength, $article->link);
             }
         }
         
@@ -396,7 +396,7 @@ class TinyFeedParser
         if($this->allowMarkupInDescription == 'false')
         {
             $article->description = (string)$this->removeAllHtmlMarkup($article->description);
-            $article->description = $this->truncateToLength($article->description, $this->maxDescriptionLength);
+            $article->description = $this->truncateToLength($article->description, $this->maxDescriptionLength, $article->link);
         }
                 
         $article->headline = $article->description;
@@ -416,10 +416,21 @@ class TinyFeedParser
         return $article;
     }
     
-    function truncateToLength($text, $length)
+    function truncateToLength($text, $length, $urlLink="")
     {
         if($length != -1 && strlen($text) > $length)
-            $text = substr($text, 0, $length) . '...';
+        {
+            $text = substr($text, 0, $length);
+            if($urlLink != "")
+            {
+                $text .= " <a href=\"$urlLink\" target=\"_blank\" title=\"Open article in a new window\">...</a>";
+            }
+            else
+            {
+                $text .= '...';
+            }
+            
+        }
         return $text;
     }
     
