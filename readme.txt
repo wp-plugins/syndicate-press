@@ -51,3 +51,8 @@ Please see the following pages for examples of the syndicated news feeds on a Wo
 1.0: Initial release to the Wordpress plugin repository
 
 == Arbitrary section ==
+
+Please see the following pages for examples of the syndicated news feeds on a Wordpress blog:
+* http://henryranch.net/news/
+* http://henryranch.net/news/real-time-earthquake-news/
+* http://henryranch.net/news/science-technology/
