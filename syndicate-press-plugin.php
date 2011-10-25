@@ -4,7 +4,7 @@ Plugin Name: Syndicate Press
 Plugin URI: http://www.henryranch.net/software/syndicate-press/
 Description: This plugin provides a high performance, highly configurable and easy to use news syndication aggregator which supports RSS, RDF and ATOM feeds.
 Author: HenryRanch LLC (henryranch.net)
-Version: 1.0.2
+Version: 1.0.3
 Author URI: http://henryranch.net/
 License: GPL2
 */
@@ -61,7 +61,7 @@ YOU MAY REQUEST A LICENSE TO DO SO FROM THE AUTHOR.
 */
 if (!class_exists("SyndicatePressPlugin")) {
 	class SyndicatePressPlugin {
-        var $version = "1.0.2";
+        var $version = "1.0.3";
         var $homepageURL = "http://henryranch.net/software/syndicate-press/";
         
         var $cacheDir = "/cache";
@@ -247,7 +247,7 @@ if (!class_exists("SyndicatePressPlugin")) {
                                 $content .= $this->sp_getFormattedRssContent($availableFeed);
                                 if($configOptions['feedSeparationHTMLCode'] != "")
                                 {
-                                    $content .= $configOptions['feedSeparationHTMLCode'];
+                                    $content .= $this->sp_unescapeString($configOptions['feedSeparationHTMLCode']);
                                 }
                             }
                         }
@@ -266,6 +266,11 @@ if (!class_exists("SyndicatePressPlugin")) {
                 $content .= '<br><font size=-4>Processed request in '.$elapsedTime.' seconds.</font><br>';
             }
             return $content;
+        }
+        
+        function sp_unescapeString($str)
+        {
+            return stripslashes(stripslashes($str));
         }
         
         /* Get the time when the given url was last cached.
@@ -568,7 +573,7 @@ if (!class_exists("SyndicatePressPlugin")) {
             }
             catch(Exception $e)
             {
-                return str_replace("{feedname}", $url, $configOptions['feedNotAvailableHTMLCode']);
+                return str_replace("{feedname}", $url, $this->sp_unescapeString($configOptions['feedNotAvailableHTMLCode']));
                 //return 'Error parsing content from '.$url.':<br>'.$e->getMessage();
             }
         }
@@ -790,10 +795,12 @@ if (!class_exists("SyndicatePressPlugin")) {
                 }
 				if (isset($_POST['syndicatePressFeedSeparationHTMLCode'])) {
 					$configOptions['feedSeparationHTMLCode'] = apply_filters('feedSeparationHTMLCode_save_pre', $_POST['syndicatePressFeedSeparationHTMLCode']);
+                    $configOptions['feedSeparationHTMLCode'] = mysql_real_escape_string($configOptions['feedSeparationHTMLCode']);
 				}
 				if (isset($_POST['syndicatePressFeedNotAvailableHTMLCode'])) {
 					$configOptions['feedNotAvailableHTMLCode'] = apply_filters('feedNotAvailableHTMLCode_save_pre', $_POST['syndicatePressFeedNotAvailableHTMLCode']);
-				}
+				    $configOptions['feedNotAvailableHTMLCode'] = mysql_real_escape_string($configOptions['feedNotAvailableHTMLCode']);
+                }
                 
                 update_option($this->adminOptionsName, $configOptions);
                 $this->sp_clearFormattedOutputCache();
@@ -960,7 +967,7 @@ Custom feed separation code:<br>
 <div style="padding-left: 20px;">
 i.e. To insert a horizontal line: &lt;hr&gt;</em><br>
 </div>
-<textarea name="syndicatePressFeedSeparationHTMLCode" style="width: 95%; height: 100px;"><?php _e(apply_filters('format_to_edit',$configOptions['feedSeparationHTMLCode']), 'SyndicatePressPlugin') ?></textarea>
+<textarea name="syndicatePressFeedSeparationHTMLCode" style="width: 95%; height: 100px;"><?php _e($this->sp_unescapeString(apply_filters('format_to_edit',$configOptions['feedSeparationHTMLCode'])), 'SyndicatePressPlugin') ?></textarea>
 </div>
 Custom content to show when a feed is unavailable:<br>
 <div style="padding-left: 20px;">
@@ -969,7 +976,7 @@ To include the name of the unavailable feed, use {feedname} in the code below an
 To show nothing when a feed is not available, simply delete all of the content from this field.</em>
 <div style="padding-left: 20px;">
 </div>
-<textarea name="syndicatePressFeedNotAvailableHTMLCode" style="width: 95%; height: 100px;"><?php _e(apply_filters('format_to_edit',$configOptions['feedNotAvailableHTMLCode']), 'SyndicatePressPlugin') ?></textarea>
+<textarea name="syndicatePressFeedNotAvailableHTMLCode" style="width: 95%; height: 100px;"><?php _e($this->sp_unescapeString(apply_filters('format_to_edit',$configOptions['feedNotAvailableHTMLCode'])), 'SyndicatePressPlugin') ?></textarea>
 </div>
 </div>
 </div>
@@ -1037,6 +1044,34 @@ Thank you!
 <h3 style="text-align:center">Syndicate Press news</h3>
 <p>
 <?php print $this->sp_getSPNews(); ?>
+</p>
+</div>
+
+<br>&nbsp<br>
+<div style='background: #ffc; border: 1px solid #333; margin: 2px; padding: 5px'>
+<h3 style="text-align:center">Other ways to support this plugin</h3>
+<p>
+In addition to direct donations, you can also support Syndicate Press by following one of the Amazon book links below and buying a book.
+</p>
+<p align="center">
+
+<br>&nbsp<br>
+<table style="margin-left: auto; margin-right: auto">
+<tr>
+<td style="padding: 10px;"><iframe src="http://rcm.amazon.com/e/cm?t=henrantecandl-20&o=1&p=8&l=as1&asins=0470592745&ref=qf_sp_asin_til&fc1=000000&IS2=1&lt1=_blank&m=amazon&lc1=0000FF&bc1=000000&bg1=FFFFFF&f=ifr" style="width:120px;height:240px;" scrolling="no" marginwidth="0" marginheight="0" frameborder="0"></iframe></td>
+<td style="padding: 10px;"><iframe src="http://rcm.amazon.com/e/cm?t=henrantecandl-20&o=1&p=8&l=as1&asins=0470937815&ref=qf_sp_asin_til&fc1=000000&IS2=1&lt1=_blank&m=amazon&lc1=0000FF&bc1=000000&bg1=FFFFFF&f=ifr" style="width:120px;height:240px;" scrolling="no" marginwidth="0" marginheight="0" frameborder="0"></iframe></td>
+</tr>
+<tr>
+<td style="padding: 10px;"><iframe src="http://rcm.amazon.com/e/cm?t=henrantecandl-20&o=1&p=8&l=as1&asins=0470560541&ref=qf_sp_asin_til&fc1=000000&IS2=1&lt1=_blank&m=amazon&lc1=0000FF&bc1=000000&bg1=FFFFFF&f=ifr" style="width:120px;height:240px;" scrolling="no" marginwidth="0" marginheight="0" frameborder="0"></iframe></td>
+<td style="padding: 10px;"><iframe src="http://rcm.amazon.com/e/cm?t=henrantecandl-20&o=1&p=8&l=as1&asins=1849514100&ref=qf_sp_asin_til&fc1=000000&IS2=1&lt1=_blank&m=amazon&lc1=0000FF&bc1=000000&bg1=FFFFFF&f=ifr" style="width:120px;height:240px;" scrolling="no" marginwidth="0" marginheight="0" frameborder="0"></iframe>
+</td>
+</tr>
+<tr>
+<td style="padding: 10px;"><iframe src="http://rcm.amazon.com/e/cm?t=henrantecandl-20&o=1&p=8&l=as1&asins=B00168NGGU&ref=qf_sp_asin_til&fc1=000000&IS2=1&lt1=_blank&m=amazon&lc1=0000FF&bc1=000000&bg1=FFFFFF&f=ifr" style="width:120px;height:240px;" scrolling="no" marginwidth="0" marginheight="0" frameborder="0"></iframe></td>
+<td style="padding: 10px;"><iframe src="http://rcm.amazon.com/e/cm?t=henrantecandl-20&o=1&p=8&l=as1&asins=B004DNWI8W&ref=qf_sp_asin_til&fc1=000000&IS2=1&lt1=_blank&m=amazon&lc1=0000FF&bc1=000000&bg1=FFFFFF&f=ifr" style="width:120px;height:240px;" scrolling="no" marginwidth="0" marginheight="0" frameborder="0"></iframe></td>
+</tr>
+</table>
+
 </p>
 </div>
 
