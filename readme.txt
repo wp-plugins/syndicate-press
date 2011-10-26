@@ -29,14 +29,14 @@ This section describes how to install the plugin and get it working.
 
 == Frequently Asked Questions ==
 
-* See http://henryranch.net/software/syndicate-press/
+See http://henryranch.net/software/syndicate-press/
 
 == Screenshots ==
 
 Please see the following pages for examples of the syndicated news feeds on a Wordpress blog:
-* http://henryranch.net/news/
-* http://henryranch.net/news/real-time-earthquake-news/
-* http://henryranch.net/news/science-technology/
+http://henryranch.net/news/
+http://henryranch.net/news/real-time-earthquake-news/
+http://henryranch.net/news/science-technology/
 
 == Changelog ==
 
@@ -55,6 +55,6 @@ http://henryranch.net/software/syndicate-press/syndicate-press-releases/
 == Arbitrary section ==
 
 Please see the following pages for examples of the syndicated news feeds on a Wordpress blog:
-* http://henryranch.net/news/
-* http://henryranch.net/news/real-time-earthquake-news/
-* http://henryranch.net/news/science-technology/
+http://henryranch.net/news/
+http://henryranch.net/news/real-time-earthquake-news/
+http://henryranch.net/news/science-technology/
