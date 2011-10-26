@@ -4,7 +4,7 @@ Plugin Name: Syndicate Press
 Plugin URI: http://www.henryranch.net/software/syndicate-press/
 Description: This plugin provides a high performance, highly configurable and easy to use news syndication aggregator which supports RSS, RDF and ATOM feeds.
 Author: HenryRanch LLC (henryranch.net)
-Version: 1.0.3
+Version: 1.0.4
 Author URI: http://henryranch.net/
 License: GPL2
 */
@@ -61,7 +61,7 @@ YOU MAY REQUEST A LICENSE TO DO SO FROM THE AUTHOR.
 */
 if (!class_exists("SyndicatePressPlugin")) {
 	class SyndicatePressPlugin {
-        var $version = "1.0.3";
+        var $version = "1.0.4";
         var $homepageURL = "http://henryranch.net/software/syndicate-press/";
         
         var $cacheDir = "/cache";
@@ -230,6 +230,10 @@ if (!class_exists("SyndicatePressPlugin")) {
                     foreach($availableFeeds as $availableFeed)
                     {
                         $availableFeed = trim($availableFeed);
+                        if($availableFeed == "")
+                        {
+                            continue;
+                        }
                         //split the reference string on ',' (comma).  this is the feed reference list provided in the bbcode: [sp# feed1,feed2,feed3,etc...]
                         $feedNameList = explode(',', $feedNameReference);
                         foreach($feedNameList as $feedName)
@@ -774,6 +778,7 @@ if (!class_exists("SyndicatePressPlugin")) {
 					$configOptions['feedUrlList'] = apply_filters('feedUrlList_save_pre', $_POST['syndicatePressFeedUrlList']);
                     //replace any occurrances of feed:// with http://
                     $configOptions['feedUrlList'] = str_replace("feed://", "http://", $configOptions['feedUrlList']);
+                    $configOptions['feedUrlList'] = trim($configOptions['feedUrlList']);
 				}
 				if (isset($_POST['syndicatePressExclusiveKeywordFilter'])) {
 					$configOptions['exclusiveKeywordFilter'] = apply_filters('exclusiveKeywordFilter_save_pre', $_POST['syndicatePressExclusiveKeywordFilter']);

@@ -4,7 +4,7 @@ Donate link: http://henryranch.net/software/syndicate-press/
 Tags: RSS,RDF,Atom,feed,syndicate,syndication,news,aggregator,aggregation,plugin,active,maintained,custom,widget,post,plugin,posts,admin,sidebar,theme,comments,images,twitter,page,google,links
 Requires at least: 2.8
 Tested up to: 3.2.1
-Stable tag: 1.0.3
+Stable tag: 1.0.4
 
 Syndicate Press lets you include RSS, RDF or Atom feeds directly in your Wordpress posts, pages, widgets or theme. 
 
@@ -40,7 +40,9 @@ Please see the following pages for examples of the syndicated news feeds on a Wo
 
 == Changelog ==
 
-* http://henryranch.net/software/syndicate-press/syndicate-press-releases/
+http://henryranch.net/software/syndicate-press/syndicate-press-releases/
+
+1.0.4: Ignoring empty lines in the the feed url box.  
 
 1.0.3: Fixed a quote and slash escaping issue in the custom feed separator html and in the feed not found custom html.
 
