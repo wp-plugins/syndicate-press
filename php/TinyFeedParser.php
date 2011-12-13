@@ -539,12 +539,12 @@ class TinyFeedParser
             {
                 if($article->pubDateStr)
                 {
-                    $html = $this->addBrIfNeeded($html);
+                    //$html = $this->addBrIfNeeded($html);
                     $html .= '<font size=-3>'.$article->pubDateStr.'</font>'."\r\n";
                 }
                 else
                 {
-                    $html = $this->addBrIfNeeded($html);
+                    //$html = $this->addBrIfNeeded($html);
                     $html .= '<font size=-3>No timestamp info...</font>'."\r\n";
                 }
             }
