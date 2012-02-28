@@ -1,18 +1,21 @@
 <?php 
 /*
 File: TinyHttpClient.php
-Date: 3/13/2010
-Version 1.3.1
-Author: Shaun Henry, HenryRanch LLC
+Date: 2/28/2012
+Version 1.3.2
+Author: HenryRanch LLC
 
 LICENSE:
 ============
-Copyright (c) 2009-2011, Henry Ranch LLC. All rights reserved. http://www.henryranch.net
-Author email: s <at> henryranch.net
+Copyright (c) 2009-2012, Henry Ranch LLC. All rights reserved. http://www.henryranch.net
+
 
 TinyHttpClient is governed by the following license and is not licensed for use outside of 
 the SyndicatePress Wordpress plugin.  By downloading or using this software,  you
  agree to all the following: 
+ 
+ YOU WILL NOT USE OR COPY THIS SOFTWARE OUTSIDE OF THE SYNDICATE PRESS
+ WORDPRESS PLUGIN.
  
  THIS SOFTWARE IS PROVIDED BY HENRY RANCH LLC `AS IS' AND ANY EXPRESS
  OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
@@ -158,6 +161,7 @@ class TinyHttpClient
         $dataArray = explode("\r\n\r\n", $data);
         $numElements = count($dataArray);
         $body = "";
+        $header = $dataArray[0];
         for($i = 1; $i <= $numElements; $i++)
         {
             $body .= $dataArray[$i];
@@ -165,9 +169,26 @@ class TinyHttpClient
         }
         if($this->debug)
             print "<br><br>dataArray len is ".count($dataArray).".<br><br>".
-                "header is:<br>".$dataArray[0]."<br><br>".
+                "header is:<br>".$header."<br><br>".
                 "body is:<br>".$body."<br>";
-                
+        
+        if(strpos($header, "HTTP/1.1 301") !== false)
+        {
+            //print "Header contains move message when requesting $remoteFile<br>";
+            $headerArray = explode("\r\n", $header);
+            $locationUrl = "not_found";
+            $numElements = count($headerArray);
+            for($i = 0; $i < $numElements; $i++)
+            {
+                $headerLine = $headerArray[$i];
+                if(strpos($headerLine, "Location:") !== false)
+                {
+                    $locationLine = explode(" ", $headerLine);
+                    $locationUrl = $locationLine[1];
+                }
+            }
+            return "HTTP-301_MOVED_TO:".$locationUrl;
+        }
         if($localFilename == "")
         {
             return $body;

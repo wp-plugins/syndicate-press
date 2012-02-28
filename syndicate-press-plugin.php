@@ -13,8 +13,7 @@ License: GPL2
 
 LICENSE:
 ============
-Copyright (c) 2009-2011, Shaun Henry, Henry Ranch LLC. All rights reserved. http://www.henryranch.net
-Author email: s <at> henryranch.net
+Copyright (c) 2009-2012 Henry Ranch LLC. All rights reserved. http://www.henryranch.net
 
 By downloading or using this software,  you agree to all the following: 
 
@@ -44,7 +43,7 @@ YOU MAY REQUEST A LICENSE TO DO SO FROM THE AUTHOR.
  TO ABIDE BY ALL OF THE TERMS OF THIS LICENSE AGREEMENT.
  
  
- Copyright 2009-2011  Shaun Henry, HenryRanch LLC  (email : s <at> henryranch.net)
+ Copyright 2009-2012  HenryRanch LLC  
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License, version 2, as 
@@ -61,7 +60,7 @@ YOU MAY REQUEST A LICENSE TO DO SO FROM THE AUTHOR.
 */
 if (!class_exists("SyndicatePressPlugin")) {
 	class SyndicatePressPlugin {
-        var $version = "1.0.5";
+        var $version = "1.0.6";
         var $homepageURL = "http://henryranch.net/software/syndicate-press/";
         
         var $cacheDir = "/cache";
@@ -415,6 +414,12 @@ if (!class_exists("SyndicatePressPlugin")) {
                         $tinyHttpClient = new TinyHttpClient();    
                         //$tinyHttpClient->debug = true;
                         $retVal = $tinyHttpClient->getRemoteFile($host, $port, $remoteFile, $basicAuthUsernameColonPassword, $bufferSize, $mode, $fromEmail, $postData, $filename);
+                        if(strpos($retVal, "HTTP-301_MOVED_TO:") !== false)
+                        {
+                            //print "Received $retVal when requesting $remoteFile<br>";
+                            $remoteFile = str_replace("HTTP-301_MOVED_TO:", $retVal, "");
+                            $retVal = $tinyHttpClient->getRemoteFile($host, $port, $remoteFile, $basicAuthUsernameColonPassword, $bufferSize, $mode, $fromEmail, $postData, $filename);
+                        }
                         //print $retVal;
                     }
                     else
@@ -841,159 +846,249 @@ if (!class_exists("SyndicatePressPlugin")) {
 ?>        
         
         
-        
-        
+       
 <div class=wrap>
 <h2><a href="<?php echo $this->homepageURL; ?>" target=_blank title="Click for the Syndicate Press homepage...">Syndicate Press</a></h2>
+<em>Version <?php print $this->version;?></em><br>
 
-<table border=1>
-<tr>
-<td valign=top>
 <form method="post" action="<?php echo $_SERVER["REQUEST_URI"]; ?>">
 
 <div id="formDiv">
 
 <input type="submit" name="update_SyndicatePressPluginSettings" value="<?php _e('Update Settings', 'SyndicatePressPlugin') ?>" />
-
-<h3>Output aggregated feed content?</h3>
-<div style="padding-left: 20px;">
-<label for="syndicatePressEnable_yes"><input type="radio" id="syndicatePressEnable_yes" name="syndicatePressEnable" value="true" <?php if ($configOptions['enable'] == "true") { _e('checked="checked"', "SyndicatePressPlugin"); }?> /> Enable - show content</label><br>
-<label for="syndicatePressEnable_no"><input type="radio" id="syndicatePressEnable_no" name="syndicatePressEnable" value="false" <?php if ($configOptions['enable'] == "false") { _e('checked="checked"', "SyndicatePressPlugin"); }?>/> Disable - do not show content</label>
-</div>
-
-<br>&nbsp<br>
-<h3>List each RSS feed on a single line</h3>
-<div style="padding-left: 20px;">
-Enter a feed URL on each line<br>
-Feeds without names: Simply enter 1 feed URL per line.<br>
-Feeds with custom names (can be shown as the feed title).<br>
-<div style="padding-left: 20px;">
-Enter 1 name/feed pair per line.  Separate the name and URL by a pipe character: |.<br>
-</div>
-You may mix and match feeds with names or without names.<br>
-<textarea name="syndicatePressFeedUrlList" style="width: 95%; height: 200px;"><?php _e(apply_filters('format_to_edit',$configOptions['feedUrlList']), 'SyndicatePressPlugin') ?></textarea>
-</div>
-
-<br>&nbsp<br>
-<h3>Inclusive keyword filtering</h3>
-<div style="padding-left: 20px;">
-Only allow feed items that contain any of the following words.<br>
-If a feed item contains one or more of the words in this list, the item <em>will</em> be displayed.<br>
-<em>Inclusive filtering will be applied before the exclusive filters.</em><br>
-Enter a comma separated list of keywords:<br>
-<textarea name="syndicatePressInclusiveKeywordFilter" style="width: 95%; height: 50px;"><?php _e(apply_filters('format_to_edit',$configOptions['inclusiveKeywordFilter']), 'SyndicatePressPlugin') ?></textarea>
-</div>
-
-<br>&nbsp<br>
-<h3>Exclusive keyword filtering</h3>
-<div style="padding-left: 20px;">
-Filter <em>out</em> feed items that contain any of the following words.<br>
-If a feed item contains one or more of the words in this list, the item will <em>not</em> be displayed.<br>
-<em>Exclusive filtering will be applied after the inclusive filters.</em><br>
-Enter a comma separated list of keywords:<br>
-<textarea name="syndicatePressExclusiveKeywordFilter" style="width: 95%; height: 50px;"><?php _e(apply_filters('format_to_edit',$configOptions['exclusiveKeywordFilter']), 'SyndicatePressPlugin') ?></textarea>
-</div>
-
-<br>&nbsp<br>
-<h3>Input feed caching</h3>
-<div style="padding-left: 20px;">
-<label for="syndicatePressEnableFeedCache_yes"><input type="radio" id="syndicatePressEnableFeedCache_yes" name="syndicatePressEnableFeedCache" value="true" <?php if ($configOptions['enableFeedCache'] == "true") { _e('checked="checked"', "SyndicatePressPlugin"); }?> /> Enable - Cache the incoming feeds.</label><br>
-<div style="padding-left: 20px;">
-Cached feed expires after <input name="syndicatePressCacheTimeoutSeconds" size="10" value="<?php _e(apply_filters('format_to_edit',$configOptions['cacheTimeoutSeconds']), 'SyndicatePressPlugin') ?>"> seconds. (1 hour = 3600 seconds)<br>
-</div>
-<label for="syndicatePressEnableFeedCache_no"><input type="radio" id="syndicatePressEnableFeedCache_no" name="syndicatePressEnableFeedCache" value="false" <?php if ($configOptions['enableFeedCache'] == "false") { _e('checked="checked"', "SyndicatePressPlugin"); }?>/> Disable - Request the feed for every view of the Syndicate Press page.  <em>This is NOT recommended!</em></label><br>
-Feed download mode:<br>
-<div style="padding-left: 20px;">
-<label for="syndicatePressUseDownloadClient_yes"><input type="radio" id="syndicatePressUseDownloadClient_yes" name="syndicatePressUseDownloadClient" value="true" <?php if ($configOptions['useDownloadClient'] == "true") { _e('checked="checked"', "SyndicatePressPlugin"); }?> /> Use download client.  <em>Recommended when the web host disables file_get_contents() functionality.</em></label><br>
-<label for="syndicatePressUseDownloadClient_no"><input type="radio" id="syndicatePressUseDownloadClient_no" name="syndicatePressUseDownloadClient" value="false" <?php if ($configOptions['useDownloadClient'] == "false") { _e('checked="checked"', "SyndicatePressPlugin"); }?>/> Use direct download.  <em>May not work on all web hosts.</em></label><br>
-</div>
-</div>
-
-<br>&nbsp<br>
-<h3>Formatted output caching</h3>
-<div style="padding-left: 20px;">
-<label for="syndicatePressEnableOutputCache_yes"><input type="radio" id="syndicatePressEnableOutputCache_yes" name="syndicatePressEnableOutputCache" value="true" <?php if ($configOptions['enableOutputCache'] == "true") { _e('checked="checked"', "SyndicatePressPlugin"); }?> /> Enable - Cache the formatted output.</label><br>
-<label for="syndicatePressEnableOutputCache_no"><input type="radio" id="syndicatePressEnableOutputCache_no" name="syndicatePressEnableOutputCache" value="false" <?php if ($configOptions['enableOutputCache'] == "false") { _e('checked="checked"', "SyndicatePressPlugin"); }?>/> Disable - Parse and format the feed every time the page/post is requested.  <em>This is NOT recommended!</em></label>
-</div>
-
-<br>&nbsp<br>
-<h3>Display</h3>
-<div style="padding-left: 20px;">
-Limit articles in a feed to <input name="syndicatePressLimitFeedItemsToDisplay" size="10" value="<?php _e(apply_filters('format_to_edit',$configOptions['limitFeedItemsToDisplay']), 'SyndicatePressPlugin') ?>"> items. (-1 to display all items in feed)<br>
-Limit article to <input name="syndicatePressLimitFeedDescriptionCharsToDisplay" size="10" value="<?php _e(apply_filters('format_to_edit',$configOptions['limitFeedDescriptionCharsToDisplay']), 'SyndicatePressPlugin') ?>"> characters. (-1 to display complete article description)<br>
-Limit article headline to <input name="syndicatePressMaxHeadlineLength" size="10" value="<?php _e(apply_filters('format_to_edit',$configOptions['maxHeadlineLength']), 'SyndicatePressPlugin') ?>"> characters. (-1 to display complete article headline)<br>
-Show item description:<br>
-<div style="padding-left: 20px;">
-<label for="syndicatePressShowContentOnlyInLinkTitle_yes"><input type="radio" id="syndicatePressShowContentOnlyInLinkTitle_yes" name="syndicatePressShowContentOnlyInLinkTitle" value="true" <?php if ($configOptions['showContentOnlyInLinkTitle'] == "true") { _e('checked="checked"', "SyndicatePressPlugin"); }?> /> only when the viewer hovers over the item link.</label><br>
-<label for="syndicatePressShowContentOnlyInLinkTitle_no"><input type="radio" id="syndicatePressShowContentOnlyInLinkTitle_no" name="syndicatePressShowContentOnlyInLinkTitle" value="false" <?php if ($configOptions['showContentOnlyInLinkTitle'] == "false") { _e('checked="checked"', "SyndicatePressPlugin"); }?>/> below the item link.</label><br>
-</div>
-Item publication timestamp:<br>
-<div style="padding-left: 20px;">
-<label for="syndicatePressshowArticlePublishTimestamp_yes"><input type="radio" id="syndicatePressshowArticlePublishTimestamp_yes" name="syndicatePressshowArticlePublishTimestamp" value="true" <?php if ($configOptions['showArticlePublishTimestamp'] == "true") { _e('checked="checked"', "SyndicatePressPlugin"); }?> /> Show timestamp.</label><br>
-<label for="syndicatePressshowArticlePublishTimestamp_no"><input type="radio" id="syndicatePressshowArticlePublishTimestamp_no" name="syndicatePressshowArticlePublishTimestamp" value="false" <?php if ($configOptions['showArticlePublishTimestamp'] == "false") { _e('checked="checked"', "SyndicatePressPlugin"); }?>/> Hide timestamp.</label><br>
-</div>
-Display HTML formatting in article:<br>
-<div style="padding-left: 20px;">
-<em>NOTE: Displaying HTML content in the articles will disable article length limitation</em><br>
-<label for="syndicatePressAllowMarkup_yes"><input type="radio" id="syndicatePressAllowMarkup_yes" name="syndicatePressAllowMarkup" value="true" <?php if ($configOptions['allowMarkupInDescription'] == "true") { _e('checked="checked"', "SyndicatePressPlugin"); }?> /> Show HTML formatting.</label><br>
-<label for="syndicatePressAllowMarkup_no"><input type="radio" id="syndicatePressAllowMarkup_no" name="syndicatePressAllowMarkup" value="false" <?php if ($configOptions['allowMarkupInDescription'] == "false") { _e('checked="checked"', "SyndicatePressPlugin"); }?>/> Strip HTML formatting, leaving only the article text.</label><br>
-</div>
-Syndicate Press link:<br>
-<div style="padding-left: 20px;">
-<label for="syndicatePressShowSyndicatePressLinkback_yes"><input type="radio" id="syndicatePressShowSyndicatePressLinkback_yes" name="syndicatePressShowSyndicatePressLinkback" value="true" <?php if ($configOptions['showSyndicatePressLinkback'] == "true") { _e('checked="checked"', "SyndicatePressPlugin"); }?> /> Show 'Powered by <a href="<?php echo $this->homepageURL; ?>" target=_blank>Syndicate Press</a>' at the end of the aggregated feed content.</label><br>
-<div style="padding-left: 20px;">
-<em>If you have not donated to Syndicate Press, a link back to the Syndicate Press site is requested.<br>
-You may use this automated linkback, or you may place the link in the footer of your site.</em><br>
-</div>
-<label for="syndicatePressShowSyndicatePressLinkback_no"><input type="radio" id="syndicatePressShowSyndicatePressLinkback_no" name="syndicatePressShowSyndicatePressLinkback" value="false" <?php if ($configOptions['showSyndicatePressLinkback'] == "false") { _e('checked="checked"', "SyndicatePressPlugin"); }?>/> Do not show the Syndicate Press link.</label><br>
-</div>
-Processing and feed metrics:<br>
-<div style="padding-left: 20px;">
-<label for="syndicatePressShowProcessingMetrics_yes"><input type="radio" id="syndicatePressShowProcessingMetrics_yes" name="syndicatePressShowProcessingMetrics" value="true" <?php if ($configOptions['showProcessingMetrics'] == "true") { _e('checked="checked"', "SyndicatePressPlugin"); }?> /> Show.</label><br>
-<label for="syndicatePressShowProcessingMetrics_no"><input type="radio" id="syndicatePressShowProcessingMetrics_no" name="syndicatePressShowProcessingMetrics" value="false" <?php if ($configOptions['showProcessingMetrics'] == "false") { _e('checked="checked"', "SyndicatePressPlugin"); }?>/> Do not show.</label><br>
-</div>
-Feed name (title):<br>
-<div style="padding-left: 20px;">
-<label for="syndicatePressUseCustomFeednameAsChannelTitle_yes"><input type="radio" id="syndicatePressUseCustomFeednameAsChannelTitle_yes" name="syndicatePressUseCustomFeednameAsChannelTitle" value="true" <?php if ($configOptions['useCustomFeednameAsChannelTitle'] == "true") { _e('checked="checked"', "SyndicatePressPlugin"); }?> /> Use custom feedname as feed title.</label><br>
-<label for="syndicatePressUseCustomFeednameAsChannelTitle_no"><input type="radio" id="syndicatePressUseCustomFeednameAsChannelTitle_no" name="syndicatePressUseCustomFeednameAsChannelTitle" value="false" <?php if ($configOptions['useCustomFeednameAsChannelTitle'] == "false") { _e('checked="checked"', "SyndicatePressPlugin"); }?>/> Use publisher's title (including link and image if available).</label><br>
-<div style="padding-left: 20px;">
-<label for="syndicatePressShowFeedChannelTitle_yes"><input type="radio" id="syndicatePressShowFeedChannelTitle_yes" name="syndicatePressShowFeedChannelTitle" value="true" <?php if ($configOptions['showFeedChannelTitle'] == "true") { _e('checked="checked"', "SyndicatePressPlugin"); }?> /> Show.</label><br>
-<label for="syndicatePressShowFeedChannelTitle_no"><input type="radio" id="syndicatePressShowFeedChannelTitle_no" name="syndicatePressShowFeedChannelTitle" value="false" <?php if ($configOptions['showFeedChannelTitle'] == "false") { _e('checked="checked"', "SyndicatePressPlugin"); }?>/> Do not show.</label><br>
-</div>
-</div>
-Title formatting:<br>
-<div style="padding-left: 20px;">
-<em>You can use html tags to format the feed and article titles... i.e. &lt;h2&gt;title&lt;/h2&gt;</em><br>
-<input name="syndicatePressFeedTitleHTMLCodePre" size="20" value="<?php _e(apply_filters('format_to_edit',$configOptions['feedTitleHTMLCodePre']), 'SyndicatePressPlugin') ?>">Feed title<input name="syndicatePressFeedTitleHTMLCodePost" size="20" value="<?php _e(apply_filters('format_to_edit',$configOptions['feedTitleHTMLCodePost']), 'SyndicatePressPlugin') ?>"><br>
-<input name="syndicatePressArticleTitleHTMLCodePre" size="20" value="<?php _e(apply_filters('format_to_edit',$configOptions['articleTitleHTMLCodePre']), 'SyndicatePressPlugin') ?>">Article title<input name="syndicatePressArticleTitleHTMLCodePost" size="20" value="<?php _e(apply_filters('format_to_edit',$configOptions['articleTitleHTMLCodePost']), 'SyndicatePressPlugin') ?>"><br>
-</div>
-Custom feed separation code:<br>
-<div style="padding-left: 20px;">
-<em>You can insert any html content between feeds (including advertising code)<br>
-<div style="padding-left: 20px;">
-i.e. To insert a horizontal line: &lt;hr&gt;</em><br>
-</div>
-<textarea name="syndicatePressFeedSeparationHTMLCode" style="width: 95%; height: 100px;"><?php _e($this->sp_unescapeString(apply_filters('format_to_edit',$configOptions['feedSeparationHTMLCode'])), 'SyndicatePressPlugin') ?></textarea>
-</div>
-Custom content to show when a feed is unavailable:<br>
-<div style="padding-left: 20px;">
-<em>You can insert custom html content when a feed is not available.<br>
-To include the name of the unavailable feed, use {feedname} in the code below and it will be replaced with the name of the feed.<br>
-To show nothing when a feed is not available, simply delete all of the content from this field.</em>
-<div style="padding-left: 20px;">
-</div>
-<textarea name="syndicatePressFeedNotAvailableHTMLCode" style="width: 95%; height: 100px;"><?php _e($this->sp_unescapeString(apply_filters('format_to_edit',$configOptions['feedNotAvailableHTMLCode'])), 'SyndicatePressPlugin') ?></textarea>
-</div>
-</div>
-</div>
-
 <input name="synPress-update_settings" type="hidden" value="<?php echo wp_create_nonce('synPress-update_settings'); ?>" />
-<div class="submit">
-<table>
-<tr><td>
-<input type="submit" name="update_SyndicatePressPluginSettings" value="<?php _e('Update Settings', 'SyndicatePressPlugin') ?>" />
+
+
+<div class="tabber">
+     <div class="tabbertab">
+        <h2>News</h2>
+        <div style="padding-left: 20px;">
+        <p>
+        <?php print $this->sp_getSPNews(); ?>
+        </p>
+        </div>
+     </div>
+     <div class="tabbertab">
+        <h2>Output</h2>
+        <b><u>Output aggregated feed content?</u></b>
+        <div style="padding-left: 20px;">
+        <label for="syndicatePressEnable_yes"><input type="radio" id="syndicatePressEnable_yes" name="syndicatePressEnable" value="true" <?php if ($configOptions['enable'] == "true") { _e('checked="checked"', "SyndicatePressPlugin"); }?> /> Enable - show content</label><br>
+        <label for="syndicatePressEnable_no"><input type="radio" id="syndicatePressEnable_no" name="syndicatePressEnable" value="false" <?php if ($configOptions['enable'] == "false") { _e('checked="checked"', "SyndicatePressPlugin"); }?>/> Disable - do not show content</label>
+        </div>
+     </div>
+     <div class="tabbertab">
+        <h2>RSS Feeds</h2>
+        <b><u>List each RSS feed on a single line</u></b>
+        <div style="padding-left: 20px;">
+        Enter a feed URL on each line<br>
+        Feeds without names: Simply enter 1 feed URL per line.<br>
+        Feeds with custom names (can be shown as the feed title).<br>
+        <div style="padding-left: 20px;">
+        Enter 1 name/feed pair per line.  Separate the name and URL by a pipe character: |.<br>
+        </div>
+        You may mix and match feeds with names or without names.<br>
+        <textarea name="syndicatePressFeedUrlList" style="width: 95%; height: 200px;"><?php _e(apply_filters('format_to_edit',$configOptions['feedUrlList']), 'SyndicatePressPlugin') ?></textarea>
+        </div>
+     </div>
+     <div class="tabbertab">
+        <h2>Filters</h2>
+        <b><u>Inclusive keyword filtering</u></b>
+        <div style="padding-left: 20px;">
+        Only allow feed items that contain any of the following words.<br>
+        If a feed item contains one or more of the words in this list, the item <em>will</em> be displayed.<br>
+        <em>Inclusive filtering will be applied before the exclusive filters.</em><br>
+        Enter a comma separated list of keywords:<br>
+        <textarea name="syndicatePressInclusiveKeywordFilter" style="width: 95%; height: 50px;"><?php _e(apply_filters('format_to_edit',$configOptions['inclusiveKeywordFilter']), 'SyndicatePressPlugin') ?></textarea>
+        </div>
+        <br>&nbsp;<br>
+        <b><u>Exclusive keyword filtering</u></b>
+        <div style="padding-left: 20px;">
+        Filter <em>out</em> feed items that contain any of the following words.<br>
+        If a feed item contains one or more of the words in this list, the item will <em>not</em> be displayed.<br>
+        <em>Exclusive filtering will be applied after the inclusive filters.</em><br>
+        Enter a comma separated list of keywords:<br>
+        <textarea name="syndicatePressExclusiveKeywordFilter" style="width: 95%; height: 50px;"><?php _e(apply_filters('format_to_edit',$configOptions['exclusiveKeywordFilter']), 'SyndicatePressPlugin') ?></textarea>
+        </div>
+     </div>
+     <div class="tabbertab">
+        <h2>Cache</h2>
+        <b><u>Input feed caching</u></b>
+        <div style="padding-left: 20px;">
+        <label for="syndicatePressEnableFeedCache_yes"><input type="radio" id="syndicatePressEnableFeedCache_yes" name="syndicatePressEnableFeedCache" value="true" <?php if ($configOptions['enableFeedCache'] == "true") { _e('checked="checked"', "SyndicatePressPlugin"); }?> /> Enable - Cache the incoming feeds.</label><br>
+        <div style="padding-left: 20px;">
+        Cached feed expires after <input name="syndicatePressCacheTimeoutSeconds" size="10" value="<?php _e(apply_filters('format_to_edit',$configOptions['cacheTimeoutSeconds']), 'SyndicatePressPlugin') ?>"> seconds. (1 hour = 3600 seconds)<br>
+        </div>
+        <label for="syndicatePressEnableFeedCache_no"><input type="radio" id="syndicatePressEnableFeedCache_no" name="syndicatePressEnableFeedCache" value="false" <?php if ($configOptions['enableFeedCache'] == "false") { _e('checked="checked"', "SyndicatePressPlugin"); }?>/> Disable - Request the feed for every view of the Syndicate Press page.  <em>This is NOT recommended!</em></label><br>
+        Feed download mode:<br>
+        <div style="padding-left: 20px;">
+        <label for="syndicatePressUseDownloadClient_yes"><input type="radio" id="syndicatePressUseDownloadClient_yes" name="syndicatePressUseDownloadClient" value="true" <?php if ($configOptions['useDownloadClient'] == "true") { _e('checked="checked"', "SyndicatePressPlugin"); }?> /> Use download client.  <em>Recommended when the web host disables file_get_contents() functionality.</em></label><br>
+        <label for="syndicatePressUseDownloadClient_no"><input type="radio" id="syndicatePressUseDownloadClient_no" name="syndicatePressUseDownloadClient" value="false" <?php if ($configOptions['useDownloadClient'] == "false") { _e('checked="checked"', "SyndicatePressPlugin"); }?>/> Use direct download.  <em>May not work on all web hosts.</em></label><br>
+        </div>
+        </div>
+        <br>&nbsp;<br>
+        <b><u>Formatted output caching</u></b>
+        <div style="padding-left: 20px;">
+        <label for="syndicatePressEnableOutputCache_yes"><input type="radio" id="syndicatePressEnableOutputCache_yes" name="syndicatePressEnableOutputCache" value="true" <?php if ($configOptions['enableOutputCache'] == "true") { _e('checked="checked"', "SyndicatePressPlugin"); }?> /> Enable - Cache the formatted output.</label><br>
+        <label for="syndicatePressEnableOutputCache_no"><input type="radio" id="syndicatePressEnableOutputCache_no" name="syndicatePressEnableOutputCache" value="false" <?php if ($configOptions['enableOutputCache'] == "false") { _e('checked="checked"', "SyndicatePressPlugin"); }?>/> Disable - Parse and format the feed every time the page/post is requested.  <em>This is NOT recommended!</em></label>
+        </div>
+     </div>
+     <div class="tabbertab">
+        <h2>Display Settings</h2>
+        <div style="padding-left: 20px;">
+        Limit articles in a feed to <input name="syndicatePressLimitFeedItemsToDisplay" size="10" value="<?php _e(apply_filters('format_to_edit',$configOptions['limitFeedItemsToDisplay']), 'SyndicatePressPlugin') ?>"> items. (-1 to display all items in feed)<br>
+        Limit article to <input name="syndicatePressLimitFeedDescriptionCharsToDisplay" size="10" value="<?php _e(apply_filters('format_to_edit',$configOptions['limitFeedDescriptionCharsToDisplay']), 'SyndicatePressPlugin') ?>"> characters. (-1 to display complete article description)<br>
+        Limit article headline to <input name="syndicatePressMaxHeadlineLength" size="10" value="<?php _e(apply_filters('format_to_edit',$configOptions['maxHeadlineLength']), 'SyndicatePressPlugin') ?>"> characters. (-1 to display complete article headline)<br>
+        Show item description:<br>
+        <div style="padding-left: 20px;">
+        <label for="syndicatePressShowContentOnlyInLinkTitle_yes"><input type="radio" id="syndicatePressShowContentOnlyInLinkTitle_yes" name="syndicatePressShowContentOnlyInLinkTitle" value="true" <?php if ($configOptions['showContentOnlyInLinkTitle'] == "true") { _e('checked="checked"', "SyndicatePressPlugin"); }?> /> only when the viewer hovers over the item link.</label><br>
+        <label for="syndicatePressShowContentOnlyInLinkTitle_no"><input type="radio" id="syndicatePressShowContentOnlyInLinkTitle_no" name="syndicatePressShowContentOnlyInLinkTitle" value="false" <?php if ($configOptions['showContentOnlyInLinkTitle'] == "false") { _e('checked="checked"', "SyndicatePressPlugin"); }?>/> below the item link.</label><br>
+        </div>
+        Item publication timestamp:<br>
+        <div style="padding-left: 20px;">
+        <label for="syndicatePressshowArticlePublishTimestamp_yes"><input type="radio" id="syndicatePressshowArticlePublishTimestamp_yes" name="syndicatePressshowArticlePublishTimestamp" value="true" <?php if ($configOptions['showArticlePublishTimestamp'] == "true") { _e('checked="checked"', "SyndicatePressPlugin"); }?> /> Show timestamp.</label><br>
+        <label for="syndicatePressshowArticlePublishTimestamp_no"><input type="radio" id="syndicatePressshowArticlePublishTimestamp_no" name="syndicatePressshowArticlePublishTimestamp" value="false" <?php if ($configOptions['showArticlePublishTimestamp'] == "false") { _e('checked="checked"', "SyndicatePressPlugin"); }?>/> Hide timestamp.</label><br>
+        </div>
+        Display HTML formatting in article:<br>
+        <div style="padding-left: 20px;">
+        <em>NOTE: Displaying HTML content in the articles will disable article length limitation</em><br>
+        <label for="syndicatePressAllowMarkup_yes"><input type="radio" id="syndicatePressAllowMarkup_yes" name="syndicatePressAllowMarkup" value="true" <?php if ($configOptions['allowMarkupInDescription'] == "true") { _e('checked="checked"', "SyndicatePressPlugin"); }?> /> Show HTML formatting.</label><br>
+        <label for="syndicatePressAllowMarkup_no"><input type="radio" id="syndicatePressAllowMarkup_no" name="syndicatePressAllowMarkup" value="false" <?php if ($configOptions['allowMarkupInDescription'] == "false") { _e('checked="checked"', "SyndicatePressPlugin"); }?>/> Strip HTML formatting, leaving only the article text.</label><br>
+        </div>
+        Syndicate Press link:<br>
+        <div style="padding-left: 20px;">
+        <label for="syndicatePressShowSyndicatePressLinkback_yes"><input type="radio" id="syndicatePressShowSyndicatePressLinkback_yes" name="syndicatePressShowSyndicatePressLinkback" value="true" <?php if ($configOptions['showSyndicatePressLinkback'] == "true") { _e('checked="checked"', "SyndicatePressPlugin"); }?> /> Show 'Powered by <a href="<?php echo $this->homepageURL; ?>" target=_blank>Syndicate Press</a>' at the end of the aggregated feed content.</label><br>
+        <div style="padding-left: 20px;">
+        <em>If you have not donated to Syndicate Press, a link back to the Syndicate Press site is requested.<br>
+        You may use this automated linkback, or you may place the link in the footer of your site.</em><br>
+        </div>
+        <label for="syndicatePressShowSyndicatePressLinkback_no"><input type="radio" id="syndicatePressShowSyndicatePressLinkback_no" name="syndicatePressShowSyndicatePressLinkback" value="false" <?php if ($configOptions['showSyndicatePressLinkback'] == "false") { _e('checked="checked"', "SyndicatePressPlugin"); }?>/> Do not show the Syndicate Press link.</label><br>
+        </div>
+        Processing and feed metrics:<br>
+        <div style="padding-left: 20px;">
+        <label for="syndicatePressShowProcessingMetrics_yes"><input type="radio" id="syndicatePressShowProcessingMetrics_yes" name="syndicatePressShowProcessingMetrics" value="true" <?php if ($configOptions['showProcessingMetrics'] == "true") { _e('checked="checked"', "SyndicatePressPlugin"); }?> /> Show.</label><br>
+        <label for="syndicatePressShowProcessingMetrics_no"><input type="radio" id="syndicatePressShowProcessingMetrics_no" name="syndicatePressShowProcessingMetrics" value="false" <?php if ($configOptions['showProcessingMetrics'] == "false") { _e('checked="checked"', "SyndicatePressPlugin"); }?>/> Do not show.</label><br>
+        </div>
+        Feed name (title):<br>
+        <div style="padding-left: 20px;">
+        <label for="syndicatePressUseCustomFeednameAsChannelTitle_yes"><input type="radio" id="syndicatePressUseCustomFeednameAsChannelTitle_yes" name="syndicatePressUseCustomFeednameAsChannelTitle" value="true" <?php if ($configOptions['useCustomFeednameAsChannelTitle'] == "true") { _e('checked="checked"', "SyndicatePressPlugin"); }?> /> Use custom feedname as feed title.</label><br>
+        <label for="syndicatePressUseCustomFeednameAsChannelTitle_no"><input type="radio" id="syndicatePressUseCustomFeednameAsChannelTitle_no" name="syndicatePressUseCustomFeednameAsChannelTitle" value="false" <?php if ($configOptions['useCustomFeednameAsChannelTitle'] == "false") { _e('checked="checked"', "SyndicatePressPlugin"); }?>/> Use publisher's title (including link and image if available).</label><br>
+        <div style="padding-left: 20px;">
+        <label for="syndicatePressShowFeedChannelTitle_yes"><input type="radio" id="syndicatePressShowFeedChannelTitle_yes" name="syndicatePressShowFeedChannelTitle" value="true" <?php if ($configOptions['showFeedChannelTitle'] == "true") { _e('checked="checked"', "SyndicatePressPlugin"); }?> /> Show.</label><br>
+        <label for="syndicatePressShowFeedChannelTitle_no"><input type="radio" id="syndicatePressShowFeedChannelTitle_no" name="syndicatePressShowFeedChannelTitle" value="false" <?php if ($configOptions['showFeedChannelTitle'] == "false") { _e('checked="checked"', "SyndicatePressPlugin"); }?>/> Do not show.</label><br>
+        </div>
+        </div>
+        Title formatting:<br>
+        <div style="padding-left: 20px;">
+        <em>You can use html tags to format the feed and article titles... i.e. &lt;h2&gt;title&lt;/h2&gt;</em><br>
+        <input name="syndicatePressFeedTitleHTMLCodePre" size="20" value="<?php _e(apply_filters('format_to_edit',$configOptions['feedTitleHTMLCodePre']), 'SyndicatePressPlugin') ?>">Feed title<input name="syndicatePressFeedTitleHTMLCodePost" size="20" value="<?php _e(apply_filters('format_to_edit',$configOptions['feedTitleHTMLCodePost']), 'SyndicatePressPlugin') ?>"><br>
+        <input name="syndicatePressArticleTitleHTMLCodePre" size="20" value="<?php _e(apply_filters('format_to_edit',$configOptions['articleTitleHTMLCodePre']), 'SyndicatePressPlugin') ?>">Article title<input name="syndicatePressArticleTitleHTMLCodePost" size="20" value="<?php _e(apply_filters('format_to_edit',$configOptions['articleTitleHTMLCodePost']), 'SyndicatePressPlugin') ?>"><br>
+        </div>
+        Custom feed separation code:<br>
+        <div style="padding-left: 20px;">
+        <em>You can insert any html content between feeds (including advertising code)<br>
+        <div style="padding-left: 20px;">
+        i.e. To insert a horizontal line: &lt;hr&gt;</em><br>
+        </div>
+        <textarea name="syndicatePressFeedSeparationHTMLCode" style="width: 95%; height: 100px;"><?php _e($this->sp_unescapeString(apply_filters('format_to_edit',$configOptions['feedSeparationHTMLCode'])), 'SyndicatePressPlugin') ?></textarea>
+        </div>
+        Custom content to show when a feed is unavailable:<br>
+        <div style="padding-left: 20px;">
+        <em>You can insert custom html content when a feed is not available.<br>
+        To include the name of the unavailable feed, use {feedname} in the code below and it will be replaced with the name of the feed.<br>
+        To show nothing when a feed is not available, simply delete all of the content from this field.</em>
+        <textarea name="syndicatePressFeedNotAvailableHTMLCode" style="width: 95%; height: 100px;"><?php _e($this->sp_unescapeString(apply_filters('format_to_edit',$configOptions['feedNotAvailableHTMLCode'])), 'SyndicatePressPlugin') ?></textarea>
+        </div>
+     </div>
+     </div>
+     <div class="tabbertab">
+        <h2>Help</h2>
+        <b><u>Inserting feed content into a Wordpress page or post...</u></b>
+        <p>
+        To insert feed contents into a Page or Post, use the following syntax:<br>
+        <div style="padding-left: 20px;">
+        [sp# all] - insert all of the feeds in the feed list<br>
+        [sp# feedname] - insert only the feed with the given name<br>
+        [sp# feedname1,feedname2,etc...] - insert the feeds with the given names<br>
+        &lt;?php sp_getFeedContent("feedname");?&gt; - inserts the feed(s) into a theme location
+        </p>
+        </div>        
+        <b><u>Inserting feed content into a Wordpress theme...</u></b>
+        <div style="padding-left: 20px;">
+        <p>
+        To insert feed contents into the php code of a theme:<br>
+        &lt;?php sp_getFeedContent("feedname");?&gt; - inserts the feed(s) into a theme location
+        </p>
+        </div>
+        <b><u>Credits</u></b>
+        <div style="padding-left: 20px;">
+        Lightweight tab library provided by <a href="http://www.barelyfitz.com/projects/tabber/" target=_blank>tabber</a>
+        </div>
+        <p>
+        <a href="<?php echo $this->homepageURL; ?>" target=_blank title="Click for the Syndicate Press homepage...">Help and documentation...</a><br>
+        </p>
+     </div>         
+     <div class="tabbertab">
+        <h2>Support</h2>
+        <b><u>Usage Help</u></b>
+        <p style="padding-left: 20px;">
+        For simple usage instructions, see the Help tab.
+        </p>
+        <b><u>Detailed documentation</u></b>
+        <p style="padding-left: 20px;">
+        For more detailed documentation, you can visit the Syndicate Press homepage at <a href="http://henryranch.net/software/syndicate-press/" target=_blank>http://henryranch.net/software/syndicate-press/</a>.
+        </p>
+        <b><u>Community forum help</u></b>
+        <p style="padding-left: 20px;">
+        With over 5500 installations of Syndicate Press across the world, we are starting to get a fairly active forum where you can ask questions.  
+        The Syndicate Press developers and testers regularly read the forum questions and respond with ideas and help.          
+        </p>
+        <b><u>Personalized support</u></b>
+        <p style="padding-left: 20px;">
+        If you would like personalized support from the Syndicate Press developers, you may contact us directly at s&nbsp;p&nbsp;[at]&nbsp;h&nbsp;e&nbsp;n&nbsp;r&nbsp;y&nbsp;r&nbsp;a&nbsp;n&nbsp;c&nbsp;h&nbsp;.&nbsp;n&nbsp;e&nbsp;t.<br>
+        <i>We request a donation to Syndicate Press for personalized support.</i>
+        </p>
+     </div>
+     <div class="tabbertab">
+        <h2>Donations</h2>
+        <!--<div style='background: #ffc; border: 1px solid #333; margin: 2px; padding: 5px'>-->
+        <b><u>Help support this plugin!</u></b>
+        <p>
+        A donation is a great way to show your support for this plugin.  Donations help offset the cost of maintenance, development and hosting.<br><br>
+        There is no minimum donation amount.  If you like this plugin and find that it has saved you time or effort, you can be the judge of how much that is worth to you.<br><br>
+        Thank you!
+        </p>
+        <p align="center">
+        <form action="https://www.paypal.com/cgi-bin/webscr" method="post">
+        <input type="hidden" name="cmd" value="_s-xclick">
+        <input type="hidden" name="hosted_button_id" value="8983567">
+        <input type="image" src="https://www.paypal.com/en_US/i/btn/btn_donateCC_LG.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">
+        <img alt="" border="0" src="https://www.paypal.com/en_US/i/scr/pixel.gif" width="1" height="1">
+        </form>
+        </p>
+        <!--</div>-->
+     </div>
+     <div class="tabbertab">
+        <h2>Recommended reading</h2>
+        <b><u>Other ways to support this plugin</u></b>
+        <p>
+        In addition to direct donations, you can also support Syndicate Press by following one of the Amazon book links below and buying a book.
+        </p>
+        <br>&nbsp<br>
+        <table style="margin-left: auto; margin-right: auto">
+        <tr>
+        <td style="padding: 10px;"><iframe src="http://rcm.amazon.com/e/cm?t=henrantecandl-20&o=1&p=8&l=as1&asins=0470592745&ref=qf_sp_asin_til&fc1=000000&IS2=1&lt1=_blank&m=amazon&lc1=0000FF&bc1=000000&bg1=FFFFFF&f=ifr" style="width:120px;height:240px;" scrolling="no" marginwidth="0" marginheight="0" frameborder="0"></iframe></td>
+        <td style="padding: 10px;"><iframe src="http://rcm.amazon.com/e/cm?t=henrantecandl-20&o=1&p=8&l=as1&asins=0470937815&ref=qf_sp_asin_til&fc1=000000&IS2=1&lt1=_blank&m=amazon&lc1=0000FF&bc1=000000&bg1=FFFFFF&f=ifr" style="width:120px;height:240px;" scrolling="no" marginwidth="0" marginheight="0" frameborder="0"></iframe></td>
+        <td style="padding: 10px;"><iframe src="http://rcm.amazon.com/e/cm?t=henrantecandl-20&o=1&p=8&l=as1&asins=0470560541&ref=qf_sp_asin_til&fc1=000000&IS2=1&lt1=_blank&m=amazon&lc1=0000FF&bc1=000000&bg1=FFFFFF&f=ifr" style="width:120px;height:240px;" scrolling="no" marginwidth="0" marginheight="0" frameborder="0"></iframe></td>
+        <td style="padding: 10px;"><iframe src="http://rcm.amazon.com/e/cm?t=henrantecandl-20&o=1&p=8&l=as1&asins=1849514100&ref=qf_sp_asin_til&fc1=000000&IS2=1&lt1=_blank&m=amazon&lc1=0000FF&bc1=000000&bg1=FFFFFF&f=ifr" style="width:120px;height:240px;" scrolling="no" marginwidth="0" marginheight="0" frameborder="0"></iframe></td>
+        <td style="padding: 10px;"><iframe src="http://rcm.amazon.com/e/cm?t=henrantecandl-20&o=1&p=8&l=as1&asins=B00168NGGU&ref=qf_sp_asin_til&fc1=000000&IS2=1&lt1=_blank&m=amazon&lc1=0000FF&bc1=000000&bg1=FFFFFF&f=ifr" style="width:120px;height:240px;" scrolling="no" marginwidth="0" marginheight="0" frameborder="0"></iframe></td>
+        <td style="padding: 10px;"><iframe src="http://rcm.amazon.com/e/cm?t=henrantecandl-20&o=1&p=8&l=as1&asins=B004DNWI8W&ref=qf_sp_asin_til&fc1=000000&IS2=1&lt1=_blank&m=amazon&lc1=0000FF&bc1=000000&bg1=FFFFFF&f=ifr" style="width:120px;height:240px;" scrolling="no" marginwidth="0" marginheight="0" frameborder="0"></iframe></td>
+        </tr>
+        </table>
+     </div>   
+</div>
 </form>
-</td><td></td></tr>
+
+<table>
 <tr><td>&nbsp;</td><td>&nbsp;</td></tr>
 <tr><td>
 <form method="post" action="<?php echo $_SERVER["REQUEST_URI"]; ?>">
@@ -1009,81 +1104,8 @@ To show nothing when a feed is not available, simply delete all of the content f
 </td></tr>
 </table>
 </div>
-
-<br>&nbsp<br>
-<h3>Quick Start...</h3>
-To insert feed contents into a Page or Post, use the following syntax:<br>
-<div style="padding-left: 20px;">
-[sp# all] - insert all of the feeds in the feed list<br>
-[sp# feedname] - insert only the feed with the given name<br>
-[sp# feedname1,feedname2,etc...] - insert the feeds with the given names<br>
-&lt;?php sp_getFeedContent("feedname");?&gt; - inserts the feed(s) into a theme location<br>
-</div>
-<a href="<?php echo $this->homepageURL; ?>" target=_blank title="Click for the Syndicate Press homepage...">Help and documentation...</a><br>
-
-
-<br>&nbsp<br>
-<em>Version <?php print $this->version;?></em>
 </td>
 
-<!-- right side content -->
-<td valign=top width=30%>
-<div style='background: #ffc; border: 1px solid #333; margin: 2px; padding: 5px'>
-<h3 style="text-align:center">Help support this plugin!</h3>
-<p>
-A donation is a great way to show your support for this plugin.  Donations help offset the cost of maintenance, development and hosting.<br><br>
-There is no minimum donation amount.  If you like this plugin and find that it has saved you time or effort, you can be the judge of how much that is worth to you.<br><br>
-Thank you!
-</p>
-<p align="center">
-<form action="https://www.paypal.com/cgi-bin/webscr" method="post">
-<input type="hidden" name="cmd" value="_s-xclick">
-<input type="hidden" name="hosted_button_id" value="8983567">
-<input type="image" src="https://www.paypal.com/en_US/i/btn/btn_donateCC_LG.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">
-<img alt="" border="0" src="https://www.paypal.com/en_US/i/scr/pixel.gif" width="1" height="1">
-</form>
-</p>
-</div>
-
-<br>&nbsp<br>
-<div style='background: #ffc; border: 1px solid #333; margin: 2px; padding: 5px'>
-<h3 style="text-align:center">Syndicate Press news</h3>
-<p>
-<?php print $this->sp_getSPNews(); ?>
-</p>
-</div>
-
-<br>&nbsp<br>
-<div style='background: #ffc; border: 1px solid #333; margin: 2px; padding: 5px'>
-<h3 style="text-align:center">Other ways to support this plugin</h3>
-<p>
-In addition to direct donations, you can also support Syndicate Press by following one of the Amazon book links below and buying a book.
-</p>
-<p align="center">
-
-<br>&nbsp<br>
-<table style="margin-left: auto; margin-right: auto">
-<tr>
-<td style="padding: 10px;"><iframe src="http://rcm.amazon.com/e/cm?t=henrantecandl-20&o=1&p=8&l=as1&asins=0470592745&ref=qf_sp_asin_til&fc1=000000&IS2=1&lt1=_blank&m=amazon&lc1=0000FF&bc1=000000&bg1=FFFFFF&f=ifr" style="width:120px;height:240px;" scrolling="no" marginwidth="0" marginheight="0" frameborder="0"></iframe></td>
-<td style="padding: 10px;"><iframe src="http://rcm.amazon.com/e/cm?t=henrantecandl-20&o=1&p=8&l=as1&asins=0470937815&ref=qf_sp_asin_til&fc1=000000&IS2=1&lt1=_blank&m=amazon&lc1=0000FF&bc1=000000&bg1=FFFFFF&f=ifr" style="width:120px;height:240px;" scrolling="no" marginwidth="0" marginheight="0" frameborder="0"></iframe></td>
-</tr>
-<tr>
-<td style="padding: 10px;"><iframe src="http://rcm.amazon.com/e/cm?t=henrantecandl-20&o=1&p=8&l=as1&asins=0470560541&ref=qf_sp_asin_til&fc1=000000&IS2=1&lt1=_blank&m=amazon&lc1=0000FF&bc1=000000&bg1=FFFFFF&f=ifr" style="width:120px;height:240px;" scrolling="no" marginwidth="0" marginheight="0" frameborder="0"></iframe></td>
-<td style="padding: 10px;"><iframe src="http://rcm.amazon.com/e/cm?t=henrantecandl-20&o=1&p=8&l=as1&asins=1849514100&ref=qf_sp_asin_til&fc1=000000&IS2=1&lt1=_blank&m=amazon&lc1=0000FF&bc1=000000&bg1=FFFFFF&f=ifr" style="width:120px;height:240px;" scrolling="no" marginwidth="0" marginheight="0" frameborder="0"></iframe>
-</td>
-</tr>
-<tr>
-<td style="padding: 10px;"><iframe src="http://rcm.amazon.com/e/cm?t=henrantecandl-20&o=1&p=8&l=as1&asins=B00168NGGU&ref=qf_sp_asin_til&fc1=000000&IS2=1&lt1=_blank&m=amazon&lc1=0000FF&bc1=000000&bg1=FFFFFF&f=ifr" style="width:120px;height:240px;" scrolling="no" marginwidth="0" marginheight="0" frameborder="0"></iframe></td>
-<td style="padding: 10px;"><iframe src="http://rcm.amazon.com/e/cm?t=henrantecandl-20&o=1&p=8&l=as1&asins=B004DNWI8W&ref=qf_sp_asin_til&fc1=000000&IS2=1&lt1=_blank&m=amazon&lc1=0000FF&bc1=000000&bg1=FFFFFF&f=ifr" style="width:120px;height:240px;" scrolling="no" marginwidth="0" marginheight="0" frameborder="0"></iframe></td>
-</tr>
-</table>
-
-</p>
-</div>
-
-</td>
-</tr>
-</table>
 
  </div>
  <!-- Completely anonymous page view counter. -->
@@ -1102,11 +1124,13 @@ if (class_exists("SyndicatePressPlugin")) {
 if (!function_exists("SyndicatePressPlugin_ap")) {
 	function SyndicatePressPlugin_ap() {
 		global $syndicatePressPluginObjectRef;
+        global $adminPageHook;
 		if (!isset($syndicatePressPluginObjectRef)) {
 			return;
 		}
 		if (function_exists('add_options_page')) {
-            add_options_page('Syndicate Press', 'Syndicate Press', 9, basename(__FILE__), array(&$syndicatePressPluginObjectRef, 'sp_printAdminPage'));
+            $adminPageHook = add_options_page('Syndicate Press', 'Syndicate Press', 9, basename(__FILE__), array(&$syndicatePressPluginObjectRef, 'sp_printAdminPage'));
+            add_action( 'admin_enqueue_scripts', 'my_admin_enqueue_scripts' );
 		}
 	}	
 }
@@ -1116,8 +1140,18 @@ if (isset($syndicatePressPluginObjectRef)) {
 	//Actions...
 	add_action('admin_menu', 'SyndicatePressPlugin_ap');
 	add_action('activate_syndicatePress-plugin/syndicatePress-plugin.php',  array(&$syndicatePressPluginObjectRef, 'init'));
+        
 	//Filter...
 	add_filter('the_content', array(&$syndicatePressPluginObjectRef,'sp_ContentFilter')); 
+}
+
+function my_admin_enqueue_scripts($hook_suffix) {
+    global $adminPageHook;
+    if ( $adminPageHook == $hook_suffix )
+    {
+		wp_enqueue_style('sp_printAdminPage_TAB', plugins_url('syndicate-press/css/tabber.css'), false, '2.50', false);
+		wp_enqueue_script('sp_printAdminPage_TAB', plugins_url('syndicate-press/js/tabber-minimized.js'), false, '2.50', false);
+    }        
 }
 
 /* 

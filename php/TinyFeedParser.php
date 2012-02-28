@@ -1,18 +1,21 @@
 <?php
 /*
 File: TinyFeedParser.php
-Date: 10/6/2011 
+Date: 2/28/2012
 Version 1.9.3
-Author: Shaun Henry, HenryRanch LLC
+Author: HenryRanch LLC
 
 LICENSE:
 ============
-Copyright (c) 2009-2011, Henry Ranch LLC. All rights reserved. http://www.henryranch.net
-Author email: s <at> henryranch.net
+Copyright (c) 2009-2012, Henry Ranch LLC. All rights reserved. http://www.henryranch.net
+
 
 TinyFeedParser is governed by the following license and is not licensed for use outside of 
 the SyndicatePress Wordpress plugin.  By downloading or using this software,  you
  agree to all the following: 
+ 
+ YOU WILL NOT USE OR COPY THIS SOFTWARE OUTSIDE OF THE SYNDICATE PRESS
+ WORDPRESS PLUGIN.
 
  THIS SOFTWARE IS PROVIDED BY HENRY RANCH LLC `AS IS' AND ANY EXPRESS
  OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
