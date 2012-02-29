@@ -4,7 +4,7 @@ Plugin Name: Syndicate Press
 Plugin URI: http://www.henryranch.net/software/syndicate-press/
 Description: This plugin provides a high performance, highly configurable and easy to use news syndication aggregator which supports RSS, RDF and ATOM feeds.
 Author: HenryRanch LLC (henryranch.net)
-Version: 1.0.6
+Version: 1.0.7
 Author URI: http://henryranch.net/
 License: GPL2
 */
@@ -60,7 +60,7 @@ YOU MAY REQUEST A LICENSE TO DO SO FROM THE AUTHOR.
 */
 if (!class_exists("SyndicatePressPlugin")) {
 	class SyndicatePressPlugin {
-        var $version = "1.0.6";
+        var $version = "1.0.7";
         var $homepageURL = "http://henryranch.net/software/syndicate-press/";
         
         var $cacheDir = "/cache";
@@ -851,13 +851,31 @@ if (!class_exists("SyndicatePressPlugin")) {
 <h2><a href="<?php echo $this->homepageURL; ?>" target=_blank title="Click for the Syndicate Press homepage...">Syndicate Press</a></h2>
 <em>Version <?php print $this->version;?></em><br>
 
+<table>
+<tr><td>&nbsp;</td><td>&nbsp;</td></tr>
+<tr><td>
 <form method="post" action="<?php echo $_SERVER["REQUEST_URI"]; ?>">
-
-<div id="formDiv">
-
+<input name="synPress-clearInputFeedCache" type="hidden" value="<?php echo wp_create_nonce('synPress-clearInputFeedCache'); ?>" />
+<input type="submit" name="synPress-clearInputFeedCacheSubmit" value="<?php _e('Clear input feed cache', 'SyndicatePressPlugin') ?>" />
+</form>
+</td>
+<td>
+<form method="post" action="<?php echo $_SERVER["REQUEST_URI"]; ?>">
+<input name="synPress-clearOutputCache" type="hidden" value="<?php echo wp_create_nonce('synPress-clearOutputCache'); ?>" />
+<input type="submit" name="synPress-clearOutputCacheSubmit" value="<?php _e('Clear output cache', 'SyndicatePressPlugin') ?>" />
+</form>
+</td>
+<td>
+<form method="post" action="<?php echo $_SERVER["REQUEST_URI"]; ?>">
 <input type="submit" name="update_SyndicatePressPluginSettings" value="<?php _e('Update Settings', 'SyndicatePressPlugin') ?>" />
 <input name="synPress-update_settings" type="hidden" value="<?php echo wp_create_nonce('synPress-update_settings'); ?>" />
+</td>
+</tr>
+</table>
 
+
+
+<div id="formDiv">
 
 <div class="tabber">
      <div class="tabbertab">
@@ -953,6 +971,12 @@ if (!class_exists("SyndicatePressPlugin")) {
         <em>NOTE: Displaying HTML content in the articles will disable article length limitation</em><br>
         <label for="syndicatePressAllowMarkup_yes"><input type="radio" id="syndicatePressAllowMarkup_yes" name="syndicatePressAllowMarkup" value="true" <?php if ($configOptions['allowMarkupInDescription'] == "true") { _e('checked="checked"', "SyndicatePressPlugin"); }?> /> Show HTML formatting.</label><br>
         <label for="syndicatePressAllowMarkup_no"><input type="radio" id="syndicatePressAllowMarkup_no" name="syndicatePressAllowMarkup" value="false" <?php if ($configOptions['allowMarkupInDescription'] == "false") { _e('checked="checked"', "SyndicatePressPlugin"); }?>/> Strip HTML formatting, leaving only the article text.</label><br>
+        </div>
+        Display images in article:<br>
+        <div style="padding-left: 20px;">
+        <em>NOTE: If HTML formatting is stripped (see above setting), images will NOT be shown.</em><br>
+        <label for="syndicatePressDisplayImages_yes"><input type="radio" id="syndicatePressDisplayImages_yes" name="syndicatePressDisplayImages" value="true" <?php if ($configOptions['displayImages'] == "true") { _e('checked="checked"', "SyndicatePressPlugin"); }?> /> Show images.</label><br>
+        <label for="syndicatePressDisplayImages_no"><input type="radio" id="syndicatePressDisplayImages_no" name="syndicatePressDisplayImages" value="false" <?php if ($configOptions['displayImages'] == "false") { _e('checked="checked"', "SyndicatePressPlugin"); }?>/> Strip images.</label><br>
         </div>
         Syndicate Press link:<br>
         <div style="padding-left: 20px;">
@@ -1088,23 +1112,7 @@ if (!class_exists("SyndicatePressPlugin")) {
 </div>
 </form>
 
-<table>
-<tr><td>&nbsp;</td><td>&nbsp;</td></tr>
-<tr><td>
-<form method="post" action="<?php echo $_SERVER["REQUEST_URI"]; ?>">
-<input name="synPress-clearInputFeedCache" type="hidden" value="<?php echo wp_create_nonce('synPress-clearInputFeedCache'); ?>" />
-<input type="submit" name="synPress-clearInputFeedCacheSubmit" value="<?php _e('Clear input feed cache', 'SyndicatePressPlugin') ?>" />
-</form>
-</td>
-<td>
-<form method="post" action="<?php echo $_SERVER["REQUEST_URI"]; ?>">
-<input name="synPress-clearOutputCache" type="hidden" value="<?php echo wp_create_nonce('synPress-clearOutputCache'); ?>" />
-<input type="submit" name="synPress-clearOutputCacheSubmit" value="<?php _e('Clear output cache', 'SyndicatePressPlugin') ?>" />
-</form>
-</td></tr>
-</table>
 </div>
-</td>
 
 
  </div>

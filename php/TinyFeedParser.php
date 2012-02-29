@@ -2,7 +2,7 @@
 /*
 File: TinyFeedParser.php
 Date: 2/28/2012
-Version 1.9.3
+Version 1.9.4
 Author: HenryRanch LLC
 
 LICENSE:
@@ -392,7 +392,11 @@ class TinyFeedParser
             }
         }
         
-        if(!$this->allowImagesInDescription || $this->showContentOnlyInLinkTitle)
+        if($this->showContentOnlyInLinkTitle == 'true')
+        {
+            $article->description = (string)$this->removeImages($article->description);
+        }
+        if($this->allowImagesInDescription == 'false')
         {
             $article->description = (string)$this->removeImages($article->description);
         }
