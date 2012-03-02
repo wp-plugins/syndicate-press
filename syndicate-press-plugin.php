@@ -4,7 +4,7 @@ Plugin Name: Syndicate Press
 Plugin URI: http://www.henryranch.net/software/syndicate-press/
 Description: This plugin provides a high performance, highly configurable and easy to use news syndication aggregator which supports RSS, RDF and ATOM feeds.
 Author: HenryRanch LLC (henryranch.net)
-Version: 1.0.7
+Version: 1.0.8
 Author URI: http://henryranch.net/
 License: GPL2
 */
@@ -60,7 +60,7 @@ YOU MAY REQUEST A LICENSE TO DO SO FROM THE AUTHOR.
 */
 if (!class_exists("SyndicatePressPlugin")) {
 	class SyndicatePressPlugin {
-        var $version = "1.0.7";
+        var $version = "1.0.8";
         var $homepageURL = "http://henryranch.net/software/syndicate-press/";
         
         var $cacheDir = "/cache";
@@ -196,10 +196,10 @@ if (!class_exists("SyndicatePressPlugin")) {
                         *     This syntax allows you to reference an RSS feed URL that has been defined in the rss feed url list.
                         * @package WordPress
                         * @since version 2.8.4
-                        * @param    string    $content    the post/page content
+                        * @param    string    $bbCodeTagArray    the values passed in from the bbcode: [sp# match1,match2,match3]
                         * @return   string     the post/page content with relevant RSS feeds embedded in place of syndicate press bbcodes
                         */
-        function sp_filterCallback($matches)
+        function sp_filterCallback($bbCodeTagArray)
         {
             $startTime = $this->sp_getCurrentTime();
             $configOptions = $this->sp_getConfigOptions();
@@ -211,21 +211,43 @@ if (!class_exists("SyndicatePressPlugin")) {
             
             $content = '';
             
+       
             $enableOutputCache = $configOptions['enableOutputCache'];
-            $pageFeedReference = implode(",", $matches);
+            $pageFeedReference = implode(",", $bbCodeTagArray);
+            //echo "page feed reference: $pageFeedReference<br>";
+            $pageFeedReferenceArray = split(" ", $pageFeedReference);
             $outputCacheFilename = $this->sp_getOutputCacheFilename($pageFeedReference);
-            //print "enableOutputCache: $enableOutputCache <br>";
             if(($enableOutputCache == 'true') && !$this->sp_incomingFeedCacheExpired($url) && file_exists($outputCacheFilename))
             {
-                //print "Using content from output cache file: $outputCacheFilename<br>";
                 $content = file_get_contents($outputCacheFilename);
             }
             else
             {
                 //print "Formatting content...<br>";
-                foreach($matches as $feedNameReference)
-                {
-                    $feedNameReference = trim($feedNameReference);                    
+                foreach($bbCodeTagArray as $feedNameReference)
+                {  
+                    $feedNameReference = trim($feedNameReference); 
+                    //ignore array element s that are just the bbcode text.  we don't need the bbcode text b/c the following text is the bbcode parameters as extracted by the sp bbcode filter
+                    if(strpos($feedNameReference, '[') !== false)
+                    {
+                        continue;
+                    }
+                    $bbcodeParams = explode(' ', $feedNameReference);
+                    $feedNameReference = $bbcodeParams[0];
+                    //extract any known params
+                    foreach($bbcodeParams as $param)
+                    {
+                        if(strpos($param, 'include') !== false)
+                        {
+                            $list = explode('=', $param);
+                            $customConfigOverrides['includeFilterList'] = $list[1];
+                        }
+                        else if(strpos($param, 'exclude') !== false)
+                        {
+                            $list = explode('=', $param);
+                            $customConfigOverrides['excludeFilterList'] = $list[1];
+                        }
+                    }
                     foreach($availableFeeds as $availableFeed)
                     {
                         $availableFeed = trim($availableFeed);
@@ -235,6 +257,7 @@ if (!class_exists("SyndicatePressPlugin")) {
                         }
                         //split the reference string on ',' (comma).  this is the feed reference list provided in the bbcode: [sp# feed1,feed2,feed3,etc...]
                         $feedNameList = explode(',', $feedNameReference);
+                        //print_r($feedNameList);
                         foreach($feedNameList as $feedName)
                         {
                             if(strpos($availableFeed, $feedName) !== false || (strtolower($feedName) == "all"))
@@ -247,7 +270,7 @@ if (!class_exists("SyndicatePressPlugin")) {
                                     $availableFeed = trim($availableFeedName[1]);
                                     //print "feed URL: $availableFeed <br>"; 
                                 }
-                                $content .= $this->sp_getFormattedRssContent($availableFeed);
+                                $content .= $this->sp_getFormattedRssContent($availableFeed, $customConfigOverrides);
                                 if($configOptions['feedSeparationHTMLCode'] != "")
                                 {
                                     $content .= $this->sp_unescapeString($configOptions['feedSeparationHTMLCode']);
@@ -531,9 +554,14 @@ if (!class_exists("SyndicatePressPlugin")) {
                         * @param    string    $url    the rss url
                         * @return   string     html formatted rss feed content from the given url.
                         */
-        function sp_getFormattedRssContent($url)
+        function sp_getFormattedRssContent($url, $customConfigOverrides = NULL)
         {
             include_once "php/TinyFeedParser.php";
+            if(isset($customConfigOverrides))
+            {
+                $customConfigExclusiveKeywords = $customConfigOverrides['excludeFilterList'];
+                $customConfigInclusiveKeywords = $customConfigOverrides['includeFilterList'];
+            }
             
             //make sure there are no whitespaces leading or trailing the URL string
             $url = trim($url);
@@ -556,8 +584,12 @@ if (!class_exists("SyndicatePressPlugin")) {
                 $parser = new TinyFeedParser($cachedInputFeedFile);
                 $parser->showContentOnlyInLinkTitle = $configOptions['showContentOnlyInLinkTitle'];
                 $parser->maxNumArticlesToDisplay = $configOptions['limitFeedItemsToDisplay'];
-                $parser->exclusiveKeywordList = $configOptions['exclusiveKeywordFilter'];
-                $parser->inclusiveKeywordList = $configOptions['inclusiveKeywordFilter'];
+                
+                $parser->exclusiveKeywordList = $configOptions['exclusiveKeywordFilter'] . ',' . $customConfigExclusiveKeywords;
+                $parser->exclusiveKeywordList = trim($parser->exclusiveKeywordList, ',');
+                $parser->inclusiveKeywordList = $configOptions['inclusiveKeywordFilter'] . ',' . $customConfigInclusiveKeywords;
+                $parser->inclusiveKeywordList = trim($parser->inclusiveKeywordList, ',');                
+                
                 $parser->maxDescriptionLength = $configOptions['limitFeedDescriptionCharsToDisplay'];
                 $parser->showFeedChannelTitle = $configOptions['showFeedChannelTitle'];
                 $parser->useCustomFeednameAsChannelTitle = $configOptions['useCustomFeednameAsChannelTitle'];
@@ -1001,6 +1033,10 @@ if (!class_exists("SyndicatePressPlugin")) {
         <label for="syndicatePressShowFeedChannelTitle_no"><input type="radio" id="syndicatePressShowFeedChannelTitle_no" name="syndicatePressShowFeedChannelTitle" value="false" <?php if ($configOptions['showFeedChannelTitle'] == "false") { _e('checked="checked"', "SyndicatePressPlugin"); }?>/> Do not show.</label><br>
         </div>
         </div>
+     </div>
+     </div>     
+     <div class="tabbertab">
+        <h2>Custom Formatting</h2>
         Title formatting:<br>
         <div style="padding-left: 20px;">
         <em>You can use html tags to format the feed and article titles... i.e. &lt;h2&gt;title&lt;/h2&gt;</em><br>
@@ -1023,7 +1059,6 @@ if (!class_exists("SyndicatePressPlugin")) {
         <textarea name="syndicatePressFeedNotAvailableHTMLCode" style="width: 95%; height: 100px;"><?php _e($this->sp_unescapeString(apply_filters('format_to_edit',$configOptions['feedNotAvailableHTMLCode'])), 'SyndicatePressPlugin') ?></textarea>
         </div>
      </div>
-     </div>
      <div class="tabbertab">
         <h2>Help</h2>
         <b><u>Inserting feed content into a Wordpress page or post...</u></b>
@@ -1033,7 +1068,9 @@ if (!class_exists("SyndicatePressPlugin")) {
         [sp# all] - insert all of the feeds in the feed list<br>
         [sp# feedname] - insert only the feed with the given name<br>
         [sp# feedname1,feedname2,etc...] - insert the feeds with the given names<br>
-        &lt;?php sp_getFeedContent("feedname");?&gt; - inserts the feed(s) into a theme location
+        [sp# feedname1,feedname2 include=keyword1,keyword2] - insert the feeds with the given names and the given inclusive keyword filters<br>
+        [sp# feedname1,feedname2 exclude=keyword1,keyword2] - insert the feeds with the given names and the given exclusive keyword filters<br>
+        [sp# feedname include=keyword exclude=keyword] - insert the feeds with the given name and the given inclusive and exclusive keyword filters<br>
         </p>
         </div>        
         <b><u>Inserting feed content into a Wordpress theme...</u></b>
@@ -1043,12 +1080,20 @@ if (!class_exists("SyndicatePressPlugin")) {
         &lt;?php sp_getFeedContent("feedname");?&gt; - inserts the feed(s) into a theme location
         </p>
         </div>
+        <b><u>Respecting publishers terms of use</u></b>
+        <div style="padding-left: 20px;">
+        <p>
+        By using Syndicate Press you accept full resposibility and liability for adherance to the terms of service of each feed you syndicate.  Please respect the copyright of feed publishers.
+        </p>
+        </div>
         <b><u>Credits</u></b>
         <div style="padding-left: 20px;">
-        Lightweight tab library provided by <a href="http://www.barelyfitz.com/projects/tabber/" target=_blank>tabber</a>
-        </div>
+        Syndicate Press is designed, developed, published and maintained by HenryRanchLLC.  No warranties of any kind are made or implied regarding the operation of Syndicate Press.  
+        The Syndicate Press Wordpress plugin file is licensed to you under the GPL2.0.  Other files included within the Syndicate Press plugin package are licensed according to the license described in those files.<br><br>
+        Admin panel tab library provided by <a href="http://www.barelyfitz.com/projects/tabber/" target=_blank>tabber</a>
+        </div><br><br>
         <p>
-        <a href="<?php echo $this->homepageURL; ?>" target=_blank title="Click for the Syndicate Press homepage...">Help and documentation...</a><br>
+        <a href="<?php echo $this->homepageURL; ?>" target=_blank title="Click for the Syndicate Press homepage...">More Help and documentation...</a><br>
         </p>
      </div>         
      <div class="tabbertab">

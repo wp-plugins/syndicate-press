@@ -4,7 +4,7 @@ Donate link: http://henryranch.net/software/syndicate-press/
 Tags: RSS,RDF,Atom,feed,syndicate,syndication,news,aggregator,aggregation,plugin,active,maintained,custom,widget,post,plugin,posts,admin,sidebar,theme,comments,images,twitter,page,google,links
 Requires at least: 2.8
 Tested up to: 3.3.1
-Stable tag: 1.0.7
+Stable tag: 1.0.8
 
 Syndicate Press lets you include RSS, RDF or Atom feeds directly in your Wordpress posts, pages, widgets or theme. 
 
@@ -33,16 +33,23 @@ See http://henryranch.net/software/syndicate-press/
 
 == Screenshots ==
 Here is a screenshot of the Admin Control Panel:<br>
+
 <img src="http://henryranch.net/wp-content/uploads/2009/10/tab_news-150x150.jpg"><br><br>
 
 Please see the following pages for examples of the syndicated news feeds on a Wordpress blog:<br>
+
 http://henryranch.net/news/ <br>
+
 http://henryranch.net/news/real-time-earthquake-news/ <br>
+
 http://henryranch.net/news/science-technology/ <br>
 
 == Changelog ==
 
 http://henryranch.net/software/syndicate-press/syndicate-press-releases/
+
+1.0.8: Added ability to define inclusive and exclusive filters within the bbcode i.e. [sp# feedname include=keyword exclude=keyword]
+Moved the custom formatting config out of the Display Options tab and into the new Custom Formatting tab
 
 1.0.7: Fixed an image display bug.  Placed the cache control buttons at the top of the admin UI.
 
@@ -66,6 +73,9 @@ header2 level, but this can be removed in the plugin admin page.
 == Arbitrary section ==
 
 Please see the following pages for examples of the syndicated news feeds on a Wordpress blog:<br>
+
 http://henryranch.net/news/ <br>
+
 http://henryranch.net/news/real-time-earthquake-news/ <br>
+
 http://henryranch.net/news/science-technology/ <br>
