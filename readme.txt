@@ -32,9 +32,8 @@ This section describes how to install the plugin and get it working.
 See http://henryranch.net/software/syndicate-press/
 
 == Screenshots ==
-Here is a screenshot of the Admin Control Panel:<br>
 
-<img src="http://henryranch.net/wp-content/uploads/2009/10/tab_news-150x150.jpg"><br><br>
+For detailed screenshots of the admin control panel, please visit the Syndicate Press documentation page: http://henryranch.net/software/syndicate-press/
 
 Please see the following pages for examples of the syndicated news feeds on a Wordpress blog:<br>
 
