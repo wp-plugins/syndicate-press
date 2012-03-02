@@ -32,11 +32,13 @@ This section describes how to install the plugin and get it working.
 See http://henryranch.net/software/syndicate-press/
 
 == Screenshots ==
+Here is a screenshot of the Admin Control Panel:<br>
+<img src="http://henryranch.net/wp-content/uploads/2009/10/tab_news-150x150.jpg"><br><br>
 
-Please see the following pages for examples of the syndicated news feeds on a Wordpress blog:
-http://henryranch.net/news/
-http://henryranch.net/news/real-time-earthquake-news/
-http://henryranch.net/news/science-technology/
+Please see the following pages for examples of the syndicated news feeds on a Wordpress blog:<br>
+http://henryranch.net/news/ <br>
+http://henryranch.net/news/real-time-earthquake-news/ <br>
+http://henryranch.net/news/science-technology/ <br>
 
 == Changelog ==
 
@@ -63,7 +65,7 @@ header2 level, but this can be removed in the plugin admin page.
 
 == Arbitrary section ==
 
-Please see the following pages for examples of the syndicated news feeds on a Wordpress blog:
-http://henryranch.net/news/
-http://henryranch.net/news/real-time-earthquake-news/
-http://henryranch.net/news/science-technology/
+Please see the following pages for examples of the syndicated news feeds on a Wordpress blog:<br>
+http://henryranch.net/news/ <br>
+http://henryranch.net/news/real-time-earthquake-news/ <br>
+http://henryranch.net/news/science-technology/ <br>
