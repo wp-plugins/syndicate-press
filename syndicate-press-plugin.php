@@ -4,7 +4,7 @@ Plugin Name: Syndicate Press
 Plugin URI: http://www.henryranch.net/software/syndicate-press/
 Description: This plugin provides a high performance, highly configurable and easy to use news syndication aggregator which supports RSS, RDF and ATOM feeds.
 Author: HenryRanch LLC (henryranch.net)
-Version: 1.0.8
+Version: 1.0.9
 Author URI: http://henryranch.net/
 License: GPL2
 */
@@ -60,7 +60,7 @@ YOU MAY REQUEST A LICENSE TO DO SO FROM THE AUTHOR.
 */
 if (!class_exists("SyndicatePressPlugin")) {
 	class SyndicatePressPlugin {
-        var $version = "1.0.8";
+        var $version = "1.0.9";
         var $homepageURL = "http://henryranch.net/software/syndicate-press/";
         
         var $cacheDir = "/cache";
@@ -246,6 +246,11 @@ if (!class_exists("SyndicatePressPlugin")) {
                         {
                             $list = explode('=', $param);
                             $customConfigOverrides['excludeFilterList'] = $list[1];
+                        }
+                        else if(strpos($param, 'showImages') !== false)
+                        {
+                            $list = explode('=', $param);
+                            $customConfigOverrides['showImages'] = $list[1];
                         }
                     }
                     foreach($availableFeeds as $availableFeed)
@@ -561,6 +566,7 @@ if (!class_exists("SyndicatePressPlugin")) {
             {
                 $customConfigExclusiveKeywords = $customConfigOverrides['excludeFilterList'];
                 $customConfigInclusiveKeywords = $customConfigOverrides['includeFilterList'];
+                $customConfigShowImages = $customConfigOverrides['showImages'];
             }
             
             //make sure there are no whitespaces leading or trailing the URL string
@@ -607,6 +613,11 @@ if (!class_exists("SyndicatePressPlugin")) {
                 }
                 $parser->maxHeadlineLength = $configOptions['maxHeadlineLength'];
                 $parser->allowImagesInDescription = $configOptions['displayImages'];
+                if(isset($customConfigShowImages))
+                {
+                    $parser->allowImagesInDescription = $customConfigShowImages;
+                    $parser->allowMarkupInDescription = 'true';
+                }
                 $parser->parseFeed($cachedInputFeedFile);
                 $content = $parser->getHtml();
                 //$this->sp_postContent($content);
