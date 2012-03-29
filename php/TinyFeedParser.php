@@ -140,6 +140,11 @@ class TinyFeedParser
         $passFilter = $exclusive;
         foreach($filterKeywordArray as $filterKeyword)
         {
+            $filterKeyword = trim($filterKeyword);
+            if($filterKeyword == '')
+            {
+                continue;
+            }
             if($exclusive)
             {
                 //print "ekl: checking '$smooshedContent' for '$filterKeyword'<br>";
@@ -383,6 +388,10 @@ class TinyFeedParser
     
     function cleanupArticle($article)
     {
+        if($article->link)
+        {
+            $article->link = trim($article->link);
+        }
         if($article->content)
         {
             if($this->allowMarkupInDescription == 'false')
@@ -395,6 +404,7 @@ class TinyFeedParser
         if($this->showContentOnlyInLinkTitle == 'true')
         {
             $article->description = (string)$this->removeImages($article->description);
+            $article->description = (string)$this->removeAllHtmlMarkup($article->description);
         }
         if($this->allowImagesInDescription == 'false')
         {
@@ -403,15 +413,20 @@ class TinyFeedParser
         if($this->allowMarkupInDescription == 'false')
         {
             $article->description = (string)$this->removeAllHtmlMarkup($article->description);
-            $article->description = $this->truncateToLength($article->description, $this->maxDescriptionLength, $article->link);
+            $truncateLink = $article->link;
+            if($this->showContentOnlyInLinkTitle == 'true')
+            {
+                $truncateLink = 'NO_LINK';
+            }
+            $article->description = $this->truncateToLength($article->description, $this->maxDescriptionLength, $truncateLink);
         }
                 
         $article->headline = $article->description;
         $article->headline = (string)$this->removeAllHtmlMarkup($article->headline);
-        $article->headline = $this->truncateToLength($article->headline, $this->maxHeadlineLength);
+        $article->headline = $this->truncateToLength($article->headline, $this->maxHeadlineLength, 'NO_LINK');
         
         $article->title = (string)$this->removeAllHtmlMarkup($article->title);
-        $article->title = $this->truncateToLength($article->title, $this->maxHeadlineLength);
+        $article->title = $this->truncateToLength($article->title, $this->maxHeadlineLength, 'NO_LINK');
                 
         $article->subtitle = (string)$this->removeAllHtmlMarkup($article->subtitle);
         
@@ -428,7 +443,7 @@ class TinyFeedParser
         if($length != -1 && strlen($text) > $length)
         {
             $text = substr($text, 0, $length);
-            if($urlLink != "")
+            if($urlLink != "" && $urlLink != 'NO_LINK')
             {
                 $text .= " <a href=\"$urlLink\" target=\"_blank\" title=\"Open article in a new window\">...</a>";
             }
@@ -530,14 +545,18 @@ class TinyFeedParser
             $html .= '<a href="'.$article->link.'" ';
             if($this->showContentOnlyInLinkTitle == 'true')
             {
-                $html .= 'title="'.$article->description.'"';
+                $html .= 'title="'.$article->description.'  Click to read the full article..."';
+                if($article->description == '')
+                {
+                    continue;
+                }
             }
             else
             {
                 $html .= 'title="Click to read article..."';
             }
             $html .= ' target=_blank>'.$article->title.'</a>'.$headerHtmlPost."\r\n";
-            if($article->subtitle)
+            if($article->subtitle != '')
             {
                 $html = $this->addBrIfNeeded($html);
                 $html .= $article->subtitle;
