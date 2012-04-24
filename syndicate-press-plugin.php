@@ -162,20 +162,26 @@ if (!class_exists("SyndicatePressPlugin")) {
         
         function sp_getFilePermissions($filepath)
         {
-            $filePermissions = fileperms($filepath);
-            // Owner
-            $permissionString .= (($filePermissions & 0x0100) ? 'r' : '-');
-            $permissionString .= (($filePermissions & 0x0080) ? 'w' : '-');
-            $permissionString .= (($filePermissions & 0x0040) ? (($filePermissions & 0x0800) ? 's' : 'x' ) : (($filePermissions & 0x0800) ? 'S' : '-'));
-            // Group
-            $permissionString .= (($filePermissions & 0x0020) ? 'r' : '-');
-            $permissionString .= (($filePermissions & 0x0010) ? 'w' : '-');
-            $permissionString .= (($filePermissions & 0x0008) ? (($filePermissions & 0x0400) ? 's' : 'x' ) : (($filePermissions & 0x0400) ? 'S' : '-'));
-            // Public
-            $permissionString .= (($filePermissions & 0x0004) ? 'r' : '-');
-            $permissionString .= (($filePermissions & 0x0002) ? 'w' : '-');
-            $permissionString .= (($filePermissions & 0x0001) ? (($filePermissions & 0x0200) ? 't' : 'x' ) : (($filePermissions & 0x0200) ? 'T' : '-'));
-            return $permissionString;
+            try
+            {
+                $filePermissions = @fileperms($filepath);
+                // Owner
+                $permissionString .= (($filePermissions & 0x0100) ? 'r' : '-');
+                $permissionString .= (($filePermissions & 0x0080) ? 'w' : '-');
+                $permissionString .= (($filePermissions & 0x0040) ? (($filePermissions & 0x0800) ? 's' : 'x' ) : (($filePermissions & 0x0800) ? 'S' : '-'));
+                // Group
+                $permissionString .= (($filePermissions & 0x0020) ? 'r' : '-');
+                $permissionString .= (($filePermissions & 0x0010) ? 'w' : '-');
+                $permissionString .= (($filePermissions & 0x0008) ? (($filePermissions & 0x0400) ? 's' : 'x' ) : (($filePermissions & 0x0400) ? 'S' : '-'));
+                // Public
+                $permissionString .= (($filePermissions & 0x0004) ? 'r' : '-');
+                $permissionString .= (($filePermissions & 0x0002) ? 'w' : '-');
+                $permissionString .= (($filePermissions & 0x0001) ? (($filePermissions & 0x0200) ? 't' : 'x' ) : (($filePermissions & 0x0200) ? 'T' : '-'));
+                return $permissionString;
+            } catch(Exception $e)
+            {
+                return "";
+            }
         }
         
         /* get the custom feedname for the given url.
