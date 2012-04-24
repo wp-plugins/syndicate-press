@@ -4,7 +4,7 @@ Plugin Name: Syndicate Press
 Plugin URI: http://www.henryranch.net/software/syndicate-press/
 Description: This plugin provides a high performance, highly configurable and easy to use news syndication aggregator which supports RSS, RDF and ATOM feeds.
 Author: HenryRanch LLC (henryranch.net)
-Version: 1.0.11
+Version: 1.0.12
 Author URI: http://henryranch.net/
 License: GPL2
 */
@@ -60,7 +60,7 @@ YOU MAY REQUEST A LICENSE TO DO SO FROM THE AUTHOR.
 */
 if (!class_exists("SyndicatePressPlugin")) {
 	class SyndicatePressPlugin {
-        var $version = "1.0.11";
+        var $version = "1.0.12";
         var $homepageURL = "http://henryranch.net/software/syndicate-press/";
         
         var $cacheDir = "/cache";
@@ -380,15 +380,15 @@ if (!class_exists("SyndicatePressPlugin")) {
             $mainCacheDirPerm = $this->sp_getFilePermissions($mainCacheDir);
             $inputCacheDirPerm = $this->sp_getFilePermissions($inputCacheDir);
             $outputCacheDirPerm = $this->sp_getFilePermissions($outputCacheDir);
-            if($mainCacheDirPerm != "rwxr-xr-x")
+            if($mainCacheDirPerm != "rwxr-xr-x" && $mainCacheDirPerm != "")
             {
                 $permProblem .= "Main cache: $mainCacheDirPerm<br>";
             }
-            if($inputCacheDirPerm != "rwxr-xr-x")
+            if($inputCacheDirPerm != "rwxr-xr-x" && $inputCacheDirPerm != "")
             {
                 $permProblem .= "Input cache: $inputCacheDirPerm<br>";
             }
-            if($outputCacheDirPerm != "rwxr-xr-x")
+            if($outputCacheDirPerm != "rwxr-xr-x" && $outputCacheDirPerm != "")
             {
                 $permProblem .= "Output cache: $outputCacheDirPerm<br>";
             }
