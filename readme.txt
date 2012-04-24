@@ -3,8 +3,8 @@ Contributors: hranchFundi
 Donate link: http://henryranch.net/software/syndicate-press/
 Tags: RSS,RDF,Atom,feed,syndicate,syndication,news,aggregator,aggregation,plugin,active,maintained,custom,widget,post,plugin,posts,admin,sidebar,theme,comments,images,twitter,page,google,links
 Requires at least: 2.8
-Tested up to: 3.3.1
-Stable tag: 1.0.10
+Tested up to: 3.3.2
+Stable tag: 1.0.11
 
 Syndicate Press lets you include RSS, RDF or Atom feeds directly in your Wordpress posts, pages, widgets or theme. 
 
@@ -46,6 +46,11 @@ http://henryranch.net/news/science-technology/ <br>
 == Changelog ==
 
 http://henryranch.net/software/syndicate-press/syndicate-press-releases/
+
+1.0.11: This is a new feature release.
+Added support for bbcodes in the text widget.
+Added a new check to make sure that the cache directories have the correct permissions.
+Updated some of the descriptions in the admin page to make them clearer.
 
 1.0.10: This is a bug-fix release.  Fixed the following issues: 
 Failure to show feed items when "Show item description only when the viewer hovers over the item link." is selected.

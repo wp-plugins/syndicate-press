@@ -60,7 +60,7 @@ YOU MAY REQUEST A LICENSE TO DO SO FROM THE AUTHOR.
 */
 if (!class_exists("SyndicatePressPlugin")) {
 	class SyndicatePressPlugin {
-        var $version = "1.0.10";
+        var $version = "1.0.11";
         var $homepageURL = "http://henryranch.net/software/syndicate-press/";
         
         var $cacheDir = "/cache";
@@ -158,6 +158,24 @@ if (!class_exists("SyndicatePressPlugin")) {
             $elapsedTime = $currentTime - $startTime;
             $elapsedTime = round($elapsedTime,5);
             return $elapsedTime;
+        }
+        
+        function sp_getFilePermissions($filepath)
+        {
+            $filePermissions = fileperms($filepath);
+            // Owner
+            $permissionString .= (($filePermissions & 0x0100) ? 'r' : '-');
+            $permissionString .= (($filePermissions & 0x0080) ? 'w' : '-');
+            $permissionString .= (($filePermissions & 0x0040) ? (($filePermissions & 0x0800) ? 's' : 'x' ) : (($filePermissions & 0x0800) ? 'S' : '-'));
+            // Group
+            $permissionString .= (($filePermissions & 0x0020) ? 'r' : '-');
+            $permissionString .= (($filePermissions & 0x0010) ? 'w' : '-');
+            $permissionString .= (($filePermissions & 0x0008) ? (($filePermissions & 0x0400) ? 's' : 'x' ) : (($filePermissions & 0x0400) ? 'S' : '-'));
+            // Public
+            $permissionString .= (($filePermissions & 0x0004) ? 'r' : '-');
+            $permissionString .= (($filePermissions & 0x0002) ? 'w' : '-');
+            $permissionString .= (($filePermissions & 0x0001) ? (($filePermissions & 0x0200) ? 't' : 'x' ) : (($filePermissions & 0x0200) ? 'T' : '-'));
+            return $permissionString;
         }
         
         /* get the custom feedname for the given url.
@@ -345,6 +363,34 @@ if (!class_exists("SyndicatePressPlugin")) {
             {
                 mkdir($pluginDir.'/'.$this->formattedOutputCacheDir);
             }
+        }
+        
+        function sp_checkCachePermissions()
+        {
+            $pluginDir = dirname(__FILE__);
+            $mainCacheDir = $pluginDir.'/'.$this->cacheDir;
+            $inputCacheDir = $pluginDir.'/'.$this->inputFeedCacheDir;
+            $outputCacheDir = $pluginDir.'/'.$this->formattedOutputCacheDir;
+            $mainCacheDirPerm = $this->sp_getFilePermissions($mainCacheDir);
+            $inputCacheDirPerm = $this->sp_getFilePermissions($inputCacheDir);
+            $outputCacheDirPerm = $this->sp_getFilePermissions($outputCacheDir);
+            if($mainCacheDirPerm != "rwxr-xr-x")
+            {
+                $permProblem .= "Main cache: $mainCacheDirPerm<br>";
+            }
+            if($inputCacheDirPerm != "rwxr-xr-x")
+            {
+                $permProblem .= "Input cache: $inputCacheDirPerm<br>";
+            }
+            if($outputCacheDirPerm != "rwxr-xr-x")
+            {
+                $permProblem .= "Output cache: $outputCacheDirPerm<br>";
+            }
+            if($permProblem)
+            {
+                $permProblem = "There is a problem with your cache permissions:<br>$permProblem<br>Please set your cache permissions to rwxr-xr-x.";
+            }
+            return $permProblem;
         }
     
         /* Get the domain name from the given url.
@@ -900,6 +946,16 @@ if (!class_exists("SyndicatePressPlugin")) {
 <h2><a href="<?php echo $this->homepageURL; ?>" target=_blank title="Click for the Syndicate Press homepage...">Syndicate Press</a></h2>
 <em>Version <?php print $this->version;?></em><br>
 
+<?php
+ $permMessage = $this->sp_checkCachePermissions();
+ if($permMessage)
+ {
+    echo '<div class="updated"><p><strong>';
+    _e($permMessage, "SyndicatePressPlugin");
+    echo '</strong></p></div>';
+ }
+?>
+
 <table>
 <tr><td>&nbsp;</td><td>&nbsp;</td></tr>
 <tr><td>
@@ -1002,32 +1058,32 @@ if (!class_exists("SyndicatePressPlugin")) {
      <div class="tabbertab">
         <h2>Display Settings</h2>
         <div style="padding-left: 20px;">
-        Limit articles in a feed to <input name="syndicatePressLimitFeedItemsToDisplay" size="10" value="<?php _e(apply_filters('format_to_edit',$configOptions['limitFeedItemsToDisplay']), 'SyndicatePressPlugin') ?>"> items. (-1 to display all items in feed)<br>
-        Limit article to <input name="syndicatePressLimitFeedDescriptionCharsToDisplay" size="10" value="<?php _e(apply_filters('format_to_edit',$configOptions['limitFeedDescriptionCharsToDisplay']), 'SyndicatePressPlugin') ?>"> characters. (-1 to display complete article description)<br>
-        Limit article headline to <input name="syndicatePressMaxHeadlineLength" size="10" value="<?php _e(apply_filters('format_to_edit',$configOptions['maxHeadlineLength']), 'SyndicatePressPlugin') ?>"> characters. (-1 to display complete article headline)<br>
-        Show item description:<br>
+        <b><u>Limit the number of articles</u></b> in a feed to <input name="syndicatePressLimitFeedItemsToDisplay" size="10" value="<?php _e(apply_filters('format_to_edit',$configOptions['limitFeedItemsToDisplay']), 'SyndicatePressPlugin') ?>"> items. Depending on the publishers settings, this will typically limit the displayed feeds to the most recent feeds.  For example, limit feed articles to the 4 most recent items.  Set this value to -1 to display all items in feed.<br>&nbsp;<br>
+        <b><u>Limit article to</u></b> <input name="syndicatePressLimitFeedDescriptionCharsToDisplay" size="10" value="<?php _e(apply_filters('format_to_edit',$configOptions['limitFeedDescriptionCharsToDisplay']), 'SyndicatePressPlugin') ?>"> characters. (-1 to display complete article description)<br>&nbsp;<br>
+        <b><u>Limit article headline</u></b> to <input name="syndicatePressMaxHeadlineLength" size="10" value="<?php _e(apply_filters('format_to_edit',$configOptions['maxHeadlineLength']), 'SyndicatePressPlugin') ?>"> characters. (-1 to display complete article headline)<br>&nbsp;<br>
+        <b><u>Show item description:</u></b><br>
         <div style="padding-left: 20px;">
         <label for="syndicatePressShowContentOnlyInLinkTitle_yes"><input type="radio" id="syndicatePressShowContentOnlyInLinkTitle_yes" name="syndicatePressShowContentOnlyInLinkTitle" value="true" <?php if ($configOptions['showContentOnlyInLinkTitle'] == "true") { _e('checked="checked"', "SyndicatePressPlugin"); }?> /> only when the viewer hovers over the item link.</label><br>
         <label for="syndicatePressShowContentOnlyInLinkTitle_no"><input type="radio" id="syndicatePressShowContentOnlyInLinkTitle_no" name="syndicatePressShowContentOnlyInLinkTitle" value="false" <?php if ($configOptions['showContentOnlyInLinkTitle'] == "false") { _e('checked="checked"', "SyndicatePressPlugin"); }?>/> below the item link.</label><br>
-        </div>
-        Item publication timestamp:<br>
+        </div><br>&nbsp;<br>
+        <b><u>Item publication timestamp:</u></b><br>
         <div style="padding-left: 20px;">
         <label for="syndicatePressshowArticlePublishTimestamp_yes"><input type="radio" id="syndicatePressshowArticlePublishTimestamp_yes" name="syndicatePressshowArticlePublishTimestamp" value="true" <?php if ($configOptions['showArticlePublishTimestamp'] == "true") { _e('checked="checked"', "SyndicatePressPlugin"); }?> /> Show timestamp.</label><br>
         <label for="syndicatePressshowArticlePublishTimestamp_no"><input type="radio" id="syndicatePressshowArticlePublishTimestamp_no" name="syndicatePressshowArticlePublishTimestamp" value="false" <?php if ($configOptions['showArticlePublishTimestamp'] == "false") { _e('checked="checked"', "SyndicatePressPlugin"); }?>/> Hide timestamp.</label><br>
-        </div>
-        Display HTML formatting in article:<br>
+        </div><br>&nbsp;<br>
+        <b><u>Display HTML formatting in article:</u></b><br>
         <div style="padding-left: 20px;">
         <em>NOTE: Displaying HTML content in the articles will disable article length limitation</em><br>
         <label for="syndicatePressAllowMarkup_yes"><input type="radio" id="syndicatePressAllowMarkup_yes" name="syndicatePressAllowMarkup" value="true" <?php if ($configOptions['allowMarkupInDescription'] == "true") { _e('checked="checked"', "SyndicatePressPlugin"); }?> /> Show HTML formatting.</label><br>
         <label for="syndicatePressAllowMarkup_no"><input type="radio" id="syndicatePressAllowMarkup_no" name="syndicatePressAllowMarkup" value="false" <?php if ($configOptions['allowMarkupInDescription'] == "false") { _e('checked="checked"', "SyndicatePressPlugin"); }?>/> Strip HTML formatting, leaving only the article text.</label><br>
-        </div>
-        Display images in article:<br>
+        </div><br>&nbsp;<br>
+        <b><u>Display images in article:</u></b><br>
         <div style="padding-left: 20px;">
         <em>NOTE: If HTML formatting is stripped (see above setting), images will NOT be shown.</em><br>
         <label for="syndicatePressDisplayImages_yes"><input type="radio" id="syndicatePressDisplayImages_yes" name="syndicatePressDisplayImages" value="true" <?php if ($configOptions['displayImages'] == "true") { _e('checked="checked"', "SyndicatePressPlugin"); }?> /> Show images.</label><br>
         <label for="syndicatePressDisplayImages_no"><input type="radio" id="syndicatePressDisplayImages_no" name="syndicatePressDisplayImages" value="false" <?php if ($configOptions['displayImages'] == "false") { _e('checked="checked"', "SyndicatePressPlugin"); }?>/> Strip images.</label><br>
-        </div>
-        Syndicate Press link:<br>
+        </div><br>&nbsp;<br>
+        <b><u>Syndicate Press link:</u></b><br>
         <div style="padding-left: 20px;">
         <label for="syndicatePressShowSyndicatePressLinkback_yes"><input type="radio" id="syndicatePressShowSyndicatePressLinkback_yes" name="syndicatePressShowSyndicatePressLinkback" value="true" <?php if ($configOptions['showSyndicatePressLinkback'] == "true") { _e('checked="checked"', "SyndicatePressPlugin"); }?> /> Show 'Powered by <a href="<?php echo $this->homepageURL; ?>" target=_blank>Syndicate Press</a>' at the end of the aggregated feed content.</label><br>
         <div style="padding-left: 20px;">
@@ -1035,13 +1091,13 @@ if (!class_exists("SyndicatePressPlugin")) {
         You may use this automated linkback, or you may place the link in the footer of your site.</em><br>
         </div>
         <label for="syndicatePressShowSyndicatePressLinkback_no"><input type="radio" id="syndicatePressShowSyndicatePressLinkback_no" name="syndicatePressShowSyndicatePressLinkback" value="false" <?php if ($configOptions['showSyndicatePressLinkback'] == "false") { _e('checked="checked"', "SyndicatePressPlugin"); }?>/> Do not show the Syndicate Press link.</label><br>
-        </div>
-        Processing and feed metrics:<br>
+        </div><br>&nbsp;<br>
+        <b><u>Processing and feed metrics:</u></b><br>
         <div style="padding-left: 20px;">
         <label for="syndicatePressShowProcessingMetrics_yes"><input type="radio" id="syndicatePressShowProcessingMetrics_yes" name="syndicatePressShowProcessingMetrics" value="true" <?php if ($configOptions['showProcessingMetrics'] == "true") { _e('checked="checked"', "SyndicatePressPlugin"); }?> /> Show.</label><br>
         <label for="syndicatePressShowProcessingMetrics_no"><input type="radio" id="syndicatePressShowProcessingMetrics_no" name="syndicatePressShowProcessingMetrics" value="false" <?php if ($configOptions['showProcessingMetrics'] == "false") { _e('checked="checked"', "SyndicatePressPlugin"); }?>/> Do not show.</label><br>
-        </div>
-        Feed name (title):<br>
+        </div><br>&nbsp;<br>
+        <b><u>Feed name (title):</u></b><br>
         <div style="padding-left: 20px;">
         <label for="syndicatePressUseCustomFeednameAsChannelTitle_yes"><input type="radio" id="syndicatePressUseCustomFeednameAsChannelTitle_yes" name="syndicatePressUseCustomFeednameAsChannelTitle" value="true" <?php if ($configOptions['useCustomFeednameAsChannelTitle'] == "true") { _e('checked="checked"', "SyndicatePressPlugin"); }?> /> Use custom feedname as feed title.</label><br>
         <label for="syndicatePressUseCustomFeednameAsChannelTitle_no"><input type="radio" id="syndicatePressUseCustomFeednameAsChannelTitle_no" name="syndicatePressUseCustomFeednameAsChannelTitle" value="false" <?php if ($configOptions['useCustomFeednameAsChannelTitle'] == "false") { _e('checked="checked"', "SyndicatePressPlugin"); }?>/> Use publisher's title (including link and image if available).</label><br>
@@ -1054,21 +1110,21 @@ if (!class_exists("SyndicatePressPlugin")) {
      </div>     
      <div class="tabbertab">
         <h2>Custom Formatting</h2>
-        Title formatting:<br>
+        <b><u>Title formatting:</u></b><br>
         <div style="padding-left: 20px;">
         <em>You can use html tags to format the feed and article titles... i.e. &lt;h2&gt;title&lt;/h2&gt;</em><br>
         <input name="syndicatePressFeedTitleHTMLCodePre" size="20" value="<?php _e(apply_filters('format_to_edit',$configOptions['feedTitleHTMLCodePre']), 'SyndicatePressPlugin') ?>">Feed title<input name="syndicatePressFeedTitleHTMLCodePost" size="20" value="<?php _e(apply_filters('format_to_edit',$configOptions['feedTitleHTMLCodePost']), 'SyndicatePressPlugin') ?>"><br>
         <input name="syndicatePressArticleTitleHTMLCodePre" size="20" value="<?php _e(apply_filters('format_to_edit',$configOptions['articleTitleHTMLCodePre']), 'SyndicatePressPlugin') ?>">Article title<input name="syndicatePressArticleTitleHTMLCodePost" size="20" value="<?php _e(apply_filters('format_to_edit',$configOptions['articleTitleHTMLCodePost']), 'SyndicatePressPlugin') ?>"><br>
-        </div>
-        Custom feed separation code:<br>
+        </div><br>&nbsp;<br>
+        <b><u>Custom feed separation code:</u></b><br>
         <div style="padding-left: 20px;">
         <em>You can insert any html content between feeds (including advertising code)<br>
         <div style="padding-left: 20px;">
         i.e. To insert a horizontal line: &lt;hr&gt;</em><br>
         </div>
         <textarea name="syndicatePressFeedSeparationHTMLCode" style="width: 95%; height: 100px;"><?php _e($this->sp_unescapeString(apply_filters('format_to_edit',$configOptions['feedSeparationHTMLCode'])), 'SyndicatePressPlugin') ?></textarea>
-        </div>
-        Custom content to show when a feed is unavailable:<br>
+        </div><br>&nbsp;<br>
+        <b><u>Custom content to show when a feed is unavailable:</u></b><br>
         <div style="padding-left: 20px;">
         <em>You can insert custom html content when a feed is not available.<br>
         To include the name of the unavailable feed, use {feedname} in the code below and it will be replaced with the name of the feed.<br>
@@ -1130,7 +1186,7 @@ if (!class_exists("SyndicatePressPlugin")) {
         </p>
         <b><u>Personalized support</u></b>
         <p style="padding-left: 20px;">
-        If you would like personalized support from the Syndicate Press developers, you may contact us directly at s&nbsp;p&nbsp;[at]&nbsp;h&nbsp;e&nbsp;n&nbsp;r&nbsp;y&nbsp;r&nbsp;a&nbsp;n&nbsp;c&nbsp;h&nbsp;.&nbsp;n&nbsp;e&nbsp;t.<br>
+        If you would like personalized support from the Syndicate Press developers, you may contact us directly at sp&nbsp;[at]&nbsp;h&nbsp;e&nbsp;n&nbsp;r&nbsp;y&nbsp;r&nbsp;a&nbsp;n&nbsp;c&nbsp;h&nbsp;.&nbsp;n&nbsp;e&nbsp;t.<br>
         <i>We request a donation to Syndicate Press for personalized support.</i>
         </p>
      </div>
@@ -1213,6 +1269,7 @@ if (isset($syndicatePressPluginObjectRef)) {
         
 	//Filter...
 	add_filter('the_content', array(&$syndicatePressPluginObjectRef,'sp_ContentFilter')); 
+    add_filter('widget_text', array(&$syndicatePressPluginObjectRef,'sp_ContentFilter'));
 }
 
 function my_admin_enqueue_scripts($hook_suffix) {
