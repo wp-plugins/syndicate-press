@@ -380,21 +380,21 @@ if (!class_exists("SyndicatePressPlugin")) {
             $mainCacheDirPerm = $this->sp_getFilePermissions($mainCacheDir);
             $inputCacheDirPerm = $this->sp_getFilePermissions($inputCacheDir);
             $outputCacheDirPerm = $this->sp_getFilePermissions($outputCacheDir);
-            if($mainCacheDirPerm != "rwxr-xr-x" && $mainCacheDirPerm != "")
+            if($mainCacheDirPerm != "rwxr-xr-x" && $mainCacheDirPerm != "---------")
             {
                 $permProblem .= "Main cache: $mainCacheDirPerm<br>";
             }
-            if($inputCacheDirPerm != "rwxr-xr-x" && $inputCacheDirPerm != "")
+            if($inputCacheDirPerm != "rwxr-xr-x" && $inputCacheDirPerm != "---------")
             {
                 $permProblem .= "Input cache: $inputCacheDirPerm<br>";
             }
-            if($outputCacheDirPerm != "rwxr-xr-x" && $outputCacheDirPerm != "")
+            if($outputCacheDirPerm != "rwxr-xr-x" && $outputCacheDirPerm != "---------")
             {
                 $permProblem .= "Output cache: $outputCacheDirPerm<br>";
             }
             if($permProblem)
             {
-                $permProblem = "There is a problem with your cache permissions:<br>$permProblem<br>Please set your cache permissions to rwxr-xr-x.";
+                $permProblem = "There may be a problem with your cache permissions:<br>$permProblem<br>Please set your cache permissions to rwxr-xr-x.";
             }
             return $permProblem;
         }
