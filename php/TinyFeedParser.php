@@ -1,8 +1,8 @@
 <?php
 /*
 File: TinyFeedParser.php
-Date: 2/28/2012
-Version 1.9.4
+Date: 6/25/2012
+Version 1.9.5
 Author: HenryRanch LLC
 
 LICENSE:
@@ -95,10 +95,19 @@ class TinyFeedParser
     
     var $numArticles = 0;
     
+	var $useCustomTimestampFormat = true;
+	var $defaultTimestampFormatString = 'l F jS, Y h:i:s A';
+	var $timestampFormatString = 'l F jS, Y h:i:s A';
+	
     function TinyFeedParser() 
     {
     }
     
+	function getDefaultTimestampFormatString()
+	{
+		return $this->defaultTimestampFormatString;
+	}
+	
     function getDomainFromUrl($url)
     {
         preg_match("/^(http:\/\/)?([^\/]+)/i", $url, $urlArray);
@@ -170,6 +179,7 @@ class TinyFeedParser
     function parseFeed($url_or_file)
     {
         $this->feedUpdateTime = $this->getFileModificationTime($url_or_file);
+		
         if(strpos($url_or_file, "http://") === false)
         {
             $xmlString = file_get_contents($url_or_file);
@@ -357,7 +367,14 @@ class TinyFeedParser
     {
         if(file_exists($filename))
         {
-            return date("F d Y H:i:s.", filemtime($filename));
+			if($this->useCustomTimestampFormat)
+			{
+				return date($this->timestampFormatString, filemtime($filename));
+			}
+			else
+			{
+				return date("F d Y H:i:s.", filemtime($filename));
+			}
         }
     }
     
@@ -566,7 +583,14 @@ class TinyFeedParser
                 if($article->pubDateStr)
                 {
                     //$html = $this->addBrIfNeeded($html);
-                    $html .= '<font size=-3>'.$article->pubDateStr.'</font>'."\r\n";
+					if($this->useCustomTimestampFormat)
+					{
+						$html .= '<font size=-3>'.date($this->timestampFormatString, $article->pubTimeStamp).'</font>'."\r\n";
+					}
+					else
+					{
+						$html .= '<font size=-3>'.$article->pubDateStr.'</font>'."\r\n";
+					}
                 }
                 else
                 {

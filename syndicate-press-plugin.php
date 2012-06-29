@@ -4,7 +4,7 @@ Plugin Name: Syndicate Press
 Plugin URI: http://www.henryranch.net/software/syndicate-press/
 Description: This plugin provides a high performance, highly configurable and easy to use news syndication aggregator which supports RSS, RDF and ATOM feeds.
 Author: HenryRanch LLC (henryranch.net)
-Version: 1.0.15
+Version: 1.0.16
 Author URI: http://henryranch.net/
 License: GPL2
 */
@@ -60,7 +60,7 @@ YOU MAY REQUEST A LICENSE TO DO SO FROM THE AUTHOR.
 */
 if (!class_exists("SyndicatePressPlugin")) {
 	class SyndicatePressPlugin {
-        var $version = "1.0.15";
+        var $version = "1.0.16";
         var $homepageURL = "http://henryranch.net/software/syndicate-press/";
         
         var $cacheDir = "/cache";
@@ -94,6 +94,7 @@ if (!class_exists("SyndicatePressPlugin")) {
             'feedUrlList' => '',
             'inclusiveKeywordFilter' => '',
             'exclusiveKeywordFilter' => '',
+            'timestampFormat' => 'l F jS, Y h:i:s A',
             'cacheTimeoutSeconds' => 3600,
             'feedTitleHTMLCodePre' => '<h2>',
             'feedTitleHTMLCodePost' => '</h2>',
@@ -213,7 +214,7 @@ if (!class_exists("SyndicatePressPlugin")) {
             }
             return "";
         }
-        
+
         /* Filter callback which actually does the main work of the plugin.
                         * Will match syndicate press bbcodes in pages/posts and replace the bbcode with the referenced RSS feed content
                         * <!--syn-press#name--> or <!--sp#name--> or [sp# name] 
@@ -233,8 +234,7 @@ if (!class_exists("SyndicatePressPlugin")) {
                                 
             $availableFeeds = explode("\n", $configOptions['feedUrlList']);
             
-            $content = '';
-            
+            $content = '';            
        
             $enableOutputCache = $configOptions['enableOutputCache'];
             $pageFeedReference = implode(",", $bbCodeTagArray);
@@ -250,7 +250,8 @@ if (!class_exists("SyndicatePressPlugin")) {
                 //print "Formatting content...<br>";
                 foreach($bbCodeTagArray as $feedNameReference)
                 {  
-                    $feedNameReference = trim($feedNameReference); 
+                    $feedNameReference = trim($feedNameReference);//,"\x7f..\xff\x0..\x1f"); 
+					//echo 'pre exploded feed name ref: \''.$feedNameReference.'\'<br>';
                     //ignore array element s that are just the bbcode text.  we don't need the bbcode text b/c the following text is the bbcode parameters as extracted by the sp bbcode filter
                     if(strpos($feedNameReference, '[') !== false)
                     {
@@ -276,6 +277,11 @@ if (!class_exists("SyndicatePressPlugin")) {
                             $list = explode('=', $param);
                             $customConfigOverrides['showImages'] = $list[1];
                         }
+                        else if(strpos($param, 'feedList') !== false)
+                        {
+                            $list = explode('=', $param);
+                            $feedNameReference = $list[1];
+                        }
                     }
                     foreach($availableFeeds as $availableFeed)
                     {
@@ -285,11 +291,14 @@ if (!class_exists("SyndicatePressPlugin")) {
                             continue;
                         }
                         //split the reference string on ',' (comma).  this is the feed reference list provided in the bbcode: [sp# feed1,feed2,feed3,etc...]
-                        $feedNameList = explode(',', $feedNameReference);
-                        //print_r($feedNameList);
+						//echo 'feed name ref: '.$feedNameReference.'<br>';
+						$feedNameList = explode(',', $feedNameReference);
+						
                         foreach($feedNameList as $feedName)
                         {
-                            if(strpos($availableFeed, $feedName) !== false || (strtolower($feedName) == "all"))
+							$feedName = trim($feedName);
+                            //print "Checking feedname: '$feedName' against available feed: '$availableFeed'<br>"; 
+                            if(strpos($availableFeed, $feedName) !== false || ($feedName == 'all'))
                             {    
                                 //print "Found requested feed: $availableFeed <br>"; 
                                 //this allows naming of the feeds in the feed list as follows: [[<name><pipechar>]<feedUrl>]*
@@ -300,7 +309,7 @@ if (!class_exists("SyndicatePressPlugin")) {
                                     //print "feed URL: $availableFeed <br>"; 
                                 }
                                 $content .= $this->sp_getFormattedRssContent($availableFeed, $customConfigOverrides);
-                                if($configOptions['feedSeparationHTMLCode'] != "")
+                                if($configOptions['feedSeparationHTMLCode'] != '')
                                 {
                                     $content .= $this->sp_unescapeString($configOptions['feedSeparationHTMLCode']);
                                 }
@@ -394,7 +403,7 @@ if (!class_exists("SyndicatePressPlugin")) {
             }
             if($permProblem)
             {
-                $permProblem = "There may be a problem with your cache permissions:<br>$permProblem<br>Please set your cache permissions to rwxr-xr-x.";
+                $permProblem = "There may be a problem with your cache permissions:<br>$permProblem<br>Please set your cache permissions to rwxr-xr-x.<br>Your Syndicate Press cache directory is located here: ".$mainCacheDir;
             }
             return $permProblem;
         }
@@ -658,6 +667,12 @@ if (!class_exists("SyndicatePressPlugin")) {
                 $parser->showFeedMetrics = $configOptions['showProcessingMetrics'];
                 $parser->showArticlePublishTimestamp = $configOptions['showArticlePublishTimestamp'];
                 $parser->allowMarkupInDescription = $configOptions['allowMarkupInDescription'];
+				if($configOptions['timestampFormat']  != '')
+				{
+					$parser->useCustomTimestampFormat = true;
+					$parser->timestampFormatString = $configOptions['timestampFormat'];
+					$parser->timestampFormatString = $this->sp_unescapeString($parser->timestampFormatString);
+				}
                 $parser->customFeedName = $this->sp_getCustomFeednameForUrl($url);
                 if($parser->customFeedName == "")
                 {
@@ -850,6 +865,9 @@ if (!class_exists("SyndicatePressPlugin")) {
 				}	         
 				if (isset($_POST['syndicatePressMaxHeadlineLength'])) {
 					$configOptions['maxHeadlineLength'] = $_POST['syndicatePressMaxHeadlineLength'];
+				}	           
+				if (isset($_POST['syndicatePressTimestampFormat'])) {
+					$configOptions['timestampFormat'] = trim(mysql_real_escape_string($_POST['syndicatePressTimestampFormat']));
 				}	           
 				if (isset($_POST['syndicatePressUseDownloadClient'])) {
 					$configOptions['useDownloadClient'] = $_POST['syndicatePressUseDownloadClient'];
@@ -1047,7 +1065,7 @@ if (!class_exists("SyndicatePressPlugin")) {
         <div style="padding-left: 20px;">
         Cached feed expires after <input name="syndicatePressCacheTimeoutSeconds" size="10" value="<?php _e(apply_filters('format_to_edit',$configOptions['cacheTimeoutSeconds']), 'SyndicatePressPlugin') ?>"> seconds. (1 hour = 3600 seconds)<br>
         </div>
-        <label for="syndicatePressEnableFeedCache_no"><input type="radio" id="syndicatePressEnableFeedCache_no" name="syndicatePressEnableFeedCache" value="false" <?php if ($configOptions['enableFeedCache'] == "false") { _e('checked="checked"', "SyndicatePressPlugin"); }?>/> Disable - Request the feed for every view of the Syndicate Press page.  <em>This is NOT recommended!</em></label><br>
+        <label for="syndicatePressEnableFeedCache_no"><input type="radio" id="syndicatePressEnableFeedCache_no" name="syndicatePressEnableFeedCache" value="false" <?php if ($configOptions['enableFeedCache'] == "false") { _e('checked="checked"', "SyndicatePressPlugin"); }?>/> Disable - Request the feed for every view of the Syndicate Press page.  <em>This is NOT recommended and may result in your server IP being banned by the publisher!</em></label><br>
         Feed download mode:<br>
         <div style="padding-left: 20px;">
         <label for="syndicatePressUseDownloadClient_yes"><input type="radio" id="syndicatePressUseDownloadClient_yes" name="syndicatePressUseDownloadClient" value="true" <?php if ($configOptions['useDownloadClient'] == "true") { _e('checked="checked"', "SyndicatePressPlugin"); }?> /> Use download client.  <em>Recommended when the web host disables file_get_contents() functionality.</em></label><br>
@@ -1075,6 +1093,9 @@ if (!class_exists("SyndicatePressPlugin")) {
         <b><u>Item publication timestamp:</u></b><br>
         <div style="padding-left: 20px;">
         <label for="syndicatePressshowArticlePublishTimestamp_yes"><input type="radio" id="syndicatePressshowArticlePublishTimestamp_yes" name="syndicatePressshowArticlePublishTimestamp" value="true" <?php if ($configOptions['showArticlePublishTimestamp'] == "true") { _e('checked="checked"', "SyndicatePressPlugin"); }?> /> Show timestamp.</label><br>
+			<div style="padding-left: 20px;">
+			Timestamp Format: <input name="syndicatePressTimestampFormat" size="50" value="<?php _e($this->sp_unescapeString(apply_filters('format_to_edit',$configOptions['timestampFormat'])), 'SyndicatePressPlugin') ?>"> &nbsp;&nbsp;Default: <?php $tfp = new TinyFeedParser(); echo '<b><i>'.$tfp->getDefaultTimestampFormatString().'</b></i>'; ?> <br>Example: The default format string create a timestamp like this: <i>Friday June 29th, 2012 04:12:01 AM</i> <br>For help with custom timestamp formatting, see <a href="http://php.net/manual/en/function.date.php" target="_blank">this documentation</a>.<br>
+			</div>
         <label for="syndicatePressshowArticlePublishTimestamp_no"><input type="radio" id="syndicatePressshowArticlePublishTimestamp_no" name="syndicatePressshowArticlePublishTimestamp" value="false" <?php if ($configOptions['showArticlePublishTimestamp'] == "false") { _e('checked="checked"', "SyndicatePressPlugin"); }?>/> Hide timestamp.</label><br>
         </div><br>&nbsp;<br>
         <b><u>Display HTML formatting in article:</u></b><br>
@@ -1144,12 +1165,13 @@ if (!class_exists("SyndicatePressPlugin")) {
         <p>
         To insert feed contents into a Page or Post, use the following syntax:<br>
         <div style="padding-left: 20px;">
-        [sp# all] - insert all of the feeds in the feed list<br>
-        [sp# feedname] - insert only the feed with the given name<br>
-        [sp# feedname1,feedname2,etc...] - insert the feeds with the given names<br>
-        [sp# feedname1,feedname2 include=keyword1,keyword2] - insert the feeds with the given names and the given inclusive keyword filters<br>
-        [sp# feedname1,feedname2 exclude=keyword1,keyword2] - insert the feeds with the given names and the given exclusive keyword filters<br>
-        [sp# feedname include=keyword exclude=keyword] - insert the feeds with the given name and the given inclusive and exclusive keyword filters<br>
+        [sp# feedList=all] - insert all of the feeds in the feed list<br>
+		<i>In the following examples, <b>feedname</b> will match the name of a feed, or any word within the feed url</i><br>
+        [sp# feedList=feedname] - insert only the feed with the given name<br>
+        [sp# feedList=feedname1,feedname2,etc...] - insert the feeds with the given names<br>
+        [sp# feedList=feedname1,feedname2 include=keyword1,keyword2] - insert the feeds with the given names and the given inclusive keyword filters<br>
+        [sp# feedList=feedname1,feedname2 exclude=keyword1,keyword2] - insert the feeds with the given names and the given exclusive keyword filters<br>
+        [sp# feedList=feedname include=keyword exclude=keyword] - insert the feeds with the given name and the given inclusive and exclusive keyword filters<br>
         </p>
         </div>        
         <b><u>Inserting feed content into a Wordpress theme...</u></b>
@@ -1192,7 +1214,7 @@ if (!class_exists("SyndicatePressPlugin")) {
         </p>
         <b><u>Personalized support</u></b>
         <p style="padding-left: 20px;">
-        If you would like personalized support from the Syndicate Press developers, you may contact us directly at sp&nbsp;[at]&nbsp;h&nbsp;e&nbsp;n&nbsp;r&nbsp;y&nbsp;r&nbsp;a&nbsp;n&nbsp;c&nbsp;h&nbsp;.&nbsp;n&nbsp;e&nbsp;t.<br>
+        If you would like personalized support from the Syndicate Press developers, you may contact us directly at <b>sp&nbsp;[at]&nbsp;h&nbsp;e&nbsp;n&nbsp;r&nbsp;y&nbsp;r&nbsp;a&nbsp;n&nbsp;c&nbsp;h&nbsp;.&nbsp;n&nbsp;e&nbsp;t.</b><br>
         <i>We request a donation to Syndicate Press for personalized support.</i>
         </p>
      </div>
