@@ -1,8 +1,8 @@
 <?php
 /*
 File: TinyFeedParser.php
-Date: 6/25/2012
-Version 1.9.5
+Date: 7/18/2012
+Version 1.9.6
 Author: HenryRanch LLC
 
 LICENSE:
@@ -75,6 +75,8 @@ class TinyFeedParser
     var $maxHeadlineLength = 100;
     var $allowImagesInDescription = 'false';
     var $allowMarkupInDescription = 'false';
+	
+	var $addNoFollowTag = 'true';
     
     var $showContentOnlyInLinkTitle = false;
     var $showFeedChannelTitle = true;
@@ -462,7 +464,12 @@ class TinyFeedParser
             $text = substr($text, 0, $length);
             if($urlLink != "" && $urlLink != 'NO_LINK')
             {
-                $text .= " <a href=\"$urlLink\" target=\"_blank\" title=\"Open article in a new window\">...</a>";
+                $text .= " <a href=\"$urlLink\" target=\"_blank\" title=\"Open article in a new window\"";				
+				if($this->addNoFollowTag == 'true')
+				{
+					$text .= ' rel="nofollow"';
+				}
+				$text .= ">...</a>";
             }
             else
             {
@@ -556,7 +563,12 @@ class TinyFeedParser
             $html .= "<p>\r\n";
             if($article->image)
             {
-                $html .= '<a href="'.$article->image->link.'"><img src="'.$article->image->url.'"></a>';//."\r\n";     
+                $html .= '<a href="'.$article->image->link.'"';
+				if($this->addNoFollowTag == 'true')
+				{
+					$html .= ' rel="nofollow"';
+				}
+				$html .= '><img src="'.$article->image->url.'"></a>';//."\r\n";     
             }
             $html .= $headerHtmlPre;
             $html .= '<a href="'.$article->link.'" ';
@@ -572,6 +584,10 @@ class TinyFeedParser
             {
                 $html .= 'title="Click to read article..."';
             }
+			if($this->addNoFollowTag == 'true')
+			{
+				$html .= ' rel="nofollow"';
+			}
             $html .= ' target=_blank>'.$article->title.'</a>'.$headerHtmlPost."\r\n";
             if($article->subtitle != '')
             {

@@ -4,7 +4,7 @@ Plugin Name: Syndicate Press
 Plugin URI: http://www.henryranch.net/software/syndicate-press/
 Description: This plugin provides a high performance, highly configurable and easy to use news syndication aggregator which supports RSS, RDF and ATOM feeds.
 Author: HenryRanch LLC (henryranch.net)
-Version: 1.0.16
+Version: 1.0.17
 Author URI: http://henryranch.net/
 License: GPL2
 */
@@ -60,7 +60,7 @@ YOU MAY REQUEST A LICENSE TO DO SO FROM THE AUTHOR.
 */
 if (!class_exists("SyndicatePressPlugin")) {
 	class SyndicatePressPlugin {
-        var $version = "1.0.16";
+        var $version = "1.0.17";
         var $homepageURL = "http://henryranch.net/software/syndicate-press/";
         
         var $cacheDir = "/cache";
@@ -101,6 +101,7 @@ if (!class_exists("SyndicatePressPlugin")) {
             'articleTitleHTMLCodePre' => '<h3>',
             'articleTitleHTMLCodePost' => '</h3>',
             'feedSeparationHTMLCode' => '<hr>',
+            'addNoFollowTag' => 'true',
             'feedNotAvailableHTMLCode' => 'Sorry, the {feedname} feed is not available at this time.'
             );
 			$configOptions = get_option($this->adminOptionsName);
@@ -667,6 +668,7 @@ if (!class_exists("SyndicatePressPlugin")) {
                 $parser->showFeedMetrics = $configOptions['showProcessingMetrics'];
                 $parser->showArticlePublishTimestamp = $configOptions['showArticlePublishTimestamp'];
                 $parser->allowMarkupInDescription = $configOptions['allowMarkupInDescription'];
+				$parser->addNoFollowTag = $configOptions['addNoFollowTag'];
 				if($configOptions['timestampFormat']  != '')
 				{
 					$parser->useCustomTimestampFormat = true;
@@ -880,7 +882,10 @@ if (!class_exists("SyndicatePressPlugin")) {
 				}	
 				if (isset($_POST['syndicatePressShowContentOnlyInLinkTitle'])) {
 					$configOptions['showContentOnlyInLinkTitle'] = $_POST['syndicatePressShowContentOnlyInLinkTitle'];
-				}	
+				}		
+				if (isset($_POST['syndicatePressAddNoFollowTag'])) {
+					$configOptions['addNoFollowTag'] = $_POST['syndicatePressAddNoFollowTag'];
+				}
 				if (isset($_POST['syndicatePressShowSyndicatePressLinkback'])) {
 					$configOptions['showSyndicatePressLinkback'] = $_POST['syndicatePressShowSyndicatePressLinkback'];
 				}	
@@ -982,7 +987,16 @@ if (!class_exists("SyndicatePressPlugin")) {
 
 <table>
 <tr><td>&nbsp;</td><td>&nbsp;</td></tr>
-<tr><td>
+<tr>
+<td>
+<form action="https://www.paypal.com/cgi-bin/webscr" method="post">
+<input type="hidden" name="cmd" value="_s-xclick">
+<input type="hidden" name="hosted_button_id" value="WNRCV8LST3ALA">
+<input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">
+<img alt="" border="0" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1">
+</form>
+</td>
+<td>
 <form method="post" action="<?php echo $_SERVER["REQUEST_URI"]; ?>">
 <input name="synPress-clearInputFeedCache" type="hidden" value="<?php echo wp_create_nonce('synPress-clearInputFeedCache'); ?>" />
 <input type="submit" name="synPress-clearInputFeedCacheSubmit" value="<?php _e('Clear input feed cache', 'SyndicatePressPlugin') ?>" />
@@ -998,6 +1012,7 @@ if (!class_exists("SyndicatePressPlugin")) {
 <form method="post" action="<?php echo $_SERVER["REQUEST_URI"]; ?>">
 <input type="submit" name="update_SyndicatePressPluginSettings" value="<?php _e('Update Settings', 'SyndicatePressPlugin') ?>" />
 <input name="synPress-update_settings" type="hidden" value="<?php echo wp_create_nonce('synPress-update_settings'); ?>" />
+<!--  Must leave this form element open, because it is the form across all the tabs-->
 </td>
 </tr>
 </table>
@@ -1159,6 +1174,15 @@ if (!class_exists("SyndicatePressPlugin")) {
         <textarea name="syndicatePressFeedNotAvailableHTMLCode" style="width: 95%; height: 100px;"><?php _e($this->sp_unescapeString(apply_filters('format_to_edit',$configOptions['feedNotAvailableHTMLCode'])), 'SyndicatePressPlugin') ?></textarea>
         </div>
      </div>
+	 <div class="tabbertab">
+        <h2>SEO</h2>
+        <b><u>No-follow directive:</u></b><br>
+        <div style="padding-left: 20px;">
+        <label for="syndicatePressAddNoFollowTag_yes"><input type="radio" id="syndicatePressAddNoFollowTag_yes" name="syndicatePressAddNoFollowTag" value="true" <?php if ($configOptions['addNoFollowTag'] == "true") { _e('checked="checked"', "SyndicatePressPlugin"); }?> /> Add no-follow tag to article URL's.</label><br>
+        <label for="syndicatePressAddNoFollowTag_no"><input type="radio" id="syndicatePressAddNoFollowTag_no" name="syndicatePressAddNoFollowTag" value="false" <?php if ($configOptions['addNoFollowTag'] == "false") { _e('checked="checked"', "SyndicatePressPlugin"); }?>/> Do not add the no-follow tag to URL's.</label><br>
+        </div>
+	</div>
+</form>
      <div class="tabbertab">
         <h2>Help</h2>
         <b><u>Inserting feed content into a Wordpress page or post...</u></b>
@@ -1224,16 +1248,18 @@ if (!class_exists("SyndicatePressPlugin")) {
         <b><u>Help support this plugin!</u></b>
         <p>
         A donation is a great way to show your support for this plugin.  Donations help offset the cost of maintenance, development and hosting.<br><br>
-        There is no minimum donation amount.  If you like this plugin and find that it has saved you time or effort, you can be the judge of how much that is worth to you.<br><br>
+        Donations also help keep the developer motivated to add new features.  :-)<br><br>
+		There is no minimum donation amount.  If you like this plugin and find that it has saved you time or effort, you can be the judge of how much that is worth to you.<br><br>
         Thank you!
         </p>
         <p align="center">
         <form action="https://www.paypal.com/cgi-bin/webscr" method="post">
-        <input type="hidden" name="cmd" value="_s-xclick">
-        <input type="hidden" name="hosted_button_id" value="8983567">
-        <input type="image" src="https://www.paypal.com/en_US/i/btn/btn_donateCC_LG.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">
-        <img alt="" border="0" src="https://www.paypal.com/en_US/i/scr/pixel.gif" width="1" height="1">
-        </form>
+		<input type="hidden" name="cmd" value="_s-xclick">
+		<input type="hidden" name="hosted_button_id" value="G3XU76VEAWT4Y">
+		<input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">
+		<img alt="" border="0" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1">
+		</form>
+		<br>Donations are securely processed by Paypal.<br>
         </p>
         <!--</div>-->
      </div>
@@ -1256,10 +1282,8 @@ if (!class_exists("SyndicatePressPlugin")) {
         </table>
      </div>   
 </div>
-</form>
 
 </div>
-
 
  </div>
 					<?php
