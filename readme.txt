@@ -18,7 +18,7 @@ Syndicate Press is actively maintained and regularly updated with new features a
 
 == Installation ==
 
-This section describes how to install the plugin and get it working.
+This section describes how to install the plugin and get it working.  For more details please see http://syndicatepress.henryranch.net/documentation/install/
 
 1. Install the plugin
    - Via th Wordpress plugin repository: Click 'Install' and then 'Activate' after installation completes.
@@ -29,23 +29,23 @@ This section describes how to install the plugin and get it working.
 
 == Frequently Asked Questions ==
 
-See http://henryranch.net/software/syndicate-press/
+See http://syndicatepress.henryranch.net/documentation/faq/
 
 == Screenshots ==
 
-For detailed screenshots of the admin control panel, please visit the Syndicate Press documentation page: http://henryranch.net/software/syndicate-press/
+For detailed screenshots of the admin control panel, please visit the Syndicate Press documentation page: http://syndicatepress.henryranch.net/screenshots/
 
 Please see the following pages for examples of the syndicated news feeds on a Wordpress blog:<br>
 
-http://henryranch.net/news/ <br>
+http://syndicatepress.henryranch.net/feed-tests/simple-wordpress-feeds/ <br>
 
-http://henryranch.net/news/real-time-earthquake-news/ <br>
+http://syndicatepress.henryranch.net/feed-tests/amazon-affiliate-feeds/ <br>
 
-http://henryranch.net/news/science-technology/ <br>
+http://syndicatepress.henryranch.net/feed-tests/feedburner-feeds/ <br>
 
 == Changelog ==
 
-http://henryranch.net/software/syndicate-press/syndicate-press-releases/
+http://syndicatepress.henryranch.net/documentation/changelog/
 
 1.0.17: New feature release<br>
 Added new SEO feature which allows the admin to add the rel=nofollow tag to the article links.
@@ -105,8 +105,6 @@ header2 level, but this can be removed in the plugin admin page.
 
 Please see the following pages for examples of the syndicated news feeds on a Wordpress blog:<br>
 
-http://henryranch.net/news/ <br>
+Usage information: http://syndicatepress.henryranch.net/documentation/usage/ <br>
 
-http://henryranch.net/news/real-time-earthquake-news/ <br>
 
-http://henryranch.net/news/science-technology/ <br>
