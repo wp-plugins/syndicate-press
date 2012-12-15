@@ -4,7 +4,7 @@ Plugin Name: Syndicate Press
 Plugin URI: http://www.henryranch.net/software/syndicate-press/
 Description: This plugin provides a high performance, highly configurable and easy to use news syndication aggregator which supports RSS, RDF and ATOM feeds.
 Author: HenryRanch LLC (henryranch.net)
-Version: 1.0.17
+Version: 1.0.18
 Author URI: http://henryranch.net/
 License: GPL2
 */
@@ -60,7 +60,7 @@ YOU MAY REQUEST A LICENSE TO DO SO FROM THE AUTHOR.
 */
 if (!class_exists("SyndicatePressPlugin")) {
 	class SyndicatePressPlugin {
-        var $version = "1.0.17";
+        var $version = "1.0.18";
         var $homepageURL = "http://henryranch.net/software/syndicate-press/";
         
         var $cacheDir = "/cache";
@@ -277,6 +277,11 @@ if (!class_exists("SyndicatePressPlugin")) {
                         {
                             $list = explode('=', $param);
                             $customConfigOverrides['showImages'] = $list[1];
+                        }
+                        else if(strpos($param, 'limitArticles') !== false)
+                        {
+                            $list = explode('=', $param);
+                            $customConfigOverrides['limitArticles'] = $list[1];
                         }
                         else if(strpos($param, 'feedList') !== false)
                         {
@@ -629,6 +634,7 @@ if (!class_exists("SyndicatePressPlugin")) {
                 $customConfigExclusiveKeywords = $customConfigOverrides['excludeFilterList'];
                 $customConfigInclusiveKeywords = $customConfigOverrides['includeFilterList'];
                 $customConfigShowImages = $customConfigOverrides['showImages'];
+                $customConfigLimitArticles = $customConfigOverrides['limitArticles'];
             }
             
             //make sure there are no whitespaces leading or trailing the URL string
@@ -652,6 +658,10 @@ if (!class_exists("SyndicatePressPlugin")) {
                 $parser = new TinyFeedParser($cachedInputFeedFile);
                 $parser->showContentOnlyInLinkTitle = $configOptions['showContentOnlyInLinkTitle'];
                 $parser->maxNumArticlesToDisplay = $configOptions['limitFeedItemsToDisplay'];
+                if(isset($customConfigLimitArticles))
+                {
+                  $parser->maxNumArticlesToDisplay = $customConfigLimitArticles;
+                }
                 
                 $parser->exclusiveKeywordList = $configOptions['exclusiveKeywordFilter'] . ',' . $customConfigExclusiveKeywords;
                 $parser->exclusiveKeywordList = trim($parser->exclusiveKeywordList, ',');
@@ -668,13 +678,13 @@ if (!class_exists("SyndicatePressPlugin")) {
                 $parser->showFeedMetrics = $configOptions['showProcessingMetrics'];
                 $parser->showArticlePublishTimestamp = $configOptions['showArticlePublishTimestamp'];
                 $parser->allowMarkupInDescription = $configOptions['allowMarkupInDescription'];
-				$parser->addNoFollowTag = $configOptions['addNoFollowTag'];
-				if($configOptions['timestampFormat']  != '')
-				{
-					$parser->useCustomTimestampFormat = true;
-					$parser->timestampFormatString = $configOptions['timestampFormat'];
-					$parser->timestampFormatString = $this->sp_unescapeString($parser->timestampFormatString);
-				}
+                $parser->addNoFollowTag = $configOptions['addNoFollowTag'];
+                if($configOptions['timestampFormat']  != '')
+                {
+                  $parser->useCustomTimestampFormat = true;
+                  $parser->timestampFormatString = $configOptions['timestampFormat'];
+                  $parser->timestampFormatString = $this->sp_unescapeString($parser->timestampFormatString);
+                }
                 $parser->customFeedName = $this->sp_getCustomFeednameForUrl($url);
                 if($parser->customFeedName == "")
                 {
@@ -1187,11 +1197,12 @@ if (!class_exists("SyndicatePressPlugin")) {
         <h2>Help</h2>
         <b><u>Inserting feed content into a Wordpress page or post...</u></b>
         <p>
-        To insert feed contents into a Page or Post, use the following syntax:<br>
+        To insert feed contents into a Page, Post or Text Widget, use the following syntax:<br>
         <div style="padding-left: 20px;">
         [sp# feedList=all] - insert all of the feeds in the feed list<br>
 		<i>In the following examples, <b>feedname</b> will match the name of a feed, or any word within the feed url</i><br>
         [sp# feedList=feedname] - insert only the feed with the given name<br>
+        [sp# feedList=feedname limitArticles=maxNumArticles] - limit the number of articles from the given feedname(s).  Overrides the global article limit.<br>
         [sp# feedList=feedname1,feedname2,etc...] - insert the feeds with the given names<br>
         [sp# feedList=feedname1,feedname2 include=keyword1,keyword2] - insert the feeds with the given names and the given inclusive keyword filters<br>
         [sp# feedList=feedname1,feedname2 exclude=keyword1,keyword2] - insert the feeds with the given names and the given exclusive keyword filters<br>
@@ -1208,7 +1219,7 @@ if (!class_exists("SyndicatePressPlugin")) {
         <b><u>Respecting publishers terms of use</u></b>
         <div style="padding-left: 20px;">
         <p>
-        By using Syndicate Press you accept full resposibility and liability for adherance to the terms of service of each feed you syndicate.  Please respect the copyright of feed publishers.
+        By using Syndicate Press you accept full responsibility and liability for adherance to the terms of service of each feed you syndicate.  Please respect the copyright of feed publishers.
         </p>
         </div>
         <b><u>Credits</u></b>

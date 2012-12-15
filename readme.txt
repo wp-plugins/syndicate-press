@@ -3,8 +3,8 @@ Contributors: hranchFundi
 Donate link: http://henryranch.net/software/syndicate-press/
 Tags: RSS,RDF,Atom,feed,syndicate,syndication,news,aggregator,aggregation,plugin,active,maintained,custom,widget,post,plugin,posts,admin,sidebar,theme,comments,images,twitter,page,google,links
 Requires at least: 2.8
-Tested up to: 3.4.1
-Stable tag: 1.0.17
+Tested up to: 3.5
+Stable tag: 1.0.18
 
 Syndicate Press lets you include RSS, RDF or Atom feeds directly in your Wordpress posts, pages, widgets or theme. 
 
@@ -46,6 +46,9 @@ http://syndicatepress.henryranch.net/feed-tests/feedburner-feeds/ <br>
 == Changelog ==
 
 http://syndicatepress.henryranch.net/documentation/changelog/
+
+1.0.18: New feature release<br>
+Added a new short-code parameter, limitArticles, which allows you to override the global article limit for the short-code that the param is included in.  Use the new param as follows: [sp# feedList=feedName limitArticles=5].  Change 5 to whatever you want the max number of articles to be.
 
 1.0.17: New feature release<br>
 Added new SEO feature which allows the admin to add the rel=nofollow tag to the article links.
