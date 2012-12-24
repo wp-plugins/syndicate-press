@@ -1,8 +1,8 @@
 <?php
 /*
 File: TinyFeedParser.php
-Date: 7/18/2012
-Version 1.9.6
+Date: 12/24/2012
+Version 1.9.7
 Author: HenryRanch LLC
 
 LICENSE:
@@ -461,6 +461,9 @@ class TinyFeedParser
     {
         if($length != -1 && strlen($text) > $length)
         {
+            //find the end of the word, as denoted by a space char
+            $length = strpos($text, ' ', $length);
+            //now do the truncation
             $text = substr($text, 0, $length);
             if($urlLink != "" && $urlLink != 'NO_LINK')
             {
