@@ -4,7 +4,7 @@ Donate link: http://syndicatepress.henryranch.net/donate/
 Tags: RSS,RDF,Atom,feed,syndicate,syndication,news,aggregator,aggregation,plugin,active,maintained,custom,widget,post,plugin,posts,admin,sidebar,theme,comments,images,twitter,page,google,links
 Requires at least: 2.8
 Tested up to: 3.5
-Stable tag: 1.0.19
+Stable tag: 1.0.20
 
 Syndicate Press lets you include RSS, RDF or Atom feeds directly in your Wordpress posts, pages, widgets or theme. 
 
@@ -46,6 +46,9 @@ http://syndicatepress.henryranch.net/feed-tests/feedburner-feeds/ <br>
 == Changelog ==
 
 http://syndicatepress.henryranch.net/documentation/changelog/
+
+1.0.20: New feature release<br>
+Added a new short-code parameter, truncateTitleAtWord, which allows you to set a word, which, if detected in the title will truncate the title just prior to that word.  The result is that the word, and all words following it will not be shown on the page.  This is especially useful for affiliate rss feeds where product meta information is included in the article title, but is not actually important. Also updated docs on the help tab.
 
 1.0.19: Bug fix release<br>
 Fixed a bug in the length truncation code which would truncate the article or the article headline in the middle of a word.  With this fix, the article or headline will now be truncated on whole word boundaries, where a word is defined by any string of characters, separated by a space.  This change applies to the "Limit article to _____ characters" setting and the the "Limit article headline to _____ characters" setting on the "Display Settings" tab of the SP Admin panel.

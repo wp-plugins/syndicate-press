@@ -1,8 +1,8 @@
 <?php
 /*
 File: TinyFeedParser.php
-Date: 12/24/2012
-Version 1.9.7
+Date: 12/31/2012
+Version 1.9.8
 Author: HenryRanch LLC
 
 LICENSE:
@@ -76,7 +76,7 @@ class TinyFeedParser
     var $allowImagesInDescription = 'false';
     var $allowMarkupInDescription = 'false';
 	
-	var $addNoFollowTag = 'true';
+    var $addNoFollowTag = 'true';
     
     var $showContentOnlyInLinkTitle = false;
     var $showFeedChannelTitle = true;
@@ -97,9 +97,10 @@ class TinyFeedParser
     
     var $numArticles = 0;
     
-	var $useCustomTimestampFormat = true;
-	var $defaultTimestampFormatString = 'l F jS, Y h:i:s A';
-	var $timestampFormatString = 'l F jS, Y h:i:s A';
+    var $useCustomTimestampFormat = true;
+    var $defaultTimestampFormatString = 'l F jS, Y h:i:s A';
+    var $timestampFormatString = 'l F jS, Y h:i:s A';
+    var $truncateTitleAtWord = '';
 	
     function TinyFeedParser() 
     {
@@ -443,9 +444,19 @@ class TinyFeedParser
         $article->headline = $article->description;
         $article->headline = (string)$this->removeAllHtmlMarkup($article->headline);
         $article->headline = $this->truncateToLength($article->headline, $this->maxHeadlineLength, 'NO_LINK');
+        if($this->truncateTitleAtWord != '')
+        {
+            $length = strpos($article->headline, $this->truncateTitleAtWord, 0) - 1;
+            $article->headline = $this->truncateToLength($article->headline, $length, 'NO_LINK', false);
+        }
         
         $article->title = (string)$this->removeAllHtmlMarkup($article->title);
         $article->title = $this->truncateToLength($article->title, $this->maxHeadlineLength, 'NO_LINK');
+        if($this->truncateTitleAtWord != '')
+        {
+            $length = strpos($article->title, $this->truncateTitleAtWord, 0) - 1;
+            $article->title = $this->truncateToLength($article->title, $length, 'NO_LINK', false);
+        }
                 
         $article->subtitle = (string)$this->removeAllHtmlMarkup($article->subtitle);
         
@@ -457,7 +468,7 @@ class TinyFeedParser
         return $article;
     }
     
-    function truncateToLength($text, $length, $urlLink="")
+    function truncateToLength($text, $length, $urlLink="", $elipsis=true)
     {
         if($length != -1 && strlen($text) > $length)
         {
@@ -468,13 +479,18 @@ class TinyFeedParser
             if($urlLink != "" && $urlLink != 'NO_LINK')
             {
                 $text .= " <a href=\"$urlLink\" target=\"_blank\" title=\"Open article in a new window\"";				
-				if($this->addNoFollowTag == 'true')
-				{
-					$text .= ' rel="nofollow"';
-				}
-				$text .= ">...</a>";
+                if($this->addNoFollowTag == 'true')
+                {
+                    $text .= ' rel="nofollow"';
+                }
+                $text .= ">";
+                if($elipsis)
+                {
+                    $text .= '...';
+                }
+                $text .= "</a>";
             }
-            else
+            else if($elipsis)
             {
                 $text .= '...';
             }

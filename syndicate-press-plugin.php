@@ -4,7 +4,7 @@ Plugin Name: Syndicate Press
 Plugin URI: http://syndicatepress.henryranch.net/
 Description: This plugin provides a high performance, highly configurable and easy to use news syndication aggregator which supports RSS, RDF and ATOM feeds.
 Author: HenryRanch LLC (henryranch.net)
-Version: 1.0.19
+Version: 1.0.20
 Author URI: http://syndicatepress.henryranch.net/
 License: GPL2
 */
@@ -60,7 +60,7 @@ YOU MAY REQUEST A LICENSE TO DO SO FROM THE AUTHOR.
 */
 if (!class_exists("SyndicatePressPlugin")) {
 	class SyndicatePressPlugin {
-        var $version = "1.0.19";
+        var $version = "1.0.20";
         var $homepageURL = "http://syndicatepress.henryranch.net/";
         
         var $cacheDir = "/cache";
@@ -282,6 +282,11 @@ if (!class_exists("SyndicatePressPlugin")) {
                         {
                             $list = explode('=', $param);
                             $customConfigOverrides['limitArticles'] = $list[1];
+                        }
+                        else if(strpos($param, 'truncateTitleAtWord') !== false)
+                        {
+                            $list = explode('=', $param);
+                            $customConfigOverrides['truncateTitleAtWord'] = $list[1];
                         }
                         else if(strpos($param, 'feedList') !== false)
                         {
@@ -635,6 +640,7 @@ if (!class_exists("SyndicatePressPlugin")) {
                 $customConfigInclusiveKeywords = $customConfigOverrides['includeFilterList'];
                 $customConfigShowImages = $customConfigOverrides['showImages'];
                 $customConfigLimitArticles = $customConfigOverrides['limitArticles'];
+		$customConfigTruncateTitleAtWord = $customConfigOverrides['truncateTitleAtWord'];
             }
             
             //make sure there are no whitespaces leading or trailing the URL string
@@ -698,6 +704,10 @@ if (!class_exists("SyndicatePressPlugin")) {
                     $parser->allowMarkupInDescription = 'true';
                     $parser->showContentOnlyInLinkTitle = 'false';
                 }
+		if(isset($customConfigTruncateTitleAtWord))
+		{
+			$parser->truncateTitleAtWord = $customConfigTruncateTitleAtWord;
+		}
                 if($parser->showContentOnlyInLinkTitle == 'true')
                 {
                     $parser->allowImagesInDescription = 'false';
@@ -1208,7 +1218,19 @@ if (!class_exists("SyndicatePressPlugin")) {
         [sp# feedList=feedname1,feedname2 exclude=keyword1,keyword2] - insert the feeds with the given names and the given exclusive keyword filters<br>
         [sp# feedList=feedname include=keyword exclude=keyword] - insert the feeds with the given name and the given inclusive and exclusive keyword filters<br>
         </p>
-        </div>        
+        </div>   
+        <b><u>Shortcode parameters</u></b>
+        <div style="padding-left: 20px;">
+        <p>
+        The following case-sensitive parameters may be used within shortcodes and will override corrosponding global settings from the admin panel:<br><br>
+        <i>feedList</i> - a comma separated list of keywords that are contained in either the feed name or in the feed url<br>
+        <i>exclude</i> - a comma separated list of words that, if found in the article, will result in the article not being shown<br>
+        <i>include</i> - a comma separated list of words that, if found in the article, will show the article.  Articles without one of the words listed, will not be shown<br>
+        <i>showImages</i> - true/false.  show the image for the article, if it was included in the article feed from the publisher
+        <i>limitArticles</i> - set to the maximum number of articles to show for each of the feeds matched by this shortcode<br>
+        <i>truncateTitleAtWord</i> - truncate the feed and article titles if they contain this word.  This will cut off the title at this word, and not include the word or any words following<br>
+        </p>
+        </div>     
         <b><u>Inserting feed content into a Wordpress theme...</u></b>
         <div style="padding-left: 20px;">
         <p>
