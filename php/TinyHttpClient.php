@@ -1,13 +1,13 @@
 <?php 
 /*
 File: TinyHttpClient.php
-Date: 2/28/2012
-Version 1.3.2
+Date: 1/6/2013
+Version 1.3.3
 Author: HenryRanch LLC
 
 LICENSE:
 ============
-Copyright (c) 2009-2012, Henry Ranch LLC. All rights reserved. http://www.henryranch.net
+Copyright (c) 2009-2013, Henry Ranch LLC. All rights reserved. http://www.henryranch.net
 
 
 TinyHttpClient is governed by the following license and is not licensed for use outside of 
@@ -63,8 +63,8 @@ class TinyHttpClient
         $request = "GET $filename HTTP/1.0\r\n" .
         "Host: $host\r\n" .
         $authorization . 
-        "User-Agent: TinyHttpClient/1.1\r\n" .
-        //"User-Agent: Mozilla/5.001 (windows; U; NT4.0; en-US; rv:1.0) Gecko/25250101\r\n" .
+        //"User-Agent: TinyHttpClient/1.1\r\n" .
+        "User-Agent: Mozilla/5.001 (windows; U; NT4.0; en-US; rv:1.0) Gecko/25250101\r\n" .
         "Connection: close\r\n" .
         "\r\n";
         return $request;
@@ -86,8 +86,8 @@ class TinyHttpClient
         $authorization .
         "Connection: close\r\n" .
         "From: $from\r\n" .
-        "User-Agent: TinyHttpClient/1.1\r\n" .
-        //"User-Agent: Mozilla/5.001 (windows; U; NT4.0; en-US; rv:1.0) Gecko/25250101\r\n" .
+        //"User-Agent: TinyHttpClient/1.1\r\n" .
+        "User-Agent: Mozilla/5.001 (windows; U; NT4.0; en-US; rv:1.0) Gecko/25250101\r\n" .
         "Content-Type: application/x-www-form-urlencoded\r\n" .
         "Content-Length: " . strlen($data) . "\r\n" .
         "\r\n" .

@@ -1,13 +1,13 @@
 <?php
 /*
 File: TinyFeedParser.php
-Date: 12/31/2012
-Version 1.9.8
+Date: 1/6/2013
+Version 1.9.9
 Author: HenryRanch LLC
 
 LICENSE:
 ============
-Copyright (c) 2009-2012, Henry Ranch LLC. All rights reserved. http://www.henryranch.net
+Copyright (c) 2009-2013, Henry Ranch LLC. All rights reserved. http://www.henryranch.net
 
 
 TinyFeedParser is governed by the following license and is not licensed for use outside of 
@@ -94,6 +94,8 @@ class TinyFeedParser
     var $feedTitleHTMLCodePost = '</h2>';
     var $articleTitleHTMLCodePre = '<h3>';
     var $articleTitleHTMLCodePost = '</h3>';
+    var $articleBodyHTMLCodePre = '<div>';
+    var $articleBodyHTMLCodePost = '</div>';
     
     var $numArticles = 0;
     
@@ -579,15 +581,15 @@ class TinyFeedParser
                     continue;
                 }
             }
-            $html .= "<p>\r\n";
+            $html .= "<div id=\"articleDiv-".($currentArticleIndex-1)."\">\r\n";
             if($article->image)
             {
                 $html .= '<a href="'.$article->image->link.'"';
-				if($this->addNoFollowTag == 'true')
-				{
-					$html .= ' rel="nofollow"';
-				}
-				$html .= '><img src="'.$article->image->url.'"></a>';//."\r\n";     
+                if($this->addNoFollowTag == 'true')
+                {
+                    $html .= ' rel="nofollow"';
+                }
+                $html .= '><img src="'.$article->image->url.'"></a>';//."\r\n";     
             }
             $html .= $headerHtmlPre;
             $html .= '<a href="'.$article->link.'" ';
@@ -603,10 +605,10 @@ class TinyFeedParser
             {
                 $html .= 'title="Click to read article..."';
             }
-			if($this->addNoFollowTag == 'true')
-			{
-				$html .= ' rel="nofollow"';
-			}
+            if($this->addNoFollowTag == 'true')
+            {
+               $html .= ' rel="nofollow"';
+            }
             $html .= ' target=_blank>'.$article->title.'</a>'.$headerHtmlPost."\r\n";
             if($article->subtitle != '')
             {
@@ -618,14 +620,14 @@ class TinyFeedParser
                 if($article->pubDateStr)
                 {
                     //$html = $this->addBrIfNeeded($html);
-					if($this->useCustomTimestampFormat)
-					{
-						$html .= '<font size=-3>'.date($this->timestampFormatString, $article->pubTimeStamp).'</font>'."\r\n";
-					}
-					else
-					{
-						$html .= '<font size=-3>'.$article->pubDateStr.'</font>'."\r\n";
-					}
+                    if($this->useCustomTimestampFormat)
+                    {
+                       $html .= '<font size=-3>'.date($this->timestampFormatString, $article->pubTimeStamp).'</font>'."\r\n";
+                    }
+                    else
+                    {
+                      $html .= '<font size=-3>'.$article->pubDateStr.'</font>'."\r\n";
+                    }
                 }
                 else
                 {
@@ -637,6 +639,7 @@ class TinyFeedParser
             $html = $this->addBrIfNeeded($html);
             if(($this->showContentOnlyInLinkTitle == 'false'))
             {
+                $html .= $this->articleBodyHTMLCodePre."\r\n";
                 if($article->description != "")
                 {
                     $html .= $article->description."\r\n";
@@ -645,6 +648,7 @@ class TinyFeedParser
                 {
                     $html .= $article->content."\r\n";
                 }
+                $html .= $this->articleBodyHTMLCodePost."\r\n";
             }
             if($article->copyright)
             {
@@ -656,7 +660,7 @@ class TinyFeedParser
                 $html = $this->addBrIfNeeded($html);
                 $html .= '<font size=-4>Last feed update: '.$this->feedUpdateTime.'</font>'."\r\n";
             }
-            $html .= "</p>\r\n";
+            $html .= "</div>\r\n";
         }
         return $html;
     }

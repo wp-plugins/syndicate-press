@@ -4,7 +4,7 @@ Donate link: http://syndicatepress.henryranch.net/donate/
 Tags: RSS,RDF,Atom,feed,syndicate,syndication,news,aggregator,aggregation,plugin,active,maintained,custom,widget,post,plugin,posts,admin,sidebar,theme,comments,images,twitter,page,google,links
 Requires at least: 2.8
 Tested up to: 3.5
-Stable tag: 1.0.20
+Stable tag: 1.0.21
 
 Syndicate Press lets you include RSS, RDF or Atom feeds directly in your Wordpress posts, pages, widgets or theme. 
 
@@ -46,6 +46,22 @@ http://syndicatepress.henryranch.net/feed-tests/feedburner-feeds/ <br>
 == Changelog ==
 
 http://syndicatepress.henryranch.net/documentation/changelog/
+
+1.0.21: New feature release<br>
+This release contains multiple new features...<br>
+- Custom Formatting:<br> 
+--- Feed and article title custom formatting now supports full html parameters such as the css style param and the javascript param<br>
+--- Added custom formatting to the article body<br>
+- Article identification:<br>
+--- Added div id's to the articles.  This div surrounds the article tite, timestamp and body content.<br>
+- Support:<br>
+--- Added a feature on the support tab which will show the internal, global settings for SP so that an admin can include the settings in a support request email.<br>
+- TinyHttpClient class:<br>
+--- Changed User-Agent to Mozilla to help more servers accept the client.<br>
+- Documentation:<br>
+--- Added a reminder on the RSS Feeds tab that the site admin is fully responsible for following a feed publishers Copyright and Terms of Use.<br>
+
+
 
 1.0.20: New feature release<br>
 Added a new short-code parameter, truncateTitleAtWord, which allows you to set a word, which, if detected in the title will truncate the title just prior to that word.  The result is that the word, and all words following it will not be shown on the page.  This is especially useful for affiliate rss feeds where product meta information is included in the article title, but is not actually important. Also updated docs on the help tab.
