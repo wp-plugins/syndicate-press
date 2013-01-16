@@ -106,7 +106,7 @@ if (!class_exists("SyndicatePressPlugin")) {
             'articleTitleHTMLCodePre' => '<h3>',
             'articleTitleHTMLCodePost' => '</h3>',
             'articleBodyHTMLCodePre' => '<div>',
-            'articleBodyHTMLCodePost' => '</div>',
+            'articleBodyHTMLCodePost' => '</div><br>',
             'feedSeparationHTMLCode' => '<hr>',
             'addNoFollowTag' => 'true',
             'feedNotAvailableHTMLCode' => 'Sorry, the {feedname} feed is not available at this time.'
