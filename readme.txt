@@ -4,7 +4,7 @@ Donate link: http://syndicatepress.henryranch.net/donate/
 Tags: RSS,RDF,Atom,feed,syndicate,syndication,news,aggregator,aggregation,plugin,active,maintained,custom,widget,post,plugin,posts,admin,sidebar,theme,comments,images,twitter,page,google,links
 Requires at least: 2.8
 Tested up to: 3.5
-Stable tag: 1.0.21
+Stable tag: 1.0.22
 
 Syndicate Press lets you include RSS, RDF or Atom feeds directly in your Wordpress posts, pages, widgets or theme. 
 
@@ -46,6 +46,13 @@ http://syndicatepress.henryranch.net/feed-tests/feedburner-feeds/ <br>
 == Changelog ==
 
 http://syndicatepress.henryranch.net/documentation/changelog/
+
+1.0.22: New feature release<br>
+- Custom cache directory:<br>
+--- The admin can now set a custom cache root directory in the "Cache" tab.  This may be useful for Wordpress multi-site configurations.<br>
+--- The "Cache" tab now shows the cache root, input and output directories along with their current permissions and how many cache files are in each dir.<br>
+- Bug fix:<br>
+--- Fixed a bug in which the clear cache buttons were not working as expected.<br>
 
 1.0.21: New feature release<br>
 This release contains multiple new features...<br>
