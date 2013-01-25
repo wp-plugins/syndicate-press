@@ -1,8 +1,8 @@
 <?php
 /*
 File: TinyFeedParser.php
-Date: 1/6/2013
-Version 1.9.9
+Date: 1/24/2013
+Version 1.9.10
 Author: HenryRanch LLC
 
 LICENSE:
@@ -69,6 +69,8 @@ class TinyFeedParser
 {
     var $articles = array();
     
+    var $feedIndex = 0;
+
     var $feedUpdateTime = '';
     
     var $maxDescriptionLength = -1;
@@ -82,6 +84,7 @@ class TinyFeedParser
     var $showFeedChannelTitle = true;
     var $showFeedMetrics = true;
     var $maxNumArticlesToDisplay = 5;
+    var $hideArticlesAfterArticleNumber = -1;
     var $exclusiveKeywordList = "";
     var $inclusiveKeywordList = "";
     
@@ -549,9 +552,33 @@ class TinyFeedParser
         return $str;
     }
     
+    function getJS()
+    {
+        return '<script language="javascript">'.
+               'function toggle(elementId) {'.
+               'var ele = document.getElementById(elementId);'.
+               'var text = document.getElementById("displayText");'.
+               'if(ele.style.display == "block") {'.
+               'ele.style.display = "none";'.
+               //'text.innerHTML = "show";'.
+               '}'.
+               'else {'.
+               'ele.style.display = "block";'.
+               //'text.innerHTML = "hide";'.
+               '}'.
+               '} '.
+               '</script>';
+    }
+
     function getHtml()
     {
         $html = "";
+
+        if($this->hideArticlesAfterArticleNumber > 1)
+        {
+            $html .= $this->getJS();
+        }
+
         $articles = $this->articles;
         $currentArticleIndex = 0;
         foreach($articles as $article)
@@ -565,6 +592,12 @@ class TinyFeedParser
             }
             else
             {
+                if(($this->hideArticlesAfterArticleNumber > 1) && (($currentArticleIndex - 2) == $this->hideArticlesAfterArticleNumber))
+                {
+                    $hiddenDivId = 'hiddenArticleDiv-'.rand().'-feedIndex-'.$this->feedIndex;
+                    $html .= "<br><div id=\"showHideArticlesControlDiv\"><a id=\"displayText\" href=\"javascript:toggle('".$hiddenDivId."');\">Show / Hide more articles from this feed.</a><br></div>";
+                    $html .= "<div id=\"".$hiddenDivId."\" style=\"display: none\">\r\n";
+                }
                 $headerHtmlPre = $this->articleTitleHTMLCodePre;
                 $headerHtmlPost = $this->articleTitleHTMLCodePost;
             }
@@ -581,7 +614,7 @@ class TinyFeedParser
                     continue;
                 }
             }
-            $html .= "<div id=\"articleDiv-".($currentArticleIndex-1)."\">\r\n";
+            $html .= "<div id=\"itemDiv-feed-".$this->feedIndex.'-article-'.($currentArticleIndex-1)."\">\r\n";
             if($article->image)
             {
                 $html .= '<a href="'.$article->image->link.'"';
@@ -660,6 +693,10 @@ class TinyFeedParser
                 $html = $this->addBrIfNeeded($html);
                 $html .= '<font size=-4>Last feed update: '.$this->feedUpdateTime.'</font>'."\r\n";
             }
+            $html .= "</div>\r\n";
+        }
+        if($this->hideArticlesAfterArticleNumber > 1)
+        {
             $html .= "</div>\r\n";
         }
         return $html;

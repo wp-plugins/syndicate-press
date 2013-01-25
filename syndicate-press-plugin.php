@@ -4,7 +4,7 @@ Plugin Name: Syndicate Press
 Plugin URI: http://syndicatepress.henryranch.net/
 Description: This plugin provides a high performance, highly configurable and easy to use news syndication aggregator which supports RSS, RDF and ATOM feeds.
 Author: HenryRanch LLC (henryranch.net)
-Version: 1.0.22
+Version: 1.0.23
 Author URI: http://syndicatepress.henryranch.net/
 License: GPL2
 */
@@ -63,7 +63,7 @@ YOU MAY REQUEST A LICENSE TO DO SO FROM THE AUTHOR.
 
 if (!class_exists("SyndicatePressPlugin")) {
   class SyndicatePressPlugin {
-        var $version = "1.0.22";
+        var $version = "1.0.23";
         var $homepageURL = "http://syndicatepress.henryranch.net/";
         
         var $cacheDir = "/cache";
@@ -94,6 +94,7 @@ if (!class_exists("SyndicatePressPlugin")) {
             'useCustomFeednameAsChannelTitle' => 'false',
             'showArticlePublishTimestamp' => 'true',
             'limitFeedItemsToDisplay' => -1, 
+            'hideArticlesAfterArticleNumber' => -1,
             'limitFeedDescriptionCharsToDisplay' => -1, 
             'maxHeadlineLength' => -1,
             'feedUrlList' => '',
@@ -304,6 +305,7 @@ if (!class_exists("SyndicatePressPlugin")) {
                             $feedNameReference = $list[1];
                         }
                     }
+                    $feedIndex = 0;
                     foreach($availableFeeds as $availableFeed)
                     {
                         $availableFeed = trim($availableFeed);
@@ -312,12 +314,11 @@ if (!class_exists("SyndicatePressPlugin")) {
                             continue;
                         }
                         //split the reference string on ',' (comma).  this is the feed reference list provided in the bbcode: [sp# feed1,feed2,feed3,etc...]
-            //echo 'feed name ref: '.$feedNameReference.'<br>';
-            $feedNameList = explode(',', $feedNameReference);
-            
+                        //echo 'feed name ref: '.$feedNameReference.'<br>';
+                        $feedNameList = explode(',', $feedNameReference);
                         foreach($feedNameList as $feedName)
                         {
-              $feedName = trim($feedName);
+                            $feedName = trim($feedName);
                             //print "Checking feedname: '$feedName' against available feed: '$availableFeed'<br>"; 
                             if(strpos($availableFeed, $feedName) !== false || ($feedName == 'all'))
                             {    
@@ -329,7 +330,8 @@ if (!class_exists("SyndicatePressPlugin")) {
                                     $availableFeed = trim($availableFeedName[1]);
                                     //print "feed URL: $availableFeed <br>"; 
                                 }
-                                $content .= $this->sp_getFormattedRssContent($availableFeed, $customConfigOverrides);
+                                $content .= $this->sp_getFormattedRssContent($feedIndex, $availableFeed, $customConfigOverrides);
+                                $feedIndex += 1;
                                 if($configOptions['feedSeparationHTMLCode'] != '')
                                 {
                                     $content .= $this->sp_unescapeString($configOptions['feedSeparationHTMLCode']);
@@ -703,7 +705,7 @@ if (!class_exists("SyndicatePressPlugin")) {
          * @param    string    $url    the rss url
          * @return   string     html formatted rss feed content from the given url.
          */
-        function sp_getFormattedRssContent($url, $customConfigOverrides = NULL)
+        function sp_getFormattedRssContent($feedIndex, $url, $customConfigOverrides = NULL)
         {
             include_once "php/TinyFeedParser.php";
             if(isset($customConfigOverrides))
@@ -734,6 +736,8 @@ if (!class_exists("SyndicatePressPlugin")) {
                 }
                 $configOptions = $this->sp_getConfigOptions();
                 $parser = new TinyFeedParser($cachedInputFeedFile);
+                $parser->feedIndex = $feedIndex;
+                //echo "feedIndex: $feedIndex<br>";
                 $parser->showContentOnlyInLinkTitle = $configOptions['showContentOnlyInLinkTitle'];
                 $parser->maxNumArticlesToDisplay = $configOptions['limitFeedItemsToDisplay'];
                 if(isset($customConfigLimitArticles))
@@ -759,6 +763,7 @@ if (!class_exists("SyndicatePressPlugin")) {
                 $parser->showArticlePublishTimestamp = $configOptions['showArticlePublishTimestamp'];
                 $parser->allowMarkupInDescription = $configOptions['allowMarkupInDescription'];
                 $parser->addNoFollowTag = $configOptions['addNoFollowTag'];
+                $parser->hideArticlesAfterArticleNumber = $configOptions['hideArticlesAfterArticleNumber'];
                 if($configOptions['timestampFormat']  != '')
                 {
                   $parser->useCustomTimestampFormat = true;
@@ -962,6 +967,9 @@ if (!class_exists("SyndicatePressPlugin")) {
         }  
         if (isset($_POST['syndicatePressLimitFeedItemsToDisplay'])) {
           $configOptions['limitFeedItemsToDisplay'] = $_POST['syndicatePressLimitFeedItemsToDisplay'];
+        }  
+        if (isset($_POST['syndicatePressHideArticlesAfterArticleNumber'])) {
+          $configOptions['hideArticlesAfterArticleNumber'] = $_POST['syndicatePressHideArticlesAfterArticleNumber'];
         }  
         if (isset($_POST['syndicatePressLimitFeedDescriptionCharsToDisplay'])) {
           $configOptions['limitFeedDescriptionCharsToDisplay'] = $_POST['syndicatePressLimitFeedDescriptionCharsToDisplay'];
@@ -1239,6 +1247,7 @@ if (!class_exists("SyndicatePressPlugin")) {
         <h2>Display Settings</h2>
         <div style="padding-left: 20px;">
         <b><u>Limit the number of articles</u></b> in a feed to <input name="syndicatePressLimitFeedItemsToDisplay" size="10" value="<?php _e(apply_filters('format_to_edit',$configOptions['limitFeedItemsToDisplay']), 'SyndicatePressPlugin') ?>"> items. Depending on the publishers settings, this will typically limit the displayed feeds to the most recent feeds.  For example, limit feed articles to the 4 most recent items.  Set this value to -1 to display all items in feed.<br>&nbsp;<br>
+        <b><u>Hide articles after article number</u></b>: <input name="syndicatePressHideArticlesAfterArticleNumber" size="10" value="<?php _e(apply_filters('format_to_edit',$configOptions['hideArticlesAfterArticleNumber']), 'SyndicatePressPlugin') ?>">. For feeds with articles greater than this number, hide those articles and place a 'show more articles' link for the user to click that will show the articles. Set this value to -1 to display all items in feed.<br>&nbsp;<br>
         <b><u>Limit article to</u></b> <input name="syndicatePressLimitFeedDescriptionCharsToDisplay" size="10" value="<?php _e(apply_filters('format_to_edit',$configOptions['limitFeedDescriptionCharsToDisplay']), 'SyndicatePressPlugin') ?>"> characters. (-1 to display complete article description)<br>&nbsp;<br>
         <b><u>Limit article headline</u></b> to <input name="syndicatePressMaxHeadlineLength" size="10" value="<?php _e(apply_filters('format_to_edit',$configOptions['maxHeadlineLength']), 'SyndicatePressPlugin') ?>"> characters. (-1 to display complete article headline)<br>&nbsp;<br>
         <b><u>Show item description:</u></b><br>
