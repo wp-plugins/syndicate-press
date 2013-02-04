@@ -4,7 +4,7 @@ Donate link: http://syndicatepress.henryranch.net/donate/
 Tags: RSS,RDF,Atom,feed,syndicate,syndication,news,aggregator,aggregation,plugin,active,maintained,custom,widget,post,plugin,posts,admin,sidebar,theme,comments,images,twitter,page,google,links
 Requires at least: 2.8
 Tested up to: 3.5.1
-Stable tag: 1.0.23
+Stable tag: 1.0.24
 
 Syndicate Press lets you include RSS, RDF or Atom feeds directly in your Wordpress posts, pages, widgets or theme. 
 
@@ -46,6 +46,10 @@ http://syndicatepress.henryranch.net/feed-tests/feedburner-feeds/ <br>
 == Changelog ==
 
 http://syndicatepress.henryranch.net/documentation/changelog/
+
+1.0.24: New feature release<br>
+- Added the ability to remove the CDATA tags from the feed.  The content is still retained that was within the CDATA tags.  This feature can be accessed on the 'Display Settings' tab.<br>
+
 
 1.0.23: New feature release<br>
 - Show the first X number of articles from a feed and then hide the rest.  Allow the website viewer to click a link to show the hidden articles.<br>

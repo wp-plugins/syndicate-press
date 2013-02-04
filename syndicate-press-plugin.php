@@ -4,7 +4,7 @@ Plugin Name: Syndicate Press
 Plugin URI: http://syndicatepress.henryranch.net/
 Description: This plugin provides a high performance, highly configurable and easy to use news syndication aggregator which supports RSS, RDF and ATOM feeds.
 Author: HenryRanch LLC (henryranch.net)
-Version: 1.0.23
+Version: 1.0.24
 Author URI: http://syndicatepress.henryranch.net/
 License: GPL2
 */
@@ -63,7 +63,7 @@ YOU MAY REQUEST A LICENSE TO DO SO FROM THE AUTHOR.
 
 if (!class_exists("SyndicatePressPlugin")) {
   class SyndicatePressPlugin {
-        var $version = "1.0.23";
+        var $version = "1.0.24";
         var $homepageURL = "http://syndicatepress.henryranch.net/";
         
         var $cacheDir = "/cache";
@@ -87,6 +87,7 @@ if (!class_exists("SyndicatePressPlugin")) {
             'useDownloadClient' => 'true', 
             'displayImages' => 'false',
             'allowMarkupInDescription' => 'false',
+            'stripCDataTags' => 'false',
             'showContentOnlyInLinkTitle' => 'false', 
             'showSyndicatePressLinkback' => 'true',
             'showProcessingMetrics' => 'true',
@@ -355,6 +356,15 @@ if (!class_exists("SyndicatePressPlugin")) {
             return $content;
         }
         
+        function sp_stripCDataTags($cacheFilename)
+        {            
+            //echo "stripping CDATA tag from file: $cacheFilename<br>";
+            $content = file_get_contents($cacheFilename);
+            $content = str_replace('<![CDATA[', '', $content);
+            $content = str_replace(']]>', '', $content);
+            $this->sp_writeFile($cacheFilename, $content);
+        }
+
         function sp_unescapeString($str, $replaceDoubleQuotesWithSingleQuotesForTagParams=false)
         {
             if($replaceDoubleQuotesWithSingleQuotesForTagParams)
@@ -591,6 +601,11 @@ if (!class_exists("SyndicatePressPlugin")) {
                     } 
                 }
             } 
+            if($this->stripCDataTags == 'true')
+            {
+                //print "cache(): need to strip CDATA tags from $cacheFile<br>";
+                $this->sp_stripCDataTags($cacheFile);
+            }
             return $cacheFile;
         }  
         
@@ -681,6 +696,13 @@ if (!class_exists("SyndicatePressPlugin")) {
             {}
         }
         
+        function sp_clearCache()
+        {
+            //echo "clearing both caches...<br>";
+            $this->sp_clearIncomingFeedCache();
+            $this->sp_clearFormattedOutputCache();
+        }
+
         /* Delete the incoming feed cache files
          * @package WordPress
          * @since version 2.8.4
@@ -1010,6 +1032,10 @@ if (!class_exists("SyndicatePressPlugin")) {
         if (isset($_POST['syndicatePressDisplayImages'])) {
           $configOptions['displayImages'] = $_POST['syndicatePressDisplayImages'];
         }    
+        if (isset($_POST['syndicatePressStripCdataTags'])) {
+          $configOptions['stripCDataTags'] = $_POST['syndicatePressStripCdataTags'];
+          $this->sp_clearCache();
+        }
         if (isset($_POST['syndicatePressAllowMarkup'])) {
           $configOptions['allowMarkupInDescription'] = $_POST['syndicatePressAllowMarkup'];
         }
@@ -1274,7 +1300,14 @@ if (!class_exists("SyndicatePressPlugin")) {
         <em>NOTE: If HTML formatting is stripped (see above setting), images will NOT be shown.</em><br>
         <label for="syndicatePressDisplayImages_yes"><input type="radio" id="syndicatePressDisplayImages_yes" name="syndicatePressDisplayImages" value="true" <?php if ($configOptions['displayImages'] == "true") { _e('checked="checked"', "SyndicatePressPlugin"); }?> /> Show images.</label><br>
         <label for="syndicatePressDisplayImages_no"><input type="radio" id="syndicatePressDisplayImages_no" name="syndicatePressDisplayImages" value="false" <?php if ($configOptions['displayImages'] == "false") { _e('checked="checked"', "SyndicatePressPlugin"); }?>/> Strip images.</label><br>
-        </div><br>&nbsp;<br>
+        </div><br>
+        <div style="padding-left: 20px;">
+        <u>Strip CDATA XML tags:</u><br>
+        <div style="padding-left: 20px;">
+        <em>If images are not being shown, even though DisplayImages=Yes and DisplayHTML=Yes, set this to Yes.  It may be that the feed publisher is placing their content within CDATA tags.  Stripping the CDATA tag delimiters might allow images through.  If not, check with the feed publisher to verify that images are being published.</em><br>
+        <label for="syndicatePressStripCdataTags_yes"><input type="radio" id="syndicatePressStripCdataTags_yes" name="syndicatePressStripCdataTags" value="true" <?php if ($configOptions['stripCDataTags'] == "true") { _e('checked="checked"', "SyndicatePressPlugin"); }?> /> Strip CDATA tags.</label><br>
+        <label for="syndicatePressStripCdataTags_no"><input type="radio" id="syndicatePressStripCdataTags_no" name="syndicatePressStripCdataTags" value="false" <?php if ($configOptions['stripCDataTags'] == "false") { _e('checked="checked"', "SyndicatePressPlugin"); }?>/> Allow CDATA tags.</label><br>
+        </div></div><br>&nbsp;<br>
         <b><u>Syndicate Press link:</u></b><br>
         <div style="padding-left: 20px;">
         <label for="syndicatePressShowSyndicatePressLinkback_yes"><input type="radio" id="syndicatePressShowSyndicatePressLinkback_yes" name="syndicatePressShowSyndicatePressLinkback" value="true" <?php if ($configOptions['showSyndicatePressLinkback'] == "true") { _e('checked="checked"', "SyndicatePressPlugin"); }?> /> Show 'Powered by <a href="<?php echo $this->homepageURL; ?>" target=_blank>Syndicate Press</a>' at the end of the aggregated feed content.</label><br>
