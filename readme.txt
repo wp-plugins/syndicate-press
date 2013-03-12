@@ -4,7 +4,7 @@ Donate link: http://syndicatepress.henryranch.net/donate/
 Tags: RSS,RDF,Atom,feed,syndicate,syndication,news,aggregator,aggregation,plugin,active,maintained,custom,widget,post,plugin,posts,admin,sidebar,theme,comments,images,twitter,page,google,links
 Requires at least: 2.8
 Tested up to: 3.5.1
-Stable tag: 1.0.24
+Stable tag: 1.0.25
 
 Syndicate Press lets you include RSS, RDF or Atom feeds directly in your Wordpress posts, pages, widgets or theme. 
 
@@ -46,6 +46,20 @@ http://syndicatepress.henryranch.net/feed-tests/feedburner-feeds/ <br>
 == Changelog ==
 
 http://syndicatepress.henryranch.net/documentation/changelog/
+
+1.0.25: New feature release - Lots of features...<br>
+- Custom formatting now supports:<br>
+--- Timestamp<br>
+--- Author<br>
+--- Copyright<br>
+--- Price<br>
+--- Image<br>
+- Basic namespace support for 'pm' namespace<br>
+- Updated 'Custom Formatting' tab in admin panel to make it easier to use<br>
+- Updated documentation and disclaimers in the admin panel<br>
+- GUID from article is placed into html comments in the rendered page<br>
+- Added subtitle for article to parsed output<br>
+
 
 1.0.24: New feature release<br>
 - Added the ability to remove the CDATA tags from the feed.  The content is still retained that was within the CDATA tags.  This feature can be accessed on the 'Display Settings' tab.<br>

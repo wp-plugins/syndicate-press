@@ -4,7 +4,7 @@ Plugin Name: Syndicate Press
 Plugin URI: http://syndicatepress.henryranch.net/
 Description: This plugin provides a high performance, highly configurable and easy to use news syndication aggregator which supports RSS, RDF and ATOM feeds.
 Author: HenryRanch LLC (henryranch.net)
-Version: 1.0.24
+Version: 1.0.25
 Author URI: http://syndicatepress.henryranch.net/
 License: GPL2
 */
@@ -63,7 +63,7 @@ YOU MAY REQUEST A LICENSE TO DO SO FROM THE AUTHOR.
 
 if (!class_exists("SyndicatePressPlugin")) {
   class SyndicatePressPlugin {
-        var $version = "1.0.24";
+        var $version = "1.0.25";
         var $homepageURL = "http://syndicatepress.henryranch.net/";
         
         var $cacheDir = "/cache";
@@ -105,6 +105,16 @@ if (!class_exists("SyndicatePressPlugin")) {
             'cacheTimeoutSeconds' => 3600,
             'feedTitleHTMLCodePre' => '<h2>',
             'feedTitleHTMLCodePost' => '</h2>',
+            'articleTimestampHTMLCodePre' => '<i>',
+            'articleTimestampHTMLCodePost' => '</i>',
+            'articleAuthorHTMLCodePre' => '<i>',
+            'articleAuthorHTMLCodePost' => '</i>',
+            'articleCopyrightHTMLCodePre' => '<i>',
+            'articleCopyrightHTMLCodePost' => '</i>',
+            'articlePriceHTMLCodePre' => '<i>',
+            'articlePriceHTMLCodePost' => '</i>',
+            'articleImageHTMLCodePre' => '<div><br>',
+            'articleImageHTMLCodePost' => '</div>',
             'articleTitleHTMLCodePre' => '<h3>',
             'articleTitleHTMLCodePost' => '</h3>',
             'articleBodyHTMLCodePre' => '<div>',
@@ -781,6 +791,16 @@ if (!class_exists("SyndicatePressPlugin")) {
                 $parser->articleTitleHTMLCodePost = $this->sp_unescapeString($configOptions['articleTitleHTMLCodePost']);
                 $parser->articleBodyHTMLCodePre = $this->sp_unescapeString($configOptions['articleBodyHTMLCodePre']);
                 $parser->articleBodyHTMLCodePost = $this->sp_unescapeString($configOptions['articleBodyHTMLCodePost']);
+                $parser->articleAuthorHTMLCodePre = $this->sp_unescapeString($configOptions['articleAuthorHTMLCodePre']);
+                $parser->articleAuthorHTMLCodePost = $this->sp_unescapeString($configOptions['articleAuthorHTMLCodePost']);
+                $parser->articleCopyrightHTMLCodePre = $this->sp_unescapeString($configOptions['articleCopyrightHTMLCodePre']);
+                $parser->articleCopyrightHTMLCodePost = $this->sp_unescapeString($configOptions['articleCopyrightHTMLCodePost']);
+                $parser->articlePriceHTMLCodePre = $this->sp_unescapeString($configOptions['articlePriceHTMLCodePre']);
+                $parser->articlePriceHTMLCodePost = $this->sp_unescapeString($configOptions['articlePriceHTMLCodePost']);
+                $parser->articleTimestampHTMLCodePre = $this->sp_unescapeString($configOptions['articleTimestampHTMLCodePre']);
+                $parser->articleTimestampHTMLCodePost = $this->sp_unescapeString($configOptions['articleTimestampHTMLCodePost']);
+                $parser->articleImageHTMLCodePre = $this->sp_unescapeString($configOptions['articleImageHTMLCodePre']);
+                $parser->articleImageHTMLCodePost = $this->sp_unescapeString($configOptions['articleImageHTMLCodePost']);
                 $parser->showFeedMetrics = $configOptions['showProcessingMetrics'];
                 $parser->showArticlePublishTimestamp = $configOptions['showArticlePublishTimestamp'];
                 $parser->allowMarkupInDescription = $configOptions['allowMarkupInDescription'];
@@ -1067,6 +1087,46 @@ if (!class_exists("SyndicatePressPlugin")) {
           $configOptions['articleTitleHTMLCodePost'] = apply_filters('articleTitleHTMLCodePost_save_pre', $_POST['syndicatePressArticleTitleHTMLCodePost']);
           $configOptions['articleTitleHTMLCodePost'] = mysql_real_escape_string($configOptions['articleTitleHTMLCodePost']);
         }
+        if (isset($_POST['syndicatePressArticleAuthorHTMLCodePre'])) {
+          $configOptions['articleAuthorHTMLCodePre'] = apply_filters('articleAuthorHTMLCodePre_save_pre', $_POST['syndicatePressArticleAuthorHTMLCodePre']);
+          $configOptions['articleAuthorHTMLCodePre'] = mysql_real_escape_string($configOptions['articleAuthorHTMLCodePre']);
+        }
+        if (isset($_POST['syndicatePressArticleAuthorHTMLCodePost'])) {
+          $configOptions['articleAuthorHTMLCodePost'] = apply_filters('articleAuthorHTMLCodePost_save_pre', $_POST['syndicatePressArticleAuthorHTMLCodePost']);
+          $configOptions['articleAuthorHTMLCodePost'] = mysql_real_escape_string($configOptions['articleAuthorHTMLCodePost']);
+        }
+        if (isset($_POST['syndicatePressArticleCopyrightHTMLCodePre'])) {
+          $configOptions['articleCopyrightHTMLCodePre'] = apply_filters('articleCopyrightHTMLCodePre_save_pre', $_POST['syndicatePressArticleCopyrightHTMLCodePre']);
+          $configOptions['articleCopyrightHTMLCodePre'] = mysql_real_escape_string($configOptions['articleCopyrightHTMLCodePre']);
+        }
+        if (isset($_POST['syndicatePressArticleCopyrightHTMLCodePost'])) {
+          $configOptions['articleCopyrightHTMLCodePost'] = apply_filters('articleCopyrightHTMLCodePost_save_pre', $_POST['syndicatePressArticleCopyrightHTMLCodePost']);
+          $configOptions['articleCopyrightHTMLCodePost'] = mysql_real_escape_string($configOptions['articleCopyrightHTMLCodePost']);
+        }
+        if (isset($_POST['syndicatePressArticlePriceHTMLCodePre'])) {
+          $configOptions['articlePriceHTMLCodePre'] = apply_filters('articlePriceHTMLCodePre_save_pre', $_POST['syndicatePressArticlePriceHTMLCodePre']);
+          $configOptions['articlePriceHTMLCodePre'] = mysql_real_escape_string($configOptions['articlePriceHTMLCodePre']);
+        }
+        if (isset($_POST['syndicatePressArticlePriceHTMLCodePost'])) {
+          $configOptions['articlePriceHTMLCodePost'] = apply_filters('articlePriceHTMLCodePost_save_pre', $_POST['syndicatePressArticlePriceHTMLCodePost']);
+          $configOptions['articlePriceHTMLCodePost'] = mysql_real_escape_string($configOptions['articlePriceHTMLCodePost']);
+        }
+        if (isset($_POST['syndicatePressArticleImageHTMLCodePre'])) {
+          $configOptions['articleImageHTMLCodePre'] = apply_filters('articleImageHTMLCodePre_save_pre', $_POST['syndicatePressArticleImageHTMLCodePre']);
+          $configOptions['articleImageHTMLCodePre'] = mysql_real_escape_string($configOptions['articleImageHTMLCodePre']);
+        }
+        if (isset($_POST['syndicatePressArticleImageHTMLCodePost'])) {
+          $configOptions['articleImageHTMLCodePost'] = apply_filters('articleImageHTMLCodePost_save_pre', $_POST['syndicatePressArticleImageHTMLCodePost']);
+          $configOptions['articleImageHTMLCodePost'] = mysql_real_escape_string($configOptions['articleImageHTMLCodePost']);
+        }
+        if (isset($_POST['syndicatePressArticleTimestampHTMLCodePre'])) {
+          $configOptions['articleTimestampHTMLCodePre'] = apply_filters('articleTimestampHTMLCodePre_save_pre', $_POST['syndicatePressArticleTimestampHTMLCodePre']);
+          $configOptions['articleTimestampHTMLCodePre'] = mysql_real_escape_string($configOptions['articleTimestampHTMLCodePre']);
+        }
+        if (isset($_POST['syndicatePressArticleTimestampHTMLCodePost'])) {
+          $configOptions['articleTimestampHTMLCodePost'] = apply_filters('articleTimestampHTMLCodePost_save_pre', $_POST['syndicatePressArticleTimestampHTMLCodePost']);
+          $configOptions['articleTimestampHTMLCodePost'] = mysql_real_escape_string($configOptions['articleTimestampHTMLCodePost']);
+        }
         if (isset($_POST['syndicatePressArticleBodyHTMLCodePre'])) {
           $configOptions['articleBodyHTMLCodePre'] = apply_filters('articleBodyHTMLCodePre_save_pre', $_POST['syndicatePressArticleBodyHTMLCodePre']);
           $configOptions['articleBodyHTMLCodePre'] = mysql_real_escape_string($configOptions['articleBodyHTMLCodePre']);
@@ -1335,16 +1395,23 @@ if (!class_exists("SyndicatePressPlugin")) {
      </div>     
      <div class="tabbertab">
         <h2>Custom Formatting</h2>
-        <b><u>Title formatting:</u></b><br>
+        <b><u>Feed title formatting:</u></b><br>
         <div style="padding-left: 20px;">
-        <em>You can use html tags (including the css style parameter and the script parameter) to format the feed and article titles... i.e. &lt;h2&gt;title&lt;/h2&gt;</em><br>
-        <textarea name="syndicatePressFeedTitleHTMLCodePre" style="width: 40%; height: 50px;"><?php _e($this->sp_unescapeString(apply_filters('format_to_edit',$configOptions['feedTitleHTMLCodePre']), true), 'SyndicatePressPlugin') ?></textarea>Feed title<textarea name="syndicatePressFeedTitleHTMLCodePost" style="width: 40%; height: 50px;"><?php _e($this->sp_unescapeString(apply_filters('format_to_edit',$configOptions['feedTitleHTMLCodePost'])), 'SyndicatePressPlugin') ?></textarea><br>
-        <textarea name="syndicatePressArticleTitleHTMLCodePre" style="width: 40%; height: 50px;"><?php _e($this->sp_unescapeString(apply_filters('format_to_edit',$configOptions['articleTitleHTMLCodePre']), true), 'SyndicatePressPlugin') ?></textarea>Article title<textarea name="syndicatePressArticleTitleHTMLCodePost" style="width: 40%; height: 50px;"><?php _e($this->sp_unescapeString(apply_filters('format_to_edit',$configOptions['articleTitleHTMLCodePost'])), 'SyndicatePressPlugin') ?></textarea><br>
+        <em>You can use html tags (including the css style parameter and the script parameter) to format the feed title... i.e. &lt;h2&gt;title&lt;/h2&gt;</em><br>
+        <textarea name="syndicatePressFeedTitleHTMLCodePre" style="width: 40%; height: 50px;"><?php _e($this->sp_unescapeString(apply_filters('format_to_edit',$configOptions['feedTitleHTMLCodePre']), true), 'SyndicatePressPlugin') ?></textarea>title<textarea name="syndicatePressFeedTitleHTMLCodePost" style="width: 40%; height: 50px;"><?php _e($this->sp_unescapeString(apply_filters('format_to_edit',$configOptions['feedTitleHTMLCodePost'])), 'SyndicatePressPlugin') ?></textarea><br>
         </div><br>&nbsp;<br>
-        <b><u>Article body formatting:</u></b><br>
+        <b><u>Article formatting:</u></b><br>
         <div style="padding-left: 20px;">
-        <em>You can use html tags (including the css style parameter and the script parameter) to format the article body (content)... i.e. &lt;p&gt;body text&lt;/p&gt;</em><br>
-        <textarea name="syndicatePressArticleBodyHTMLCodePre" style="width: 40%; height: 50px;"><?php _e($this->sp_unescapeString(apply_filters('format_to_edit',$configOptions['articleBodyHTMLCodePre']), true), 'SyndicatePressPlugin') ?></textarea>Article body (content)<textarea name="syndicatePressArticleBodyHTMLCodePost" style="width: 40%; height: 50px;"><?php _e($this->sp_unescapeString(apply_filters('format_to_edit',$configOptions['articleBodyHTMLCodePost'])), 'SyndicatePressPlugin') ?></textarea><br>
+        <em>You can use html tags (including the css style parameter and the script parameter) to format the article title, author, timestamp, copyright, price, image and body... i.e. &lt;p&gt;body text&lt;/p&gt;</em>
+        <br>The following elements are defined by the feed structure XML and do not apply to content within the body of the feed.
+        <br>Some feeds may not have all of the following elements.  If a feed does not have one of the elements, nothing will be shown for that element.<br>
+        <textarea name="syndicatePressArticleTitleHTMLCodePre" style="width: 40%; height: 50px;"><?php _e($this->sp_unescapeString(apply_filters('format_to_edit',$configOptions['articleTitleHTMLCodePre']), true), 'SyndicatePressPlugin') ?></textarea>title<textarea name="syndicatePressArticleTitleHTMLCodePost" style="width: 40%; height: 50px;"><?php _e($this->sp_unescapeString(apply_filters('format_to_edit',$configOptions['articleTitleHTMLCodePost'])), 'SyndicatePressPlugin') ?></textarea><br>
+        <textarea name="syndicatePressArticleAuthorHTMLCodePre" style="width: 40%; height: 50px;"><?php _e($this->sp_unescapeString(apply_filters('format_to_edit',$configOptions['articleAuthorHTMLCodePre']), true), 'SyndicatePressPlugin') ?></textarea>author<textarea name="syndicatePressArticleAuthorHTMLCodePost" style="width: 40%; height: 50px;"><?php _e($this->sp_unescapeString(apply_filters('format_to_edit',$configOptions['articleAuthorHTMLCodePost'])), 'SyndicatePressPlugin') ?></textarea><br>
+        <textarea name="syndicatePressArticleCopyrightHTMLCodePre" style="width: 40%; height: 50px;"><?php _e($this->sp_unescapeString(apply_filters('format_to_edit',$configOptions['articleCopyrightHTMLCodePre']), true), 'SyndicatePressPlugin') ?></textarea>copyright<textarea name="syndicatePressArticleCopyrightHTMLCodePost" style="width: 40%; height: 50px;"><?php _e($this->sp_unescapeString(apply_filters('format_to_edit',$configOptions['articleCopyrightHTMLCodePost'])), 'SyndicatePressPlugin') ?></textarea><br>
+        <textarea name="syndicatePressArticlePriceHTMLCodePre" style="width: 40%; height: 50px;"><?php _e($this->sp_unescapeString(apply_filters('format_to_edit',$configOptions['articlePriceHTMLCodePre']), true), 'SyndicatePressPlugin') ?></textarea>price<textarea name="syndicatePressArticlePriceHTMLCodePost" style="width: 40%; height: 50px;"><?php _e($this->sp_unescapeString(apply_filters('format_to_edit',$configOptions['articlePriceHTMLCodePost'])), 'SyndicatePressPlugin') ?></textarea><br>
+        <textarea name="syndicatePressArticleImageHTMLCodePre" style="width: 40%; height: 50px;"><?php _e($this->sp_unescapeString(apply_filters('format_to_edit',$configOptions['articleImageHTMLCodePre']), true), 'SyndicatePressPlugin') ?></textarea>image<textarea name="syndicatePressArticleImageHTMLCodePost" style="width: 40%; height: 50px;"><?php _e($this->sp_unescapeString(apply_filters('format_to_edit',$configOptions['articleImageHTMLCodePost'])), 'SyndicatePressPlugin') ?></textarea><br>
+        <textarea name="syndicatePressArticleTimestampHTMLCodePre" style="width: 40%; height: 50px;"><?php _e($this->sp_unescapeString(apply_filters('format_to_edit',$configOptions['articleTimestampHTMLCodePre']), true), 'SyndicatePressPlugin') ?></textarea>timestamp<textarea name="syndicatePressArticleTimestampHTMLCodePost" style="width: 40%; height: 50px;"><?php _e($this->sp_unescapeString(apply_filters('format_to_edit',$configOptions['articleTimestampHTMLCodePost'])), 'SyndicatePressPlugin') ?></textarea><br>
+        <textarea name="syndicatePressArticleBodyHTMLCodePre" style="width: 40%; height: 50px;"><?php _e($this->sp_unescapeString(apply_filters('format_to_edit',$configOptions['articleBodyHTMLCodePre']), true), 'SyndicatePressPlugin') ?></textarea>body (content)<textarea name="syndicatePressArticleBodyHTMLCodePost" style="width: 40%; height: 50px;"><?php _e($this->sp_unescapeString(apply_filters('format_to_edit',$configOptions['articleBodyHTMLCodePost'])), 'SyndicatePressPlugin') ?></textarea><br>
         </div><br>&nbsp;<br>
         <b><u>Custom feed separation code:</u></b><br>
         <div style="padding-left: 20px;">
@@ -1430,16 +1497,21 @@ if (!class_exists("SyndicatePressPlugin")) {
         </p>
         <b><u>Detailed documentation</u></b>
         <p style="padding-left: 20px;">
-        For more detailed documentation, you can visit the Syndicate Press homepage at <a href="http://henryranch.net/software/syndicate-press/" target=_blank>http://henryranch.net/software/syndicate-press/</a>.
+        For more detailed documentation, you can visit the Syndicate Press homepage at <a href="http://syndicatepress.henryranch.net" target=_blank>http://syndicatepress.henryranch.net</a>.
         </p>
         <b><u>Community forum help</u></b>
         <p style="padding-left: 20px;">
-        With over 18000 downloads of Syndicate Press across the world, we are starting to get a fairly active forum where you can ask questions.  
+        With over 24,000 downloads of Syndicate Press across the world, we are starting to get a fairly active forum where you can ask questions.  
         The Syndicate Press developers and testers regularly read the forum questions and respond with ideas and help.          
         </p>
+        <b><u>New feature idea???</u></b>
+        <p style="padding-left: 20px;">
+        Do you have a great idea for a new feature?  If so, please send it directly to the support email below.<br>
+        <i>Since new features take a bit of work, a donation is appreciated and will help push <b>your</b> feature to the top of the list!</i>
+        </p>  
         <b><u>Personalized support</u></b>
         <p style="padding-left: 20px;">
-        If you would like personalized support from the Syndicate Press developers, you may contact us directly at <b>sp&nbsp;[at]&nbsp;h&nbsp;e&nbsp;n&nbsp;r&nbsp;y&nbsp;r&nbsp;a&nbsp;n&nbsp;c&nbsp;h&nbsp;.&nbsp;n&nbsp;e&nbsp;t.</b><br>
+        If you would like personalized support from the Syndicate Press developers, you may contact us directly at <b>sp@henryranch.net.</b><br>
         <i>We request a donation to Syndicate Press for personalized support.</i>
         </p>        
         <b><u>Export Settings</u></b>
@@ -1511,6 +1583,7 @@ function toggle(elementId) {
         <td style="padding: 10px;"><iframe src="http://rcm.amazon.com/e/cm?t=henrantecandl-20&o=1&p=8&l=as1&asins=B00168NGGU&ref=qf_sp_asin_til&fc1=000000&IS2=1&lt1=_blank&m=amazon&lc1=0000FF&bc1=000000&bg1=FFFFFF&f=ifr" style="width:120px;height:240px;" scrolling="no" marginwidth="0" marginheight="0" frameborder="0"></iframe></td>
         <td style="padding: 10px;"><iframe src="http://rcm.amazon.com/e/cm?t=henrantecandl-20&o=1&p=8&l=as1&asins=B004DNWI8W&ref=qf_sp_asin_til&fc1=000000&IS2=1&lt1=_blank&m=amazon&lc1=0000FF&bc1=000000&bg1=FFFFFF&f=ifr" style="width:120px;height:240px;" scrolling="no" marginwidth="0" marginheight="0" frameborder="0"></iframe></td>
         </tr>
+        <tr><td colspan="6"><font size=-12>Syndicate Press Plugin is a participant in the Amazon Services LLC Associates Program, an affiliate advertising program designed to provide a means for sites to earn advertising fees by advertising and linking to amazon.com.</font></td></tr>
         </table>
      </div>   
 </div>
