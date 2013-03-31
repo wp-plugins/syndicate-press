@@ -4,7 +4,7 @@ Plugin Name: Syndicate Press
 Plugin URI: http://syndicatepress.henryranch.net/
 Description: This plugin provides a high performance, highly configurable and easy to use news syndication aggregator which supports RSS, RDF and ATOM feeds.
 Author: HenryRanch LLC (henryranch.net)
-Version: 1.0.25
+Version: 1.0.26
 Author URI: http://syndicatepress.henryranch.net/
 License: GPL2
 */
@@ -63,7 +63,7 @@ YOU MAY REQUEST A LICENSE TO DO SO FROM THE AUTHOR.
 
 if (!class_exists("SyndicatePressPlugin")) {
   class SyndicatePressPlugin {
-        var $version = "1.0.25";
+        var $version = "1.0.26";
         var $homepageURL = "http://syndicatepress.henryranch.net/";
         
         var $cacheDir = "/cache";
@@ -373,6 +373,11 @@ if (!class_exists("SyndicatePressPlugin")) {
             $content = str_replace('<![CDATA[', '', $content);
             $content = str_replace(']]>', '', $content);
             $this->sp_writeFile($cacheFilename, $content);
+        }
+
+        function sp_escapeString($str)
+        {
+            return $str;
         }
 
         function sp_unescapeString($str, $replaceDoubleQuotesWithSingleQuotesForTagParams=false)
@@ -1072,76 +1077,58 @@ if (!class_exists("SyndicatePressPlugin")) {
           $configOptions['inclusiveKeywordFilter'] = apply_filters('inclusiveKeywordFilter_save_pre', $_POST['syndicatePressInclusiveKeywordFilter']);
         }
         if (isset($_POST['syndicatePressFeedTitleHTMLCodePre'])) {
-          $configOptions['feedTitleHTMLCodePre'] = apply_filters('feedTitleHTMLCodePre_save_pre', $_POST['syndicatePressFeedTitleHTMLCodePre']);
-          $configOptions['feedTitleHTMLCodePre'] = mysql_real_escape_string($configOptions['feedTitleHTMLCodePre']);
+          $configOptions['feedTitleHTMLCodePre'] = $this->sp_escapeString(apply_filters('feedTitleHTMLCodePre_save_pre', $_POST['syndicatePressFeedTitleHTMLCodePre']));
         }
         if (isset($_POST['syndicatePressFeedTitleHTMLCodePost'])) {
-          $configOptions['feedTitleHTMLCodePost'] = apply_filters('feedTitleHTMLCodePost_save_pre', $_POST['syndicatePressFeedTitleHTMLCodePost']);
-          $configOptions['feedTitleHTMLCodePost'] = mysql_real_escape_string($configOptions['feedTitleHTMLCodePost']);
+          $configOptions['feedTitleHTMLCodePost'] = $this->sp_escapeString(apply_filters('feedTitleHTMLCodePost_save_pre', $_POST['syndicatePressFeedTitleHTMLCodePost']));
         }
         if (isset($_POST['syndicatePressArticleTitleHTMLCodePre'])) {
-          $configOptions['articleTitleHTMLCodePre'] = apply_filters('articleTitleHTMLCodePre_save_pre', $_POST['syndicatePressArticleTitleHTMLCodePre']);
-          $configOptions['articleTitleHTMLCodePre'] = mysql_real_escape_string($configOptions['articleTitleHTMLCodePre']);
+          $configOptions['articleTitleHTMLCodePre'] = $this->sp_escapeString(apply_filters('articleTitleHTMLCodePre_save_pre', $_POST['syndicatePressArticleTitleHTMLCodePre']));
         }
         if (isset($_POST['syndicatePressArticleTitleHTMLCodePost'])) {
-          $configOptions['articleTitleHTMLCodePost'] = apply_filters('articleTitleHTMLCodePost_save_pre', $_POST['syndicatePressArticleTitleHTMLCodePost']);
-          $configOptions['articleTitleHTMLCodePost'] = mysql_real_escape_string($configOptions['articleTitleHTMLCodePost']);
+          $configOptions['articleTitleHTMLCodePost'] = $this->sp_escapeString(apply_filters('articleTitleHTMLCodePost_save_pre', $_POST['syndicatePressArticleTitleHTMLCodePost']));
         }
         if (isset($_POST['syndicatePressArticleAuthorHTMLCodePre'])) {
-          $configOptions['articleAuthorHTMLCodePre'] = apply_filters('articleAuthorHTMLCodePre_save_pre', $_POST['syndicatePressArticleAuthorHTMLCodePre']);
-          $configOptions['articleAuthorHTMLCodePre'] = mysql_real_escape_string($configOptions['articleAuthorHTMLCodePre']);
+          $configOptions['articleAuthorHTMLCodePre'] = $this->sp_escapeString(apply_filters('articleAuthorHTMLCodePre_save_pre', $_POST['syndicatePressArticleAuthorHTMLCodePre']));
         }
         if (isset($_POST['syndicatePressArticleAuthorHTMLCodePost'])) {
-          $configOptions['articleAuthorHTMLCodePost'] = apply_filters('articleAuthorHTMLCodePost_save_pre', $_POST['syndicatePressArticleAuthorHTMLCodePost']);
-          $configOptions['articleAuthorHTMLCodePost'] = mysql_real_escape_string($configOptions['articleAuthorHTMLCodePost']);
+          $configOptions['articleAuthorHTMLCodePost'] = $this->sp_escapeString(apply_filters('articleAuthorHTMLCodePost_save_pre', $_POST['syndicatePressArticleAuthorHTMLCodePost']));
         }
         if (isset($_POST['syndicatePressArticleCopyrightHTMLCodePre'])) {
-          $configOptions['articleCopyrightHTMLCodePre'] = apply_filters('articleCopyrightHTMLCodePre_save_pre', $_POST['syndicatePressArticleCopyrightHTMLCodePre']);
-          $configOptions['articleCopyrightHTMLCodePre'] = mysql_real_escape_string($configOptions['articleCopyrightHTMLCodePre']);
+          $configOptions['articleCopyrightHTMLCodePre'] = $this->sp_escapeString(apply_filters('articleCopyrightHTMLCodePre_save_pre', $_POST['syndicatePressArticleCopyrightHTMLCodePre']));
         }
         if (isset($_POST['syndicatePressArticleCopyrightHTMLCodePost'])) {
-          $configOptions['articleCopyrightHTMLCodePost'] = apply_filters('articleCopyrightHTMLCodePost_save_pre', $_POST['syndicatePressArticleCopyrightHTMLCodePost']);
-          $configOptions['articleCopyrightHTMLCodePost'] = mysql_real_escape_string($configOptions['articleCopyrightHTMLCodePost']);
+          $configOptions['articleCopyrightHTMLCodePost'] = $this->sp_escapeString(apply_filters('articleCopyrightHTMLCodePost_save_pre', $_POST['syndicatePressArticleCopyrightHTMLCodePost']));
         }
         if (isset($_POST['syndicatePressArticlePriceHTMLCodePre'])) {
-          $configOptions['articlePriceHTMLCodePre'] = apply_filters('articlePriceHTMLCodePre_save_pre', $_POST['syndicatePressArticlePriceHTMLCodePre']);
-          $configOptions['articlePriceHTMLCodePre'] = mysql_real_escape_string($configOptions['articlePriceHTMLCodePre']);
+          $configOptions['articlePriceHTMLCodePre'] = $this->sp_escapeString(apply_filters('articlePriceHTMLCodePre_save_pre', $_POST['syndicatePressArticlePriceHTMLCodePre']));
         }
         if (isset($_POST['syndicatePressArticlePriceHTMLCodePost'])) {
-          $configOptions['articlePriceHTMLCodePost'] = apply_filters('articlePriceHTMLCodePost_save_pre', $_POST['syndicatePressArticlePriceHTMLCodePost']);
-          $configOptions['articlePriceHTMLCodePost'] = mysql_real_escape_string($configOptions['articlePriceHTMLCodePost']);
+          $configOptions['articlePriceHTMLCodePost'] = $this->sp_escapeString(apply_filters('articlePriceHTMLCodePost_save_pre', $_POST['syndicatePressArticlePriceHTMLCodePost']));
         }
         if (isset($_POST['syndicatePressArticleImageHTMLCodePre'])) {
-          $configOptions['articleImageHTMLCodePre'] = apply_filters('articleImageHTMLCodePre_save_pre', $_POST['syndicatePressArticleImageHTMLCodePre']);
-          $configOptions['articleImageHTMLCodePre'] = mysql_real_escape_string($configOptions['articleImageHTMLCodePre']);
+          $configOptions['articleImageHTMLCodePre'] = $this->sp_escapeString(apply_filters('articleImageHTMLCodePre_save_pre', $_POST['syndicatePressArticleImageHTMLCodePre']));
         }
         if (isset($_POST['syndicatePressArticleImageHTMLCodePost'])) {
-          $configOptions['articleImageHTMLCodePost'] = apply_filters('articleImageHTMLCodePost_save_pre', $_POST['syndicatePressArticleImageHTMLCodePost']);
-          $configOptions['articleImageHTMLCodePost'] = mysql_real_escape_string($configOptions['articleImageHTMLCodePost']);
+          $configOptions['articleImageHTMLCodePost'] = $this->sp_escapeString(apply_filters('articleImageHTMLCodePost_save_pre', $_POST['syndicatePressArticleImageHTMLCodePost']));
         }
         if (isset($_POST['syndicatePressArticleTimestampHTMLCodePre'])) {
-          $configOptions['articleTimestampHTMLCodePre'] = apply_filters('articleTimestampHTMLCodePre_save_pre', $_POST['syndicatePressArticleTimestampHTMLCodePre']);
-          $configOptions['articleTimestampHTMLCodePre'] = mysql_real_escape_string($configOptions['articleTimestampHTMLCodePre']);
+          $configOptions['articleTimestampHTMLCodePre'] = $this->sp_escapeString(apply_filters('articleTimestampHTMLCodePre_save_pre', $_POST['syndicatePressArticleTimestampHTMLCodePre']));
         }
         if (isset($_POST['syndicatePressArticleTimestampHTMLCodePost'])) {
-          $configOptions['articleTimestampHTMLCodePost'] = apply_filters('articleTimestampHTMLCodePost_save_pre', $_POST['syndicatePressArticleTimestampHTMLCodePost']);
-          $configOptions['articleTimestampHTMLCodePost'] = mysql_real_escape_string($configOptions['articleTimestampHTMLCodePost']);
+          $configOptions['articleTimestampHTMLCodePost'] = $this->sp_escapeString(apply_filters('articleTimestampHTMLCodePost_save_pre', $_POST['syndicatePressArticleTimestampHTMLCodePost']));
         }
         if (isset($_POST['syndicatePressArticleBodyHTMLCodePre'])) {
-          $configOptions['articleBodyHTMLCodePre'] = apply_filters('articleBodyHTMLCodePre_save_pre', $_POST['syndicatePressArticleBodyHTMLCodePre']);
-          $configOptions['articleBodyHTMLCodePre'] = mysql_real_escape_string($configOptions['articleBodyHTMLCodePre']);
+          $configOptions['articleBodyHTMLCodePre'] = $this->sp_escapeString(apply_filters('articleBodyHTMLCodePre_save_pre', $_POST['syndicatePressArticleBodyHTMLCodePre']));
         }
         if (isset($_POST['syndicatePressArticleBodyHTMLCodePost'])) {
-          $configOptions['articleBodyHTMLCodePost'] = apply_filters('articleBodyHTMLCodePost_save_pre', $_POST['syndicatePressArticleBodyHTMLCodePost']);
-          $configOptions['articleBodyHTMLCodePost'] = mysql_real_escape_string($configOptions['articleBodyHTMLCodePost']);
+          $configOptions['articleBodyHTMLCodePost'] = $this->sp_escapeString(apply_filters('articleBodyHTMLCodePost_save_pre', $_POST['syndicatePressArticleBodyHTMLCodePost']));
         }
         if (isset($_POST['syndicatePressFeedSeparationHTMLCode'])) {
-          $configOptions['feedSeparationHTMLCode'] = apply_filters('feedSeparationHTMLCode_save_pre', $_POST['syndicatePressFeedSeparationHTMLCode']);
-          $configOptions['feedSeparationHTMLCode'] = mysql_real_escape_string($configOptions['feedSeparationHTMLCode']);
+          $configOptions['feedSeparationHTMLCode'] = $this->sp_escapeString(apply_filters('feedSeparationHTMLCode_save_pre', $_POST['syndicatePressFeedSeparationHTMLCode']));
         }
         if (isset($_POST['syndicatePressFeedNotAvailableHTMLCode'])) {
-          $configOptions['feedNotAvailableHTMLCode'] = apply_filters('feedNotAvailableHTMLCode_save_pre', $_POST['syndicatePressFeedNotAvailableHTMLCode']);
-          $configOptions['feedNotAvailableHTMLCode'] = mysql_real_escape_string($configOptions['feedNotAvailableHTMLCode']);
+          $configOptions['feedNotAvailableHTMLCode'] = $this->sp_escapeString(apply_filters('feedNotAvailableHTMLCode_save_pre', $_POST['syndicatePressFeedNotAvailableHTMLCode']));
         }
                 
         update_option($this->adminOptionsName, $configOptions);
@@ -1419,14 +1406,14 @@ if (!class_exists("SyndicatePressPlugin")) {
         <div style="padding-left: 20px;">
         i.e. To insert a horizontal line: &lt;hr&gt;</em><br>
         </div>
-        <textarea name="syndicatePressFeedSeparationHTMLCode" style="width: 95%; height: 100px;"><?php _e($this->sp_unescapeString(apply_filters('format_to_edit',$configOptions['feedSeparationHTMLCode'])), 'SyndicatePressPlugin') ?></textarea>
+        <textarea name="syndicatePressFeedSeparationHTMLCode" style="width: 95%; height: 100px;"><?php _e($this->sp_unescapeString(apply_filters('format_to_edit',$configOptions['feedSeparationHTMLCode']), true), 'SyndicatePressPlugin') ?></textarea>
         </div><br>&nbsp;<br>
         <b><u>Custom content to show when a feed is unavailable:</u></b><br>
         <div style="padding-left: 20px;">
         <em>You can insert custom html content when a feed is not available.<br>
         To include the name of the unavailable feed, use {feedname} in the code below and it will be replaced with the name of the feed.<br>
         To show nothing when a feed is not available, simply delete all of the content from this field.</em>
-        <textarea name="syndicatePressFeedNotAvailableHTMLCode" style="width: 95%; height: 100px;"><?php _e($this->sp_unescapeString(apply_filters('format_to_edit',$configOptions['feedNotAvailableHTMLCode'])), 'SyndicatePressPlugin') ?></textarea>
+        <textarea name="syndicatePressFeedNotAvailableHTMLCode" style="width: 95%; height: 100px;"><?php _e($this->sp_unescapeString(apply_filters('format_to_edit',$configOptions['feedNotAvailableHTMLCode']), true), 'SyndicatePressPlugin') ?></textarea>
         </div>
      </div>
    <div class="tabbertab">

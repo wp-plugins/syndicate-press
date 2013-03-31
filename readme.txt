@@ -4,7 +4,7 @@ Donate link: http://syndicatepress.henryranch.net/donate/
 Tags: RSS,RDF,Atom,feed,syndicate,syndication,news,aggregator,aggregation,plugin,active,maintained,custom,widget,post,plugin,posts,admin,sidebar,theme,comments,images,twitter,page,google,links
 Requires at least: 2.8
 Tested up to: 3.5.1
-Stable tag: 1.0.25
+Stable tag: 1.0.26
 
 Syndicate Press lets you include RSS, RDF or Atom feeds directly in your Wordpress posts, pages, widgets or theme. 
 
@@ -46,6 +46,9 @@ http://syndicatepress.henryranch.net/feed-tests/feedburner-feeds/ <br>
 == Changelog ==
 
 http://syndicatepress.henryranch.net/documentation/changelog/
+
+v1.0.26: Small update
+- Updated support for advertising code between feeds.
 
 1.0.25: New feature release - Lots of features...<br>
 - Custom formatting now supports:<br>
