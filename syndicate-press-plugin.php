@@ -4,7 +4,7 @@ Plugin Name: Syndicate Press
 Plugin URI: http://syndicatepress.henryranch.net/
 Description: This plugin provides a high performance, highly configurable and easy to use news syndication aggregator which supports RSS, RDF and ATOM feeds.
 Author: HenryRanch LLC (henryranch.net)
-Version: 1.0.26
+Version: 1.0.27
 Author URI: http://syndicatepress.henryranch.net/
 License: GPL2
 */
@@ -63,7 +63,7 @@ YOU MAY REQUEST A LICENSE TO DO SO FROM THE AUTHOR.
 
 if (!class_exists("SyndicatePressPlugin")) {
   class SyndicatePressPlugin {
-        var $version = "1.0.26";
+        var $version = "1.0.27";
         var $homepageURL = "http://syndicatepress.henryranch.net/";
         
         var $cacheDir = "/cache";
@@ -309,6 +309,11 @@ if (!class_exists("SyndicatePressPlugin")) {
                         {
                             $list = explode('=', $param);
                             $customConfigOverrides['truncateTitleAtWord'] = $list[1];
+                        }                        
+                        else if(strpos($param, 'replaceStringInTitle') !== false)
+                        {
+                            $list = explode('=', $param);
+                            $customConfigOverrides['replaceStringInTitle'] = $list[1];
                         }
                         else if(strpos($param, 'feedList') !== false)
                         {
@@ -752,6 +757,7 @@ if (!class_exists("SyndicatePressPlugin")) {
                 $customConfigShowImages = $customConfigOverrides['showImages'];
                 $customConfigLimitArticles = $customConfigOverrides['limitArticles'];
                 $customConfigTruncateTitleAtWord = $customConfigOverrides['truncateTitleAtWord'];
+                $customConfigReplaceStringInTitle = $customConfigOverrides['replaceStringInTitle'];                
             }
             
             //make sure there are no whitespaces leading or trailing the URL string
@@ -833,6 +839,10 @@ if (!class_exists("SyndicatePressPlugin")) {
                 if(isset($customConfigTruncateTitleAtWord))
                 {
                      $parser->truncateTitleAtWord = $customConfigTruncateTitleAtWord;
+                }
+                if(isset($customConfigReplaceStringInTitle))
+                {
+                	   $parser->replaceStringInTitle = $customConfigReplaceStringInTitle;
                 }
                 if($parser->showContentOnlyInLinkTitle == 'true')
                 {
@@ -1450,7 +1460,10 @@ if (!class_exists("SyndicatePressPlugin")) {
         <i>include</i> - a comma separated list of words that, if found in the article, will show the article.  Articles without one of the words listed, will not be shown<br>
         <i>showImages</i> - true/false.  show the image for the article, if it was included in the article feed from the publisher
         <i>limitArticles</i> - set to the maximum number of articles to show for each of the feeds matched by this shortcode<br>
-        <i>truncateTitleAtWord</i> - truncate the feed and article titles if they contain this word.  This will cut off the title at this word, and not include the word or any words following<br>
+        <i>truncateTitleAtWord</i> - truncate the feed and article titles if they contain this word.  
+        <br>&nbsp;&nbsp;&nbsp;&nbsp; This will cut off the title at this word, and not include the word or any words following<br>
+        <i>replaceStringInTitle</i> - replace a string ith another string in the title of an article within the feeds of the given shortcode.
+        <br>&nbsp;&nbsp;&nbsp;&nbsp; Format: replaceStringInTitle=strToReplace1:replacementstr1,strToReplace2:replacementstr2,etc...        
         </p>
         </div>     
         <b><u>Inserting feed content into a Wordpress theme...</u></b>

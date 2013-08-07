@@ -1,8 +1,8 @@
 <?php
 /*
 File: TinyFeedParser.php
-Date: 3/11/2013
-Version 1.9.11
+Date: 5/15/2013
+Version 1.9.12
 Author: HenryRanch LLC
 
 LICENSE:
@@ -53,6 +53,11 @@ class Article
     var $pubDateStr;
     var $pubTimeStamp;
     var $link;
+    var $linkComments;
+    var $linkSelf;
+    var $linkAlternate;
+    var $linkEdit;
+    var $linkReplies;
     var $title;
     var $subtitle;
     //description: typically contains the syndicated article content
@@ -124,6 +129,7 @@ class TinyFeedParser
     var $defaultTimestampFormatString = 'l F jS, Y h:i:s A';
     var $timestampFormatString = 'l F jS, Y h:i:s A';
     var $truncateTitleAtWord = '';
+    var $replaceStringInTitle = '';
 	
     function TinyFeedParser() 
     {
@@ -521,6 +527,17 @@ class TinyFeedParser
         {
             $length = strpos($article->title, $this->truncateTitleAtWord, 0) - 1;
             $article->title = $this->truncateToLength($article->title, $length, 'NO_LINK', false);
+        }
+        if($this->replaceStringInTitle != '')
+        {
+        	 $keyValuePairArray = explode(',', $this->replaceStringInTitle);
+        	 foreach($keyValuePairArray as $replacementPair)
+        	 {        	   
+        	   $replacementArray = explode(':', $replacementPair);
+        	   $strToBeReplaced = $replacementArray[0];
+        	   $replacementStr = $replacementArray[1];
+        	   $article->title = str_replace($strToBeReplaced, $replacementStr, $article->title);
+        	 }
         }
                 
         $article->subtitle = (string)$this->removeAllHtmlMarkup($article->subtitle);
