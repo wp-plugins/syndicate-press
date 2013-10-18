@@ -4,7 +4,7 @@ Plugin Name: Syndicate Press
 Plugin URI: http://syndicatepress.henryranch.net/
 Description: This plugin provides a high performance, highly configurable and easy to use news syndication aggregator which supports RSS, RDF and ATOM feeds.
 Author: HenryRanch LLC (henryranch.net)
-Version: 1.0.28
+Version: 1.0.29
 Author URI: http://syndicatepress.henryranch.net/
 License: GPL2
 */
@@ -63,7 +63,7 @@ YOU MAY REQUEST A LICENSE TO DO SO FROM THE AUTHOR.
 
 if (!class_exists("SyndicatePressPlugin")) {
   class SyndicatePressPlugin {
-        var $version = "1.0.28";
+        var $version = "1.0.29";
         var $homepageURL = "http://syndicatepress.henryranch.net/";
         
         var $cacheDir = "/cache";
@@ -504,7 +504,7 @@ if (!class_exists("SyndicatePressPlugin")) {
             {
                 $permProblem .= "Output cache: $outputCacheDirPerm<br>";
             }
-            if($permProblem)
+            if($permProblem != '')
             {
                 $permProblem = "There may be a problem with your cache permissions:<br>$permProblem<br>Please set your cache permissions to rwxr-xr-x.<br>Your Syndicate Press cache directory is located here: ".$mainCacheDir;
             }
