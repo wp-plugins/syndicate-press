@@ -1,8 +1,8 @@
 <?php
 /*
 File: TinyFeedParser.php
-Date: 5/15/2013
-Version 1.9.12
+Date: 9/16/2013
+Version 1.9.13
 Author: HenryRanch LLC
 
 LICENSE:
@@ -108,7 +108,7 @@ class TinyFeedParser
     var $feedTitleHTMLCodePost = '</h2>';
     var $articleTitleHTMLCodePre = '<h3>';
     var $articleTitleHTMLCodePost = '</h3>';
-    var $articleBodyHTMLCodePre = '<div>';
+    var $articleBodyHTMLCodePre = '<div name="bodyHtmlCodePre">';
     var $articleBodyHTMLCodePost = '</div>';
     var $articleTimestampHTMLCodePre = '<i>';
     var $articleTimestampHTMLCodePost = '</i>';
@@ -120,7 +120,7 @@ class TinyFeedParser
     var $articlePriceHTMLCodePost = '</i>';
     var $articleSubtitleHTMLCodePre = '<i>';
     var $articleSubtitleHTMLCodePost = '</i>';
-    var $articleImageHTMLCodePre = '<div><br>';
+    var $articleImageHTMLCodePre = '<div name="imgHtmlCodePre"><br>';
     var $articleImageHTMLCodePost ='</div>';
 
     var $numArticles = 0;
@@ -130,6 +130,8 @@ class TinyFeedParser
     var $timestampFormatString = 'l F jS, Y h:i:s A';
     var $truncateTitleAtWord = '';
     var $replaceStringInTitle = '';
+    var $openArticleInLightbox = false;
+    var $lightboxHTMLCode = '';//"\r\n<div id=\"lightbox-external\" class=\"lightbox_content\">\r\n<a href=\"javascript:void(0)\" onclick=\"document.getElementById('lightbox-external').style.display='none';document.getElementById('body').style.display='none'\" title=\"click to close the lightbox\">X</a><br>\r\n<iframe id=\"external-content-iframe\" name=\"external-content-iframe\" frameborder=0 width=\"100%\" height=\"400\">Hello world!</iframe>\r\n</div><!-- end div lightbox-external-->\r\n";
 	
     function TinyFeedParser() 
     {
@@ -631,21 +633,30 @@ class TinyFeedParser
     
     function getJS()
     {
-        return '<script language="javascript">'.
-               'function toggle(elementId) {'.
-               'var ele = document.getElementById(elementId);'.
-               'var text = document.getElementById("displayText");'.
-               'if(ele.style.display == "block") {'.
-               'ele.style.display = "none";'.
-               //'text.innerHTML = "show";'.
-               '}'.
-               'else {'.
-               'ele.style.display = "block";'.
-               //'text.innerHTML = "hide";'.
-               '}'.
+        return '<script language="javascript" type="text/javascript">'.
+               'function toggle(elementId) '.
+               '{'.
+               '  var ele = document.getElementById(elementId);'.
+               '  var text = document.getElementById("displayText");'.
+               '  if(ele.style.display == "block")'. 
+               '  {'.
+               '    ele.style.display = "none";'.
+               '  }'.
+               '  else '.
+               '  {'.
+               '    ele.style.display = "block";'.
+               '  }'.
                '} '.
+               'function loadLightbox(elementId, url) {'.           
+               '  var request = new XMLHttpRequest();'.
+               '  request.open("GET", url, false);'.
+               '  request.send(null);'.
+               '  var content = request.responseText;'.
+               '  document.getElementById(elementId).innerHTML = content;'.
+               '}'.                            
                '</script>';
     }
+    
 
     function getHtml()
     {
@@ -654,6 +665,12 @@ class TinyFeedParser
         if($this->hideArticlesAfterArticleNumber > 1)
         {
             $html .= $this->getJS();
+        }
+                
+        if($this->openArticleInLightbox == 'true')
+        {
+            $html .= $this->getJS();
+            $html .= $this->lightboxHTMLCode;
         }
 
         $articles = $this->articles;
@@ -672,8 +689,8 @@ class TinyFeedParser
                 if(($this->hideArticlesAfterArticleNumber > 1) && (($currentArticleIndex - 2) == $this->hideArticlesAfterArticleNumber))
                 {
                     $hiddenDivId = 'hiddenArticleDiv-'.rand().'-feedIndex-'.$this->feedIndex;
-                    $html .= "<br><div id=\"showHideArticlesControlDiv\"><a id=\"displayText\" href=\"javascript:toggle('".$hiddenDivId."');\">Show / Hide more articles from this feed.</a><br></div>";
-                    $html .= "<div id=\"".$hiddenDivId."\" style=\"display: none\">\r\n";
+                    $html .= "<br>\r\n<div id=\"showHideArticlesControlDiv\"><a id=\"displayText\" href=\"javascript:toggle('".$hiddenDivId."');\">Show / Hide more articles from this feed.</a><br></div><!-- end div showHideArticlesControlDiv-->";
+                    $html .= "\r\n<div id=\"".$hiddenDivId."\" style=\"display: none\">\r\n";
                 }
                 $headerHtmlPre = $this->articleTitleHTMLCodePre;
                 $headerHtmlPost = $this->articleTitleHTMLCodePost;
@@ -691,37 +708,47 @@ class TinyFeedParser
                     continue;
                 }
             }
-            $html .= "<div id=\"itemDiv-feed-".$this->feedIndex.'-article-'.($currentArticleIndex-1)."\"><!-- Article GUID: ".$article->guid."-->\r\n";
+            $html .= "\r\n<div id=\"itemDiv-feed-".$this->feedIndex.'-article-'.($currentArticleIndex-1)."\"><!-- Article GUID: ".$article->guid."-->\r\n";
             
             $html .= $headerHtmlPre;
-            $html .= '<a href="'.$article->link.'" ';
-            if($this->showContentOnlyInLinkTitle == 'true')
+
+
+            if($this->openArticleInLightbox == 'true')
             {
-                $html .= 'title="'.$article->description.'  Click to read the full article..."';
-                if($article->description == '')
-                {
-                    continue;
-                }
-            }
-            else
-            {
-                $html .= 'title="Click to read article..."';
-            }
-            if($this->addNoFollowTag == 'true')
-            {
-               $html .= ' rel="nofollow"';
-            }
-            $html .= ' target=_blank>'.$article->title.'</a>'.$headerHtmlPost."\r\n";
+                $html .= ' <a href="javascript:void(0)" onclick="document.getElementById(\'external-content-iframe\').src=\''.$article->link.
+                      '\';document.getElementById(\'lightbox-external\').style.display=\'block\';document.getElementById(\'main\').style.display=\'block\';">'.$article->title.'</a>'."\r\n";
+            }			
+				else 
+				{            
+              	$html .= '<a href="'.$article->link.'" ';
+            	if($this->showContentOnlyInLinkTitle == 'true')
+            	{
+                	$html .= 'title="'.$article->description.'  Click to read the full article..."';
+                	if($article->description == '')
+                	{
+                  	  continue;
+               	}
+            	}
+            	else
+            	{
+                	$html .= 'title="Click to read article..."';
+            	}
+            	if($this->addNoFollowTag == 'true')
+            	{
+              	 	$html .= ' rel="nofollow"';
+            	}
+            	$html .= ' target=_blank>'.$article->title.'</a>';
+ 				}
+				$html .= $headerHtmlPost."\r\n";            
+            
             if($article->subtitle != '')
             {
-                //$html = $this->addBrIfNeeded($html);
                 $html .= $this->articleSubtitleHTMLCodePre.$article->subtitle.$this->articleSubtitleHTMLCodePost."\r\n";
             }
             if($this->showArticlePublishTimestamp == 'true' && $currentArticleIndex != 1)
             {
                 if($article->pubDateStr)
                 {
-                    //$html = $this->addBrIfNeeded($html);
                     if($this->useCustomTimestampFormat)
                     {
                        $html .= $this->articleTimestampHTMLCodePre.date($this->timestampFormatString, $article->pubTimeStamp).$this->articleTimestampHTMLCodePost."\r\n";
@@ -733,24 +760,20 @@ class TinyFeedParser
                 }
                 else
                 {
-                    //$html = $this->addBrIfNeeded($html);
                     $html .= $this->articleTimestampHTMLCodePre.'No timestamp info...'.$this->articleTimestampHTMLCodePost."\r\n";
                 }
             }
         
             if($article->copyright)
             {
-                //$html = $this->addBrIfNeeded($html);
                 $html .= $this->articleCopyrightHTMLCodePre.$article->copyright.$this->articleCopyrightHTMLCodePost."\r\n";
             }
             if($article->author)
             {
-                //$html = $this->addBrIfNeeded($html);
                 $html .= $this->articleAuthorHTMLCodePre.$article->author.$this->articleAuthorHTMLCodePost."\r\n";
             }            
             if($article->price)
             {
-                //$html = $this->addBrIfNeeded($html);
                 $html .= $this->articlePriceHTMLCodePre.$article->price.$this->articlePriceHTMLCodePost."\r\n";
             }
 
@@ -780,7 +803,6 @@ class TinyFeedParser
                 $html .= '><img src="'.$imageUrl.'" alt="'.$article->imageCaptionAlt.'"></a>'.$this->articleImageHTMLCodePost."\r\n";     
             }
 
-            //$html = $this->addBrIfNeeded($html);
             if(($this->showContentOnlyInLinkTitle == 'false'))
             {
                 $html .= $this->articleBodyHTMLCodePre."\r\n";
@@ -804,11 +826,11 @@ class TinyFeedParser
                 $html = $this->addBrIfNeeded($html);
                 $html .= '<font size=-4>Last feed update: '.$this->feedUpdateTime.'</font>'."\r\n";
             }
-            $html .= "</div>\r\n";
+            $html .= "\r\n</div><!-- end div itemDiv-feed-".$this->feedIndex.'-article-'.($currentArticleIndex-1)."-->\r\n";
         }
-        if($this->hideArticlesAfterArticleNumber > 1)
+        if(($this->hideArticlesAfterArticleNumber > 1)  && (($currentArticleIndex - 2) >= $this->hideArticlesAfterArticleNumber))
         {
-            $html .= "</div>\r\n";
+            $html .= "\r\n</div><!-- end div hidearticles - $hiddenDivId -->\r\n";
         }
         return $html;
     }

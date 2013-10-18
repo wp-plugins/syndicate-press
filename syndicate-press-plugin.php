@@ -4,7 +4,7 @@ Plugin Name: Syndicate Press
 Plugin URI: http://syndicatepress.henryranch.net/
 Description: This plugin provides a high performance, highly configurable and easy to use news syndication aggregator which supports RSS, RDF and ATOM feeds.
 Author: HenryRanch LLC (henryranch.net)
-Version: 1.0.27
+Version: 1.0.28
 Author URI: http://syndicatepress.henryranch.net/
 License: GPL2
 */
@@ -63,7 +63,7 @@ YOU MAY REQUEST A LICENSE TO DO SO FROM THE AUTHOR.
 
 if (!class_exists("SyndicatePressPlugin")) {
   class SyndicatePressPlugin {
-        var $version = "1.0.27";
+        var $version = "1.0.28";
         var $homepageURL = "http://syndicatepress.henryranch.net/";
         
         var $cacheDir = "/cache";
@@ -121,6 +121,11 @@ if (!class_exists("SyndicatePressPlugin")) {
             'articleBodyHTMLCodePost' => '</div><br>',
             'feedSeparationHTMLCode' => '<hr>',
             'addNoFollowTag' => 'true',
+            'openArticleInLightbox' => 'false',            
+            'lightboxHTMLCode' => "<div id=\"lightbox-external\" class=\"lightbox_content\">\r\n".
+			                         "<a href=\"javascript:void(0)\" onclick=\"document.getElementById('lightbox-external').style.display='none';document.getElementById('body').style.display='none'\" title=\"click to close the lightbox\">X</a><br>\r\n".
+		                            "<iframe id=\"external-content-iframe\" name=\"external-content-iframe\" frameborder=0 width=\"100%\" height=\"400\">Hello world!</iframe>\r\n".
+			                         "</div>\r\n",
             'feedNotAvailableHTMLCode' => 'Sorry, the {feedname} feed is not available at this time.'
             );
             $configOptions = get_option($this->adminOptionsName);
@@ -188,6 +193,7 @@ if (!class_exists("SyndicatePressPlugin")) {
         {
             try
             {
+            	 $permissionString = '';
                 $filePermissions = @fileperms($filepath);
                 // Owner
                 $permissionString .= (($filePermissions & 0x0100) ? 'r' : '-');
@@ -485,6 +491,7 @@ if (!class_exists("SyndicatePressPlugin")) {
             $mainCacheDirPerm = $this->sp_getFilePermissions($mainCacheDir);
             $inputCacheDirPerm = $this->sp_getFilePermissions($inputCacheDir);
             $outputCacheDirPerm = $this->sp_getFilePermissions($outputCacheDir);
+            $permProblem = '';
             if($mainCacheDirPerm != "rwxr-xr-x" && $mainCacheDirPerm != "---------")
             {
                 $permProblem .= "Main cache: $mainCacheDirPerm<br>";
@@ -671,9 +678,15 @@ if (!class_exists("SyndicatePressPlugin")) {
          */
         function sp_writeFile($fileName, $content)
         {
+        		//echo "writing to file $fileName : <br> $content<br>";
             $fp = fopen($fileName, 'w'); 
             fwrite($fp, $content); 
             fclose($fp);
+        }
+
+        function sp_readFile($filename)
+        {
+        	  return file_get_contents($filename, true);
         }
 
         function sp_countFilesInDir($dir)
@@ -817,6 +830,8 @@ if (!class_exists("SyndicatePressPlugin")) {
                 $parser->allowMarkupInDescription = $configOptions['allowMarkupInDescription'];
                 $parser->addNoFollowTag = $configOptions['addNoFollowTag'];
                 $parser->hideArticlesAfterArticleNumber = $configOptions['hideArticlesAfterArticleNumber'];
+                $parser->openArticleInLightbox = $configOptions['openArticleInLightbox'];
+                $parser->lightboxHTMLCode = $this->sp_unescapeString($configOptions['lightboxHTMLCode']);
                 if($configOptions['timestampFormat']  != '')
                 {
                   $parser->useCustomTimestampFormat = true;
@@ -967,10 +982,10 @@ if (!class_exists("SyndicatePressPlugin")) {
                 $configOptions = $this->sp_getConfigOptions();
                 $parser = new TinyFeedParser($cachedInputFeedFile);
                 $parser->showContentOnlyInLinkTitle = 'false';
-                $parser->maxNumArticlesToDisplay = 3;
+                $parser->maxNumArticlesToDisplay = 5;
                 $parser->exclusiveKeywordList = "";
                 $parser->inclusiveKeywordList = 'Syndicate Press';
-                $parser->maxDescriptionLength = 300;
+                $parser->maxDescriptionLength = -1;
                 $parser->showFeedChannelTitle = 'false';
                 $parser->useCustomFeednameAsChannelTitle = 'false';
                 $parser->showArticlePublishTimestamp = 'true';
@@ -984,7 +999,8 @@ if (!class_exists("SyndicatePressPlugin")) {
                 $parser->customFeedName == "";
                 $parser->maxHeadlineLength = 128;
                 $parser->allowImagesInDescription = 'false';
-                $parser->allowMarkupInDescription = 'false';
+                $parser->allowMarkupInDescription = 'true';
+                $parser->showArticlesInLightbox = false;
                 $parser->parseFeed($cachedInputFeedFile);
                 $content = $parser->getHtml();
                 return $content;
@@ -1070,6 +1086,9 @@ if (!class_exists("SyndicatePressPlugin")) {
         if (isset($_POST['syndicatePressStripCdataTags'])) {
           $configOptions['stripCDataTags'] = $_POST['syndicatePressStripCdataTags'];
           $this->sp_clearCache();
+        }           
+        if (isset($_POST['syndicatePressOpenArticleInLightbox'])) {
+          $configOptions['openArticleInLightbox'] = $_POST['syndicatePressOpenArticleInLightbox'];
         }
         if (isset($_POST['syndicatePressAllowMarkup'])) {
           $configOptions['allowMarkupInDescription'] = $_POST['syndicatePressAllowMarkup'];
@@ -1140,6 +1159,13 @@ if (!class_exists("SyndicatePressPlugin")) {
         if (isset($_POST['syndicatePressFeedNotAvailableHTMLCode'])) {
           $configOptions['feedNotAvailableHTMLCode'] = $this->sp_escapeString(apply_filters('feedNotAvailableHTMLCode_save_pre', $_POST['syndicatePressFeedNotAvailableHTMLCode']));
         }
+        if (isset($_POST['syndicatePressLightboxCSSTextArea'])) {
+          $this->sp_writeFile(dirname(__FILE__).'/css/TinyLightbox.css', $this->sp_escapeString(apply_filters('lightboxCSSCode_save_pre', $_POST['syndicatePressLightboxCSSTextArea'])));
+        }
+        if (isset($_POST['syndicatePressLightboxHTMLTextArea'])) {
+          $configOptions['lightboxHTMLCode'] = $this->sp_escapeString(apply_filters('lightboxHTMLCode_save_pre', $_POST['syndicatePressLightboxHTMLTextArea']));
+        }
+        
                 
         update_option($this->adminOptionsName, $configOptions);
         $this->sp_clearFormattedOutputCache();
@@ -1433,7 +1459,32 @@ if (!class_exists("SyndicatePressPlugin")) {
         <label for="syndicatePressAddNoFollowTag_yes"><input type="radio" id="syndicatePressAddNoFollowTag_yes" name="syndicatePressAddNoFollowTag" value="true" <?php if ($configOptions['addNoFollowTag'] == "true") { _e('checked="checked"', "SyndicatePressPlugin"); }?> /> Add no-follow tag to article URL's.</label><br>
         <label for="syndicatePressAddNoFollowTag_no"><input type="radio" id="syndicatePressAddNoFollowTag_no" name="syndicatePressAddNoFollowTag" value="false" <?php if ($configOptions['addNoFollowTag'] == "false") { _e('checked="checked"', "SyndicatePressPlugin"); }?>/> Do not add the no-follow tag to URL's.</label><br>
         </div>
-  </div>
+     </div>
+     <div class="tabbertab">
+        <h2>Lightbox</h2>
+        <b><u>You may configure Syndicate Press to show article sources in a popup lightbox.</u></b><br>
+        <div style="padding-left: 20px;">
+        This feature was sponsored by <a href="http://www.collectorsbluebook.com/" target="_blank">CollectorsBlueBook.com</a>.<br><br>
+        </div>
+        <b><u>Open article in lightbox instead of new window:</u></b><br>
+        <p>
+        <div style="padding-left: 20px;">
+        <label for="syndicatePressOpenArticleInLightbox_yes"><input type="radio" id="syndicatePressOpenArticleInLightbox_yes" name="syndicatePressOpenArticleInLightbox" value="true" <?php if ($configOptions['openArticleInLightbox'] == "true") { _e('checked="checked"', "SyndicatePressPlugin"); }?> /> Open the article in a popup lightbox.</label><br>
+        <label for="syndicatePressOpenArticleInLightbox_no"><input type="radio" id="syndicatePressOpenArticleInLightbox_no" name="syndicatePressOpenArticleInLightbox" value="false" <?php if ($configOptions['openArticleInLightbox'] == "false") { _e('checked="checked"', "SyndicatePressPlugin"); }?>/> Open the article in a new tab/window.</label><br>
+        </div>
+        </p>
+        <p>
+        <div style="padding-left: 20px;">
+        Edit the CSS of the Lightbox here (<i>Class names must match the CSS classes referenced in the HTML code </i>):<br>
+        <textarea name="syndicatePressLightboxCSSTextArea"  style="width: 95%; height: 300px;"><?php echo $this->sp_readFile(dirname(__FILE__).'/css/TinyLightbox.css'); ?></textarea>
+        </div>
+        <div style="padding-left: 20px;">
+        <br>Edit the HTML of the Lightbox here (<i>CSS style class names must match the CSS classes defined in the CSS code </i>):<br>
+        <textarea name="syndicatePressLightboxHTMLTextArea"  style="width: 95%; height: 150px;"><?php _e($this->sp_unescapeString(apply_filters('format_to_edit',$configOptions['lightboxHTMLCode']), true), 'SyndicatePressPlugin') ?></textarea>
+        </div>        
+        </p>
+     </div>
+     
 </form>
      <div class="tabbertab">
         <h2>Help</h2>
@@ -1548,7 +1599,8 @@ function toggle(elementId) {
      </div>
      <div class="tabbertab">
         <h2>Donations</h2>
-        <!--<div style='background: #ffc; border: 1px solid #333; margin: 2px; padding: 5px'>-->
+        <table>
+        <tr><td width="70%">
         <b><u>Help support this plugin!</u></b>
         <p>
         A donation is a great way to show your support for this plugin.  Donations help offset the cost of maintenance, development and hosting.<br><br>
@@ -1565,10 +1617,7 @@ function toggle(elementId) {
     </form>
     <br>Donations are securely processed by Paypal.<br>
         </p>
-        <!--</div>-->
-     </div>
-     <div class="tabbertab">
-        <h2>Recommended reading</h2>
+        <p>
         <b><u>Other ways to support this plugin</u></b>
         <p>
         In addition to direct donations, you can also support Syndicate Press by following one of the Amazon book links below and buying a book.
@@ -1580,10 +1629,29 @@ function toggle(elementId) {
         <td style="padding: 10px;"><iframe src="http://rcm.amazon.com/e/cm?t=henrantecandl-20&o=1&p=8&l=as1&asins=0470937815&ref=qf_sp_asin_til&fc1=000000&IS2=1&lt1=_blank&m=amazon&lc1=0000FF&bc1=000000&bg1=FFFFFF&f=ifr" style="width:120px;height:240px;" scrolling="no" marginwidth="0" marginheight="0" frameborder="0"></iframe></td>
         <td style="padding: 10px;"><iframe src="http://rcm.amazon.com/e/cm?t=henrantecandl-20&o=1&p=8&l=as1&asins=0470560541&ref=qf_sp_asin_til&fc1=000000&IS2=1&lt1=_blank&m=amazon&lc1=0000FF&bc1=000000&bg1=FFFFFF&f=ifr" style="width:120px;height:240px;" scrolling="no" marginwidth="0" marginheight="0" frameborder="0"></iframe></td>
         <td style="padding: 10px;"><iframe src="http://rcm.amazon.com/e/cm?t=henrantecandl-20&o=1&p=8&l=as1&asins=1849514100&ref=qf_sp_asin_til&fc1=000000&IS2=1&lt1=_blank&m=amazon&lc1=0000FF&bc1=000000&bg1=FFFFFF&f=ifr" style="width:120px;height:240px;" scrolling="no" marginwidth="0" marginheight="0" frameborder="0"></iframe></td>
-        <td style="padding: 10px;"><iframe src="http://rcm.amazon.com/e/cm?t=henrantecandl-20&o=1&p=8&l=as1&asins=B00168NGGU&ref=qf_sp_asin_til&fc1=000000&IS2=1&lt1=_blank&m=amazon&lc1=0000FF&bc1=000000&bg1=FFFFFF&f=ifr" style="width:120px;height:240px;" scrolling="no" marginwidth="0" marginheight="0" frameborder="0"></iframe></td>
-        <td style="padding: 10px;"><iframe src="http://rcm.amazon.com/e/cm?t=henrantecandl-20&o=1&p=8&l=as1&asins=B004DNWI8W&ref=qf_sp_asin_til&fc1=000000&IS2=1&lt1=_blank&m=amazon&lc1=0000FF&bc1=000000&bg1=FFFFFF&f=ifr" style="width:120px;height:240px;" scrolling="no" marginwidth="0" marginheight="0" frameborder="0"></iframe></td>
         </tr>
         <tr><td colspan="6"><font size=-12>Syndicate Press Plugin is a participant in the Amazon Services LLC Associates Program, an affiliate advertising program designed to provide a means for sites to earn advertising fees by advertising and linking to amazon.com.</font></td></tr>
+        </table>
+        </p>
+        <td width="30%" style="vertical-align: top;">
+        <div style='background: #ffc; border: 1px solid #333; margin: 2px; padding: 5px'>
+        <b><u>Thank you to our supporters:</u></b><br><br>
+			<a href="http://www.collectorsbluebook.com/">Collectors Blue Book</a><br>
+			<a href="http://boltonstudios.com/">Bolton Studios Web Design and Development</a><br>
+        <a href="http://dennisholloway.com/">Dennis Holloway Photography</a><br>
+			<a href="http://www.pushentertainment.com/">Push Entertainment Ltd</a><br>
+			<a href="http://rolandarblog.com">Roland Artist Relations Blog</a><br>
+			<a href="http://www.dah.org.il/">Site Building Simple</a><br>
+			Anonymous<br>
+			Anonymous<br>
+			Anonymous<br>
+			<a href="http://www.saillwhite.com/">Saill White</a><br>
+			Anonymous<br>
+			Anonymous<br>
+			Anonymous<br>
+			Lead Foot Media LLC<br>
+        </div>
+        </td></tr>
         </table>
      </div>   
 </div>
@@ -1624,7 +1692,15 @@ if (isset($syndicatePressPluginObjectRef)) {
         
   //Filter...
   add_filter('the_content', array(&$syndicatePressPluginObjectRef,'sp_ContentFilter')); 
-    add_filter('widget_text', array(&$syndicatePressPluginObjectRef,'sp_ContentFilter'));
+  add_filter('widget_text', array(&$syndicatePressPluginObjectRef,'sp_ContentFilter'));
+  
+  //enqueing scripts and styles for the main site (not admin)
+  add_action( 'wp_enqueue_scripts', 'my_enqueue_scripts' );
+}
+
+function my_enqueue_scripts($hook_suffix) {
+    wp_enqueue_style('sp_printPage_lightbox', plugins_url('syndicate-press/css/TinyLightbox.css'), false, '1.00', false);
+    //wp_enqueue_script('sp_printPage_TAB', plugins_url('syndicate-press/js/tabber-minimized.js'), false, '2.50', false);
 }
 
 function my_admin_enqueue_scripts($hook_suffix) {

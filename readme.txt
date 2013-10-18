@@ -3,8 +3,8 @@ Contributors: hranchFundi
 Donate link: http://syndicatepress.henryranch.net/donate/
 Tags: RSS,RDF,Atom,feed,syndicate,syndication,news,aggregator,aggregation,plugin,active,maintained,custom,widget,post,plugin,posts,admin,sidebar,theme,comments,images,twitter,page,google,links
 Requires at least: 2.8
-Tested up to: 3.5.1
-Stable tag: 1.0.27
+Tested up to: 3.6.1
+Stable tag: 1.0.28
 
 Syndicate Press lets you include RSS, RDF or Atom feeds directly in your Wordpress posts, pages, widgets or theme. 
 
@@ -46,6 +46,13 @@ http://syndicatepress.henryranch.net/feed-tests/feedburner-feeds/ <br>
 == Changelog ==
 
 http://syndicatepress.henryranch.net/documentation/changelog/
+
+v1.0.28: Lightbox popup for article links
+- Added new lightbox feature with tab on SP Admin Control Panel
+- Fixed issue with 'hide articles after X number of articles' where styling was off and content would jump out of theme div's.
+- Cleaned up some dead code from the parser
+- Re-arranged the Donations tab to highlight the donors website link 
+- Cleaned up some warnings visible in php/wordpress debug mode related to uninitialized vars.
 
 v1.0.27: Custom shortcode parameter: replaceStringInTitle
 - Added a new parameter to the shortcode which allows the admin to replace one or more strings in the article title with another string.
