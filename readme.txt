@@ -3,8 +3,8 @@ Contributors: hranchFundi
 Donate link: http://syndicatepress.henryranch.net/donate/
 Tags: RSS,RDF,Atom,feed,syndicate,syndication,news,aggregator,aggregation,plugin,active,maintained,custom,widget,post,plugin,posts,admin,sidebar,theme,comments,images,twitter,page,google,links
 Requires at least: 2.8
-Tested up to: 3.6.1
-Stable tag: 1.0.29
+Tested up to: 3.8.1
+Stable tag: 1.0.30
 
 Syndicate Press lets you include RSS, RDF or Atom feeds directly in your Wordpress posts, pages, widgets or theme. 
 
@@ -46,6 +46,10 @@ http://syndicatepress.henryranch.net/feed-tests/feedburner-feeds/ <br>
 == Changelog ==
 
 http://syndicatepress.henryranch.net/documentation/changelog/
+
+v1.0.30: Some fixes to the lightbox popup and html special character handling
+- Lightbox: Ensure it displays in the center of the page when the page is scrolled.  Also, fixed multiple vertical scroll bar issue in lightbox.
+- HTML special char: fixed issue from forum where & and then various chars such as reg will show the html special char
 
 v1.0.29: Quick fix for permissions message when there was no perms issue
 

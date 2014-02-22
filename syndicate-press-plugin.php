@@ -4,7 +4,7 @@ Plugin Name: Syndicate Press
 Plugin URI: http://syndicatepress.henryranch.net/
 Description: This plugin provides a high performance, highly configurable and easy to use news syndication aggregator which supports RSS, RDF and ATOM feeds.
 Author: HenryRanch LLC (henryranch.net)
-Version: 1.0.29
+Version: 1.0.30
 Author URI: http://syndicatepress.henryranch.net/
 License: GPL2
 */
@@ -63,7 +63,7 @@ YOU MAY REQUEST A LICENSE TO DO SO FROM THE AUTHOR.
 
 if (!class_exists("SyndicatePressPlugin")) {
   class SyndicatePressPlugin {
-        var $version = "1.0.29";
+        var $version = "1.0.30";
         var $homepageURL = "http://syndicatepress.henryranch.net/";
         
         var $cacheDir = "/cache";
@@ -124,7 +124,7 @@ if (!class_exists("SyndicatePressPlugin")) {
             'openArticleInLightbox' => 'false',            
             'lightboxHTMLCode' => "<div id=\"lightbox-external\" class=\"lightbox_content\">\r\n".
 			                         "<a href=\"javascript:void(0)\" onclick=\"document.getElementById('lightbox-external').style.display='none';document.getElementById('body').style.display='none'\" title=\"click to close the lightbox\">X</a><br>\r\n".
-		                            "<iframe id=\"external-content-iframe\" name=\"external-content-iframe\" frameborder=0 width=\"100%\" height=\"400\">Hello world!</iframe>\r\n".
+		                            "<iframe id=\"external-content-iframe\" name=\"external-content-iframe\" frameborder=0 width=\"100%\" height=\"100%\" scrolling=\"yes\">Hello world!</iframe>\r\n".
 			                         "</div>\r\n",
             'feedNotAvailableHTMLCode' => 'Sorry, the {feedname} feed is not available at this time.'
             );
@@ -1094,7 +1094,8 @@ if (!class_exists("SyndicatePressPlugin")) {
           $configOptions['allowMarkupInDescription'] = $_POST['syndicatePressAllowMarkup'];
         }
         if (isset($_POST['syndicatePressFeedUrlList'])) {
-          $configOptions['feedUrlList'] = apply_filters('feedUrlList_save_pre', $_POST['syndicatePressFeedUrlList']);
+          //$configOptions['feedUrlList'] = apply_filters('feedUrlList_save_pre', $_POST['syndicatePressFeedUrlList']);
+          $configOptions['feedUrlList'] = htmlentities($_POST['syndicatePressFeedUrlList']);
           //replace any occurrances of feed:// with http://
           $configOptions['feedUrlList'] = str_replace("feed://", "http://", $configOptions['feedUrlList']);
           $configOptions['feedUrlList'] = trim($configOptions['feedUrlList']);

@@ -1,8 +1,8 @@
 <?php
 /*
 File: TinyFeedParser.php
-Date: 9/16/2013
-Version 1.9.13
+Date: 11/05/2013
+Version 1.9.14
 Author: HenryRanch LLC
 
 LICENSE:
@@ -131,7 +131,7 @@ class TinyFeedParser
     var $truncateTitleAtWord = '';
     var $replaceStringInTitle = '';
     var $openArticleInLightbox = false;
-    var $lightboxHTMLCode = '';//"\r\n<div id=\"lightbox-external\" class=\"lightbox_content\">\r\n<a href=\"javascript:void(0)\" onclick=\"document.getElementById('lightbox-external').style.display='none';document.getElementById('body').style.display='none'\" title=\"click to close the lightbox\">X</a><br>\r\n<iframe id=\"external-content-iframe\" name=\"external-content-iframe\" frameborder=0 width=\"100%\" height=\"400\">Hello world!</iframe>\r\n</div><!-- end div lightbox-external-->\r\n";
+    var $lightboxHTMLCode = '';//"\r\n<div id=\"lightbox-external\" class=\"lightbox_content\">\r\n<a href=\"javascript:void(0)\" onclick=\"document.getElementById('lightbox-external').style.display='none';document.getElementById('body').style.display='none'\" title=\"click to close the lightbox\">X</a><br>\r\n<iframe id=\"external-content-iframe\" name=\"external-content-iframe\" frameborder=0 width=\"100%\" height=\"100%\">Hello world!</iframe>\r\n</div><!-- end div lightbox-external-->\r\n";
 	
     function TinyFeedParser() 
     {
