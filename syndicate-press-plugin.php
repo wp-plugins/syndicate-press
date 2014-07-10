@@ -4,7 +4,7 @@ Plugin Name: Syndicate Press
 Plugin URI: http://syndicatepress.henryranch.net/
 Description: This plugin provides a high performance, highly configurable and easy to use news syndication aggregator which supports RSS, RDF and ATOM feeds.
 Author: HenryRanch LLC (henryranch.net)
-Version: 1.0.30
+Version: 1.0.31
 Author URI: http://syndicatepress.henryranch.net/
 License: GPL2
 */
@@ -13,7 +13,7 @@ License: GPL2
 
 LICENSE:
 ============
-Copyright (c) 2009-2013 Henry Ranch LLC. All rights reserved. http://syndicatepress.henryranch.net/
+Copyright (c) 2009-2014 Henry Ranch LLC. All rights reserved. http://syndicatepress.henryranch.net/
 
 By downloading or using this software,  you agree to all the following: 
 
@@ -63,7 +63,7 @@ YOU MAY REQUEST A LICENSE TO DO SO FROM THE AUTHOR.
 
 if (!class_exists("SyndicatePressPlugin")) {
   class SyndicatePressPlugin {
-        var $version = "1.0.30";
+        var $version = "1.0.31";
         var $homepageURL = "http://syndicatepress.henryranch.net/";
         
         var $cacheDir = "/cache";
@@ -121,6 +121,8 @@ if (!class_exists("SyndicatePressPlugin")) {
             'articleBodyHTMLCodePost' => '</div><br>',
             'feedSeparationHTMLCode' => '<hr>',
             'addNoFollowTag' => 'true',
+            'userAgent' => 'TinyHttpClient',
+            'targetDirective' => '_blank',
             'openArticleInLightbox' => 'false',            
             'lightboxHTMLCode' => "<div id=\"lightbox-external\" class=\"lightbox_content\">\r\n".
 			                         "<a href=\"javascript:void(0)\" onclick=\"document.getElementById('lightbox-external').style.display='none';document.getElementById('body').style.display='none'\" title=\"click to close the lightbox\">X</a><br>\r\n".
@@ -263,7 +265,7 @@ if (!class_exists("SyndicatePressPlugin")) {
                                 
             $availableFeeds = explode("\n", $configOptions['feedUrlList']);
             
-            $content = '';            
+            $content = '<div id="sp-feedArea" class="sp-feeds">';            
        
             $enableOutputCache = $configOptions['enableOutputCache'];
             $pageFeedReference = implode(",", $bbCodeTagArray);
@@ -374,6 +376,7 @@ if (!class_exists("SyndicatePressPlugin")) {
                 $elapsedTime = $this->sp_getTotalProcessTime($startTime);
                 $content .= '<br><font size=-4>Processed request in '.$elapsedTime.' seconds.</font><br>';
             }
+	    $content .= '</div>';
             return $content;
         }
         
@@ -605,6 +608,7 @@ if (!class_exists("SyndicatePressPlugin")) {
                         //print "host: $host<br>post: $port<br>remoteFile: $remoteFile<br>fromEmail: $fromEmail<br>filename: $filename<br>";
                         $tinyHttpClient = new TinyHttpClient();    
                         //$tinyHttpClient->debug = true;
+                        $tinyHttpClient->userAgent = $this->sp_unescapeString($configOptions['userAgent']);
                         $retVal = $tinyHttpClient->getRemoteFile($host, $port, $remoteFile, $basicAuthUsernameColonPassword, $bufferSize, $mode, $fromEmail, $postData, $filename);
                         if(strpos($retVal, "HTTP-301_MOVED_TO:") !== false)
                         {
@@ -838,6 +842,7 @@ if (!class_exists("SyndicatePressPlugin")) {
                   $parser->timestampFormatString = $configOptions['timestampFormat'];
                   $parser->timestampFormatString = $this->sp_unescapeString($parser->timestampFormatString);
                 }
+		$parser->targetDirective = $this->sp_unescapeString($configOptions['targetDirective']);
                 $parser->customFeedName = $this->sp_getCustomFeednameForUrl($url);
                 if($parser->customFeedName == "")
                 {
@@ -1052,6 +1057,12 @@ if (!class_exists("SyndicatePressPlugin")) {
         }             
         if (isset($_POST['syndicatePressTimestampFormat'])) {
           $configOptions['timestampFormat'] = trim(mysql_real_escape_string($_POST['syndicatePressTimestampFormat']));
+        }             
+        if (isset($_POST['syndicatePressUserAgent'])) {
+          $configOptions['userAgent'] = trim(mysql_real_escape_string($_POST['syndicatePressUserAgent']));
+        }                
+        if (isset($_POST['syndicatePressTargetDirective'])) {
+          $configOptions['targetDirective'] = trim(mysql_real_escape_string($_POST['syndicatePressTargetDirective']));
         }             
         if (isset($_POST['syndicatePressUseDownloadClient'])) {
           $configOptions['useDownloadClient'] = $_POST['syndicatePressUseDownloadClient'];
@@ -1316,6 +1327,11 @@ if (!class_exists("SyndicatePressPlugin")) {
         Feed download mode:<br>
         <div style="padding-left: 20px;">
         <label for="syndicatePressUseDownloadClient_yes"><input type="radio" id="syndicatePressUseDownloadClient_yes" name="syndicatePressUseDownloadClient" value="true" <?php if ($configOptions['useDownloadClient'] == "true") { _e('checked="checked"', "SyndicatePressPlugin"); }?> /> Use download client.  <em>Recommended when the web host disables file_get_contents() functionality.</em></label><br>
+	<div style="padding-left: 40px;">
+	User Agent:<br>
+        <input name="syndicatePressUserAgent" size="100" value="<?php _e(apply_filters('format_to_edit',$configOptions['userAgent']), 'SyndicatePressPlugin') ?>"><br>
+        <i>If you are having trouble downloading feeds from a service, a different user agent string might help.  See <a href="http://www.user-agents.org/" target="_blank">http://www.user-agents.org/</a> for more information.</i>
+        </div>
         <label for="syndicatePressUseDownloadClient_no"><input type="radio" id="syndicatePressUseDownloadClient_no" name="syndicatePressUseDownloadClient" value="false" <?php if ($configOptions['useDownloadClient'] == "false") { _e('checked="checked"', "SyndicatePressPlugin"); }?>/> Use direct download.  <em>May not work on all web hosts.</em></label><br>
         </div>
         </div>
@@ -1364,7 +1380,10 @@ if (!class_exists("SyndicatePressPlugin")) {
         <div style="padding-left: 20px;">
         <label for="syndicatePressShowContentOnlyInLinkTitle_yes"><input type="radio" id="syndicatePressShowContentOnlyInLinkTitle_yes" name="syndicatePressShowContentOnlyInLinkTitle" value="true" <?php if ($configOptions['showContentOnlyInLinkTitle'] == "true") { _e('checked="checked"', "SyndicatePressPlugin"); }?> /> only when the viewer hovers over the item link.</label><br>
         <label for="syndicatePressShowContentOnlyInLinkTitle_no"><input type="radio" id="syndicatePressShowContentOnlyInLinkTitle_no" name="syndicatePressShowContentOnlyInLinkTitle" value="false" <?php if ($configOptions['showContentOnlyInLinkTitle'] == "false") { _e('checked="checked"', "SyndicatePressPlugin"); }?>/> below the item link.</label><br>
-        </div><br>&nbsp;<br>
+        </div><br>
+	<b><u>Link Target:</u></b> <input name="syndicatePressTargetDirective" size="50" value="<?php _e(apply_filters('format_to_edit',$configOptions['targetDirective']), 'SyndicatePressPlugin') ?>"><br>
+        <i>Set the target frame/window where the links will be opened.</i>
+        <br>&nbsp;<br>
         <b><u>Item publication timestamp:</u></b><br>
         <div style="padding-left: 20px;">
         <label for="syndicatePressshowArticlePublishTimestamp_yes"><input type="radio" id="syndicatePressshowArticlePublishTimestamp_yes" name="syndicatePressshowArticlePublishTimestamp" value="true" <?php if ($configOptions['showArticlePublishTimestamp'] == "true") { _e('checked="checked"', "SyndicatePressPlugin"); }?> /> Show timestamp.</label><br>
@@ -1517,7 +1536,22 @@ if (!class_exists("SyndicatePressPlugin")) {
         <i>replaceStringInTitle</i> - replace a string ith another string in the title of an article within the feeds of the given shortcode.
         <br>&nbsp;&nbsp;&nbsp;&nbsp; Format: replaceStringInTitle=strToReplace1:replacementstr1,strToReplace2:replacementstr2,etc...        
         </p>
-        </div>     
+        </div>   
+	<b><u>Validating a feed...</u></b>
+        <div style="padding-left: 20px;">
+        <p>
+        Syndicate Press tries to be as forgiving as possible when it comes to interpreting feeds, however, sometimes there are feeds that SP simply will not parse.<br>
+	The feed validator tool is a great resource for trying to figure out why a feed is not parsing.  Simply open the link below and paste in the rss/atom/rdf feed url into the tool.
+	<a href="http://feedvalidator.org/" target="_blank">http://feedvalidator.org/</a>
+        </p>
+        </div>
+	<b><u>Styling the Syndicate Press output...</u></b>
+        <div style="padding-left: 20px;">
+        <p>
+        The entire SP output (all feeds) is wrapped in a div using the class 'sp-feeds'<br>
+        All of the feed items (articles) is use the class 'sp-feed-item'
+        </p>
+        </div>
         <b><u>Inserting feed content into a Wordpress theme...</u></b>
         <div style="padding-left: 20px;">
         <p>

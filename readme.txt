@@ -3,8 +3,8 @@ Contributors: hranchFundi
 Donate link: http://syndicatepress.henryranch.net/donate/
 Tags: RSS,RDF,Atom,feed,syndicate,syndication,news,aggregator,aggregation,plugin,active,maintained,custom,widget,post,plugin,posts,admin,sidebar,theme,comments,images,twitter,page,google,links
 Requires at least: 2.8
-Tested up to: 3.8.1
-Stable tag: 1.0.30
+Tested up to: 3.9.1
+Stable tag: 1.0.31
 
 Syndicate Press lets you include RSS, RDF or Atom feeds directly in your Wordpress posts, pages, widgets or theme. 
 
@@ -46,6 +46,12 @@ http://syndicatepress.henryranch.net/feed-tests/feedburner-feeds/ <br>
 == Changelog ==
 
 http://syndicatepress.henryranch.net/documentation/changelog/
+
+v1.0.31: Several new (small) features
+- The link target can now be specified in the 'Disaply Formatting' tab on the SP Admin Panel.  Defaults to _blank
+- The download client user agent string can now be set in the 'Cache' tab on the SP Admin Panel.  This *may* help with downloading feeds from some hosts that might be blocking downloads from feed apps.
+- The SP output can now be styled using CSS classes: USe the class 'sp-feed-item' to style the feed articles.  Use class 'sp-feeds' to style the entire feed content div.
+- Added a link to an online RSS feed validator tool in the help tab.  this should help folks who are having trouble with SP reading a feed.  It will help determine if a feed reading issue is due to the feed being corrupt or an issue in SP.
 
 v1.0.30: Some fixes to the lightbox popup and html special character handling
 - Lightbox: Ensure it displays in the center of the page when the page is scrolled.  Also, fixed multiple vertical scroll bar issue in lightbox.

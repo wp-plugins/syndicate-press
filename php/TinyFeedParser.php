@@ -1,13 +1,13 @@
 <?php
 /*
 File: TinyFeedParser.php
-Date: 11/05/2013
-Version 1.9.14
+Date: 7/06/2014
+Version 1.9.15
 Author: HenryRanch LLC
 
 LICENSE:
 ============
-Copyright (c) 2009-2013, Henry Ranch LLC. All rights reserved. http://www.henryranch.net
+Copyright (c) 2009-2014, Henry Ranch LLC. All rights reserved. http://www.henryranch.net
 
 
 TinyFeedParser is governed by the following license and is not licensed for use outside of 
@@ -125,13 +125,15 @@ class TinyFeedParser
 
     var $numArticles = 0;
     
+    var $targetDirective = '_blank';
+    
     var $useCustomTimestampFormat = true;
     var $defaultTimestampFormatString = 'l F jS, Y h:i:s A';
     var $timestampFormatString = 'l F jS, Y h:i:s A';
     var $truncateTitleAtWord = '';
     var $replaceStringInTitle = '';
     var $openArticleInLightbox = false;
-    var $lightboxHTMLCode = '';//"\r\n<div id=\"lightbox-external\" class=\"lightbox_content\">\r\n<a href=\"javascript:void(0)\" onclick=\"document.getElementById('lightbox-external').style.display='none';document.getElementById('body').style.display='none'\" title=\"click to close the lightbox\">X</a><br>\r\n<iframe id=\"external-content-iframe\" name=\"external-content-iframe\" frameborder=0 width=\"100%\" height=\"100%\">Hello world!</iframe>\r\n</div><!-- end div lightbox-external-->\r\n";
+    var $lightboxHTMLCode = '';
 	
     function TinyFeedParser() 
     {
@@ -562,7 +564,7 @@ class TinyFeedParser
             $text = substr($text, 0, $length);
             if($urlLink != "" && $urlLink != 'NO_LINK')
             {
-                $text .= " <a href=\"$urlLink\" target=\"_blank\" title=\"Open article in a new window\"";				
+                $text .= " <a href=\"$urlLink\" target=\"".$this->targetDirective."\" title=\"Open article in a new window\"";				
                 if($this->addNoFollowTag == 'true')
                 {
                     $text .= ' rel="nofollow"';
@@ -708,7 +710,7 @@ class TinyFeedParser
                     continue;
                 }
             }
-            $html .= "\r\n<div id=\"itemDiv-feed-".$this->feedIndex.'-article-'.($currentArticleIndex-1)."\"><!-- Article GUID: ".$article->guid."-->\r\n";
+            $html .= "\r\n<div id=\"itemDiv-feed-".$this->feedIndex.'-article-'.($currentArticleIndex-1)."\" class=\"sp-feed-item\"><!-- Article GUID: ".$article->guid."-->\r\n";
             
             $html .= $headerHtmlPre;
 
@@ -737,7 +739,7 @@ class TinyFeedParser
             	{
               	 	$html .= ' rel="nofollow"';
             	}
-            	$html .= ' target=_blank>'.$article->title.'</a>';
+            	$html .= ' target='.$this->targetDirective.'>'.$article->title.'</a>';
  				}
 				$html .= $headerHtmlPost."\r\n";            
             
@@ -817,7 +819,7 @@ class TinyFeedParser
                 if($this->showComments && $article->comments != "")
                 {
                     $html = $this->addBrIfNeeded($html);
-                    $html .= "<a href=\"".$article->comments."\" target=_blank>View comments</a>\r\n";
+                    $html .= "<a href=\"".$article->comments."\" target=\"".$this->targetDirective."\">View comments</a>\r\n";
                 }
                 $html .= $this->articleBodyHTMLCodePost."\r\n";
             }
