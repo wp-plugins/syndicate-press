@@ -3,8 +3,8 @@ Contributors: hranchFundi
 Donate link: http://syndicatepress.henryranch.net/donate/
 Tags: RSS,RDF,Atom,feed,syndicate,syndication,news,aggregator,aggregation,plugin,active,maintained,custom,widget,post,plugin,posts,admin,sidebar,theme,comments,images,twitter,page,google,links
 Requires at least: 2.8
-Tested up to: 3.9.1
-Stable tag: 1.0.31
+Tested up to: 4.0.1
+Stable tag: 1.0.32
 
 Syndicate Press lets you include RSS, RDF or Atom feeds directly in your Wordpress posts, pages, widgets or theme. 
 
@@ -46,6 +46,17 @@ http://syndicatepress.henryranch.net/feed-tests/feedburner-feeds/ <br>
 == Changelog ==
 
 http://syndicatepress.henryranch.net/documentation/changelog/
+
+v1.0.32: Major update to support more robust feed downloads
+- The feed download feature has been updated to support:
+  - Redirects: will now follow (most) server redirects (the use of feed url redirects has grown recently)
+  - SSL: will now download encrypted feeds (facebook, twitter, etc...)
+    - In an effort to support as many feed publlishers as possible, Syndicate Press does not validate the authenticity of the SSL certificate, but rather accepts the certificate as provided by the feed url server. 
+  - Cookies: now supports cookies when the feed server attempts to perform a redirect that requires cookies
+  - The default feed download mode is still the same as 'download client' as prior versions
+    - It is highly recommended that users update their download settings to use the new Curl download mode
+    - In order to make use of the new features listed above, your php install must support Curl.
+  
 
 v1.0.31: Several new (small) features
 - The link target can now be specified in the 'Disaply Formatting' tab on the SP Admin Panel.  Defaults to _blank

@@ -4,7 +4,7 @@ Plugin Name: Syndicate Press
 Plugin URI: http://syndicatepress.henryranch.net/
 Description: This plugin provides a high performance, highly configurable and easy to use news syndication aggregator which supports RSS, RDF and ATOM feeds.
 Author: HenryRanch LLC (henryranch.net)
-Version: 1.0.31
+Version: 1.0.32
 Author URI: http://syndicatepress.henryranch.net/
 License: GPL2
 */
@@ -43,7 +43,7 @@ YOU MAY REQUEST A LICENSE TO DO SO FROM THE AUTHOR.
  TO ABIDE BY ALL OF THE TERMS OF THIS LICENSE AGREEMENT.
  
  
- Copyright 2009-2013  HenryRanch LLC  
+ Copyright 2009-2014  HenryRanch LLC  
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License, version 2, as 
@@ -63,7 +63,7 @@ YOU MAY REQUEST A LICENSE TO DO SO FROM THE AUTHOR.
 
 if (!class_exists("SyndicatePressPlugin")) {
   class SyndicatePressPlugin {
-        var $version = "1.0.31";
+        var $version = "1.0.32";
         var $homepageURL = "http://syndicatepress.henryranch.net/";
         
         var $cacheDir = "/cache";
@@ -572,6 +572,34 @@ if (!class_exists("SyndicatePressPlugin")) {
             }
         }
     
+        /* Get the feed content using the CURL library
+         * param $url - the url of the rss feed
+         * param $cookieFile - the file to use for the cookie if the server sets one during a redirect process
+         * return the feed content
+        **/
+        function getDataCurl($url, $cookieFile, $userAgent) {
+      	  $curl = curl_init();
+	        curl_setopt($curl, CURLOPT_URL, $url);
+	        //curl_setopt($curl, CURLOPT_REFERER, $url);
+	        curl_setopt($curl, CURLOPT_MAXREDIRS, 10);
+	        curl_setopt($curl, CURLOPT_HEADER, 0);
+          curl_setopt($curl, CURLOPT_AUTOREFERER, true ); 
+	        curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+	        curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, 120);
+	        curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true);
+          curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);	
+	        curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, false);
+	        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);	
+	        curl_setopt($curl, CURLOPT_COOKIESESSION, true );
+          curl_setopt($curl, CURLOPT_COOKIEJAR,  $cookieFile);
+          curl_setopt($curl, CURLOPT_COOKIEFILE, $cookieFile );
+          curl_setopt($curl, CURLOPT_USERAGENT, $userAgent); 
+          //curl_setopt($curl, CURLOPT_CUSTOMREQUEST, "POST");
+	        $data = curl_exec($curl);
+	        curl_close($curl);
+	        return $data;
+        }    
+    
         /* Cache the given rss feed if needed
          * Cache the contents of the given rss feed if it is not already cached. 
          * If already cached and the timeout period has expired, re-download the feed and cache it.
@@ -595,6 +623,8 @@ if (!class_exists("SyndicatePressPlugin")) {
                     include_once "php/TinyHttpClient.php";                    
                     if(class_exists("TinyHttpClient")) 
                     {                       
+                        $tinyHttpClient = new TinyHttpClient();    
+                        $tinyHttpClient->debug = false;
                         $host = $this->sp_getDomainFromUrl($url);
                         $port = 80;
                         $remoteFile = $this->sp_getFilePathFromUrl($url);
@@ -606,23 +636,20 @@ if (!class_exists("SyndicatePressPlugin")) {
                         $postData = "";
                         $filename = $cacheFile;
                         //print "host: $host<br>post: $port<br>remoteFile: $remoteFile<br>fromEmail: $fromEmail<br>filename: $filename<br>";
-                        $tinyHttpClient = new TinyHttpClient();    
-                        //$tinyHttpClient->debug = true;
                         $tinyHttpClient->userAgent = $this->sp_unescapeString($configOptions['userAgent']);
                         $retVal = $tinyHttpClient->getRemoteFile($host, $port, $remoteFile, $basicAuthUsernameColonPassword, $bufferSize, $mode, $fromEmail, $postData, $filename);
-                        if(strpos($retVal, "HTTP-301_MOVED_TO:") !== false)
-                        {
-                            //print "Received $retVal when requesting $remoteFile<br>";
-                            $remoteFile = str_replace("HTTP-301_MOVED_TO:", $retVal, "");
-                            $retVal = $tinyHttpClient->getRemoteFile($host, $port, $remoteFile, $basicAuthUsernameColonPassword, $bufferSize, $mode, $fromEmail, $postData, $filename);
-                        }
                         //print $retVal;
+                        if(strpos($retVal, "HTTP-30x_MOVED_TO") !== false)
+                        {
+                          print 'The server indicates that the URL has been redirected.  Try using the Curl download option on the Syndicate Press Admin Panel Cache tab.  After updating the settings, be sure to clear the input and output caches, then reload this page.<br>';
+                        }
+                        
                     }
                     else
                     {
                         print "<font color=red>ERROR: Could not locate TinyHttpClient class</font><br>";
                     }
-                }
+                }/*
                 else
                 {
                     //this approach is disabled on many php 5 based shared web hosts...
@@ -630,6 +657,11 @@ if (!class_exists("SyndicatePressPlugin")) {
                     { 
                         $this->sp_writeFile($cacheFile, $content);
                     } 
+                }*/
+                else 
+                {
+                   $content = $this->getDataCurl($url, $cacheFile.'ck', $this->sp_unescapeString($configOptions['userAgent']));
+                   $this->sp_writeFile($cacheFile, $content);
                 }
             } 
             if($this->stripCDataTags == 'true')
@@ -1324,15 +1356,16 @@ if (!class_exists("SyndicatePressPlugin")) {
         Cached feed expires after <input name="syndicatePressCacheTimeoutSeconds" size="10" value="<?php _e(apply_filters('format_to_edit',$configOptions['cacheTimeoutSeconds']), 'SyndicatePressPlugin') ?>"> seconds. (1 hour = 3600 seconds)<br>
         </div>
         <label for="syndicatePressEnableFeedCache_no"><input type="radio" id="syndicatePressEnableFeedCache_no" name="syndicatePressEnableFeedCache" value="false" <?php if ($configOptions['enableFeedCache'] == "false") { _e('checked="checked"', "SyndicatePressPlugin"); }?>/> Disable - Request the feed for every view of the Syndicate Press page.  <em>This is NOT recommended and may result in your server IP being banned by the publisher!</em></label><br>
-        Feed download mode:<br>
+        </div>
+        <br>&nbsp;<br>
+        <b><u>Feed download mode:</u></b><br>
         <div style="padding-left: 20px;">
-        <label for="syndicatePressUseDownloadClient_yes"><input type="radio" id="syndicatePressUseDownloadClient_yes" name="syndicatePressUseDownloadClient" value="true" <?php if ($configOptions['useDownloadClient'] == "true") { _e('checked="checked"', "SyndicatePressPlugin"); }?> /> Use download client.  <em>Recommended when the web host disables file_get_contents() functionality.</em></label><br>
-	<div style="padding-left: 40px;">
-	User Agent:<br>
+        <label for="syndicatePressUseDownloadClient_no"><input type="radio" id="syndicatePressUseDownloadClient_no" name="syndicatePressUseDownloadClient" value="false" <?php if ($configOptions['useDownloadClient'] == "false") { _e('checked="checked"', "SyndicatePressPlugin"); }?>/> Use Curl based download.  <em>This is now the recommended approach because it will follow (most) redirects, supports cookies and works with (many) SSL encrypted feeds.</em></label><br>
+        <label for="syndicatePressUseDownloadClient_yes"><input type="radio" id="syndicatePressUseDownloadClient_yes" name="syndicatePressUseDownloadClient" value="true" <?php if ($configOptions['useDownloadClient'] == "true") { _e('checked="checked"', "SyndicatePressPlugin"); }?> /> Use download client.  <em>Recommended when the web host disables curl functionality.</em></label><br>
+	      <div style="padding-left: 40px;">
+	      User Agent:<br>
         <input name="syndicatePressUserAgent" size="100" value="<?php _e(apply_filters('format_to_edit',$configOptions['userAgent']), 'SyndicatePressPlugin') ?>"><br>
         <i>If you are having trouble downloading feeds from a service, a different user agent string might help.  See <a href="http://www.user-agents.org/" target="_blank">http://www.user-agents.org/</a> for more information.</i>
-        </div>
-        <label for="syndicatePressUseDownloadClient_no"><input type="radio" id="syndicatePressUseDownloadClient_no" name="syndicatePressUseDownloadClient" value="false" <?php if ($configOptions['useDownloadClient'] == "false") { _e('checked="checked"', "SyndicatePressPlugin"); }?>/> Use direct download.  <em>May not work on all web hosts.</em></label><br>
         </div>
         </div>
         <br>&nbsp;<br>

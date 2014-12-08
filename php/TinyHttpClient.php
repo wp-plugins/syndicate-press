@@ -1,8 +1,8 @@
 <?php 
 /*
 File: TinyHttpClient.php
-Date: 7/6/2014
-Version 1.3.4
+Date: 12/5/2014
+Version 1.3.4.1
 Author: HenryRanch LLC
 
 LICENSE:
@@ -97,7 +97,7 @@ class TinyHttpClient
         $data . "\r\n";
         return $request;
     }
-
+    
    /*
         Create a POST request header for the given host and filename.  If authorization is required, then it must be the standard HTTP 1.0 Basic Authentication compliant string.
         @param $host  - the host name of the remote server
@@ -115,7 +115,9 @@ class TinyHttpClient
     function getRemoteFile($host, $port, $remoteFilename, $usernameColonPassword, $receiveBufferSize, $mode, $fromEmail, $postData, $localFilename) 
     {
         $fileData = "";
-
+        if($this->debug) {
+            print("getRemoteFile(): remoteFilename - '$remoteFilename' <br>");
+        }
         if($remoteFilename == "")
             $remoteFilename = "/";
 
@@ -175,9 +177,10 @@ class TinyHttpClient
                 "header is:<br>".$header."<br><br>".
                 "body is:<br>".$body."<br>";
         
-        if(strpos($header, "HTTP/1.1 301") !== false)
+        if((strpos($header, "HTTP/1.1 301") !== false) || (strpos($header, "HTTP/1.1 302") !== false))
         {
             //print "Header contains move message when requesting $remoteFile<br>";
+            //print "header is '$header'<br>";
             $headerArray = explode("\r\n", $header);
             $locationUrl = "not_found";
             $numElements = count($headerArray);
@@ -190,7 +193,7 @@ class TinyHttpClient
                     $locationUrl = $locationLine[1];
                 }
             }
-            return "HTTP-301_MOVED_TO:".$locationUrl;
+            return "HTTP-30x_MOVED_TO:".$locationUrl;
         }
         if($localFilename == "")
         {
