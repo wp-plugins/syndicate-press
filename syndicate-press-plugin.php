@@ -4,7 +4,7 @@ Plugin Name: Syndicate Press
 Plugin URI: http://syndicatepress.henryranch.net/
 Description: This plugin provides a high performance, highly configurable and easy to use news syndication aggregator which supports RSS, RDF and ATOM feeds.
 Author: HenryRanch LLC (henryranch.net)
-Version: 1.0.32
+Version: 1.0.33
 Author URI: http://syndicatepress.henryranch.net/
 License: GPL2
 */
@@ -27,20 +27,23 @@ OUTSIDE OF THE SYNDICATEPRESS WORDPRESS PLUGIN.  IF YOU WOULD LIKE
 TO USE A PORTION OF THE SYNDICATEPRESS PLUGIN IN YOUR OWN APPLICATION, 
 YOU MAY REQUEST A LICENSE TO DO SO FROM THE AUTHOR.
  
+ YOU AGREE THAT ANY INSTALLATION OR USE OF THIS SOFTWARE MEANS THAT 
+ YOU ACCEPT AND AGREE TO ABIDE BY ALL OF THE TERMS OF THIS LICENSE AGREEMENT.
+ 
  YOU AGREE THAT YOU WILL NOT USE THIS SOFTWARE TO ACCESS, DISPLAY
  OR AGGREGATE CONTENT IN A MANNER THAT VIOLATES THE COPYRIGHT, 
  INTELLECTUAL PROPERTY RIGHTS OR TRADEMARK OF ANY ENTITY.  
  
- THE AUTHOR AND HENRYRANCH LLC SHALL NOT BE LIABLE FOR ANY COPYRIGHT 
- INFRINGEMENT CLAIMS MADE THROUGH YOUR USE OF THIS SOFTWARE.  YOU 
- AGREE TO INDEMNIFY, PROTECT AND SHIELD THE AUTHOR AND HENRYRANCH LLC 
+ YOU AGREE THAT THE AUTHOR AND HENRYRANCH LLC SHALL NOT BE LIABLE FOR 
+ ANY COPYRIGHT INFRINGEMENT CLAIMS MADE THROUGH YOUR USE OF THIS SOFTWARE.  
+ YOU AGREE TO INDEMNIFY, PROTECT AND SHIELD THE AUTHOR AND HENRYRANCH LLC 
  FROM ALL LEGAL JUDGEMENTS, FEES,  COSTS AND/OR ANY ASSOCIATED FEES 
  THAT MAY RESULT OUT OF YOUR USE OF THIS SOFTWARE.  YOU AGREE THAT YOU 
  ARE SOLELY RESPONSIBLE FOR YOUR USE OF THIS  SOFTWARE AND SHALL 
  FOREVER HOLD THE AUTHOR AND HENRYRANCH LLC HARMLESS IN ALL MATTERS.
- 
- ANY INSTALLATION OR USE OF THIS SOFTWARE MEANS THAT YOU ACCEPT AND AGREE 
- TO ABIDE BY ALL OF THE TERMS OF THIS LICENSE AGREEMENT.
+ YOU AGREE THAT YOU SHALL PAY ANY AND ALL FEES RELATED TO YOUR USE OF
+ CONTENT THAT MAY BE REQUIRED FOR THE DISPLAY OF THAT CONTENT USING 
+ THIS SOFTWARE.
  
  
  Copyright 2009-2014  HenryRanch LLC  
@@ -63,7 +66,7 @@ YOU MAY REQUEST A LICENSE TO DO SO FROM THE AUTHOR.
 
 if (!class_exists("SyndicatePressPlugin")) {
   class SyndicatePressPlugin {
-        var $version = "1.0.32";
+        var $version = "1.0.33";
         var $homepageURL = "http://syndicatepress.henryranch.net/";
         
         var $cacheDir = "/cache";
@@ -1049,6 +1052,18 @@ if (!class_exists("SyndicatePressPlugin")) {
             }
         }
         
+        function sp_mysqlEscape($stringToEscape) 
+        {
+          //print 'PHP version: '.phpversion().'<br>';
+          if(version_compare(phpversion(), '5.5', '<'))
+          {
+            return trim(mysql_real_escape_string($stringToEscape));
+          } else 
+          {
+             return trim(esc_sql($stringToEscape));
+          }
+        }        
+            
     /* Display the plugin admin page
          * @package WordPress
          * @since version 2.8.4
@@ -1064,7 +1079,7 @@ if (!class_exists("SyndicatePressPlugin")) {
             
 
         if (isset($_POST['syndicatePressCustomCacheDirectory'])) {
-          $configOptions['customCacheDirectory'] = trim(mysql_real_escape_string($_POST['syndicatePressCustomCacheDirectory']));
+          $configOptions['customCacheDirectory'] = $this->sp_mysqlEscape($_POST['syndicatePressCustomCacheDirectory']);
         }             
         if (isset($_POST['syndicatePressEnableFeedCache'])) {
           $configOptions['enableFeedCache'] = $_POST['syndicatePressEnableFeedCache'];
@@ -1088,13 +1103,13 @@ if (!class_exists("SyndicatePressPlugin")) {
           $configOptions['maxHeadlineLength'] = $_POST['syndicatePressMaxHeadlineLength'];
         }             
         if (isset($_POST['syndicatePressTimestampFormat'])) {
-          $configOptions['timestampFormat'] = trim(mysql_real_escape_string($_POST['syndicatePressTimestampFormat']));
+          $configOptions['timestampFormat'] = $this->sp_mysqlEscape($_POST['syndicatePressTimestampFormat']);
         }             
         if (isset($_POST['syndicatePressUserAgent'])) {
-          $configOptions['userAgent'] = trim(mysql_real_escape_string($_POST['syndicatePressUserAgent']));
+          $configOptions['userAgent'] = $this->sp_mysqlEscape($_POST['syndicatePressUserAgent']);
         }                
         if (isset($_POST['syndicatePressTargetDirective'])) {
-          $configOptions['targetDirective'] = trim(mysql_real_escape_string($_POST['syndicatePressTargetDirective']));
+          $configOptions['targetDirective'] = $this->sp_mysqlEscape($_POST['syndicatePressTargetDirective']);
         }             
         if (isset($_POST['syndicatePressUseDownloadClient'])) {
           $configOptions['useDownloadClient'] = $_POST['syndicatePressUseDownloadClient'];
@@ -1314,7 +1329,7 @@ if (!class_exists("SyndicatePressPlugin")) {
      </div>
      <div class="tabbertab">
         <h2>RSS Feeds</h2>
-        <b>IMPORTANT: As the site admin, you are fully responsible for adhering to all of the Copyright and Terms of Use restrictions for each feed that you syndicate.  You should check with the feed publisher to verify that you can legally syndicate their feed on your website.</b><br><br>
+        <b><font color="red"><u>IMPORTANT:</u> As the site admin, you are fully responsible for adhering to all of the Copyright and Terms of Use restrictions for each feed that you syndicate.<br>You should check with the feed publisher to verify that you can legally syndicate their feed on your website.<br><br><u>WARNING:</u>  Some countries or jurisdictions may REQUIRE that YOU as the admin, user or re-publisher of a feed MUST PAY for your use of a feed that originates in that country or jurisdiction.  If you re-publish a feed from a country, jurisdiction or publisher that requires payment for re-publication (syndication) of their feed, then YOU ALONE ARE RESPONSIBLE TO PAY THE FEE OR TAX.  By INSTALLING, ACCESSING or USING this plugin, you agree to pay any and all fees or taxes required by any country, jurisdication, publisher or copyright owner of any feed that you re-publish using this plugin.</font></b><br><br>
         <b><u>List each RSS feed on a single line</u></b>
         <div style="padding-left: 20px;">
         Enter a feed URL on each line<br>
@@ -1600,16 +1615,30 @@ if (!class_exists("SyndicatePressPlugin")) {
         </div>
         <b><u>Credits</u></b>
         <div style="padding-left: 20px;">
-        Syndicate Press is designed, developed, published and maintained by HenryRanchLLC.  No warranties of any kind are made or implied regarding the operation of Syndicate Press.  
-        The Syndicate Press Wordpress plugin file is licensed to you under the GPL2.0.  Other files included within the Syndicate Press plugin package are licensed according to the license described in those files.<br><br>
-        Admin panel tab library provided by <a href="http://www.barelyfitz.com/projects/tabber/" target=_blank>tabber</a>
-        </div><br><br>
+        <p>
+        Syndicate Press is designed, developed, published and maintained by HenryRanchLLC.<br>Admin panel tab library provided by <a href="http://www.barelyfitz.com/projects/tabber/" target=_blank>tabber</a>
+        </p>
+        </div>
+        <b><u>No Warranty</u></b>
+        <div style="padding-left: 20px;">
+        <p>
+        No warranties of any kind are made or implied regarding the operation of Syndicate Press.  USE THIS PLUGIN AT YOUR OWN RISK.  You accept ALL LIABILITY for use of this plugin.
+        </p>
+        </div>              
+        <b><u>License</u></b>
+        <div style="padding-left: 20px;">
+        <p>
+        The Syndicate Press Wordpress plugin file is licensed to you under the GPL2.0 and other licenses.  Other files included within the Syndicate Press plugin package are licensed according to the license described in those files.<br><br>
+        </p>
+        </div>        
+        <br><br>
         <p>
         <a href="<?php echo $this->homepageURL; ?>" target=_blank title="Click for the Syndicate Press homepage...">More Help and documentation...</a><br>
         </p>
      </div>         
      <div class="tabbertab">
         <h2>Support</h2>
+        <b>Your servers PHP version is: <?php echo phpversion(); ?></b><br><br>
         <b><u>Usage Help</u></b>
         <p style="padding-left: 20px;">
         For simple usage instructions, see the Help tab.

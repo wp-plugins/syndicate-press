@@ -4,7 +4,7 @@ Donate link: http://syndicatepress.henryranch.net/donate/
 Tags: RSS,RDF,Atom,feed,syndicate,syndication,news,aggregator,aggregation,plugin,active,maintained,custom,widget,post,plugin,posts,admin,sidebar,theme,comments,images,twitter,page,google,links
 Requires at least: 2.8
 Tested up to: 4.0.1
-Stable tag: 1.0.32
+Stable tag: 1.0.33
 
 Syndicate Press lets you include RSS, RDF or Atom feeds directly in your Wordpress posts, pages, widgets or theme. 
 
@@ -46,6 +46,14 @@ http://syndicatepress.henryranch.net/feed-tests/feedburner-feeds/ <br>
 == Changelog ==
 
 http://syndicatepress.henryranch.net/documentation/changelog/
+
+v1.0.33: PHP 5.5 + Wordpress Mysql escape string fix, help updates, and license update
+- Fixed an incompatibility issue with PHP 5.5 and Wordpress when using the mysql string escape methods
+- Added a message in the support tab which indicates the PHP version of the server.  This should help with debugging.
+- Updated the help tab with license, no warranty and credits headings
+- Added a separate license file
+- Added a notification in the RSS Feeds tab reminding site owners/admins/editors who use this plugin that some countries are now taxing for the republishing of syndicated content.  
+  - The site owners/admins/editors who use this plugin are responsible to pay any fees or taxes arising out of their re-publishing of content from a feed.  
 
 v1.0.32: Major update to support more robust feed downloads
 - The feed download feature has been updated to support:
