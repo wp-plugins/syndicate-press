@@ -4,7 +4,7 @@ Plugin Name: Syndicate Press
 Plugin URI: http://syndicatepress.henryranch.net/
 Description: This plugin provides a high performance, highly configurable and easy to use news syndication aggregator which supports RSS, RDF and ATOM feeds.
 Author: HenryRanch LLC (henryranch.net)
-Version: 1.0.33
+Version: 1.0.33.1
 Author URI: http://syndicatepress.henryranch.net/
 License: GPL2
 */
@@ -13,7 +13,7 @@ License: GPL2
 
 LICENSE:
 ============
-Copyright (c) 2009-2014 Henry Ranch LLC. All rights reserved. http://syndicatepress.henryranch.net/
+Copyright (c) 2009-2015 Henry Ranch LLC. All rights reserved. http://syndicatepress.henryranch.net/
 
 By downloading or using this software,  you agree to all the following: 
 
@@ -66,7 +66,7 @@ YOU MAY REQUEST A LICENSE TO DO SO FROM THE AUTHOR.
 
 if (!class_exists("SyndicatePressPlugin")) {
   class SyndicatePressPlugin {
-        var $version = "1.0.33";
+        var $version = "1.0.33.1";
         var $homepageURL = "http://syndicatepress.henryranch.net/";
         
         var $cacheDir = "/cache";
@@ -1713,22 +1713,6 @@ function toggle(elementId) {
     <img alt="" border="0" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1">
     </form>
     <br>Donations are securely processed by Paypal.<br>
-        </p>
-        <p>
-        <b><u>Other ways to support this plugin</u></b>
-        <p>
-        In addition to direct donations, you can also support Syndicate Press by following one of the Amazon book links below and buying a book.
-        </p>
-        <br>&nbsp<br>
-        <table style="margin-left: auto; margin-right: auto">
-        <tr>
-        <td style="padding: 10px;"><iframe src="http://rcm.amazon.com/e/cm?t=henrantecandl-20&o=1&p=8&l=as1&asins=0470592745&ref=qf_sp_asin_til&fc1=000000&IS2=1&lt1=_blank&m=amazon&lc1=0000FF&bc1=000000&bg1=FFFFFF&f=ifr" style="width:120px;height:240px;" scrolling="no" marginwidth="0" marginheight="0" frameborder="0"></iframe></td>
-        <td style="padding: 10px;"><iframe src="http://rcm.amazon.com/e/cm?t=henrantecandl-20&o=1&p=8&l=as1&asins=0470937815&ref=qf_sp_asin_til&fc1=000000&IS2=1&lt1=_blank&m=amazon&lc1=0000FF&bc1=000000&bg1=FFFFFF&f=ifr" style="width:120px;height:240px;" scrolling="no" marginwidth="0" marginheight="0" frameborder="0"></iframe></td>
-        <td style="padding: 10px;"><iframe src="http://rcm.amazon.com/e/cm?t=henrantecandl-20&o=1&p=8&l=as1&asins=0470560541&ref=qf_sp_asin_til&fc1=000000&IS2=1&lt1=_blank&m=amazon&lc1=0000FF&bc1=000000&bg1=FFFFFF&f=ifr" style="width:120px;height:240px;" scrolling="no" marginwidth="0" marginheight="0" frameborder="0"></iframe></td>
-        <td style="padding: 10px;"><iframe src="http://rcm.amazon.com/e/cm?t=henrantecandl-20&o=1&p=8&l=as1&asins=1849514100&ref=qf_sp_asin_til&fc1=000000&IS2=1&lt1=_blank&m=amazon&lc1=0000FF&bc1=000000&bg1=FFFFFF&f=ifr" style="width:120px;height:240px;" scrolling="no" marginwidth="0" marginheight="0" frameborder="0"></iframe></td>
-        </tr>
-        <tr><td colspan="6"><font size=-12>Syndicate Press Plugin is a participant in the Amazon Services LLC Associates Program, an affiliate advertising program designed to provide a means for sites to earn advertising fees by advertising and linking to amazon.com.</font></td></tr>
-        </table>
         </p>
         <td width="30%" style="vertical-align: top;">
         <div style='background: #ffc; border: 1px solid #333; margin: 2px; padding: 5px'>
